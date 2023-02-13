@@ -6,63 +6,80 @@ HEIGHT = 720
 FPS = 60
 TILESIZE = 64
 
+class SpriteSheet(): #should reimplement this using sprite.Sprite
+	def __init__(self, image):
+		self.sheet = image
 
+	def get_image(self, frame, width, height, scale, colour):
+		image = pg.Surface((width, height)).convert_alpha()
+		image.blit(self.sheet, (0, 0), ((frame * width), 0, width, height))
+		image = pg.transform.scale(image, (width * scale, height * scale))
+		image.set_colorkey(colour)
+
+		return image
 
 class Player(pg.sprite.Sprite):
-    run = False
     walking_speed = 3 
     running_speed = 5
     direction = pg.math.Vector2()
+    motion = {"up": False, "right": False, "down": False, "left": False, "run": False}
     def __init__(self, pos, group, collision_sprites):
         super().__init__(group) #adds this sprite to all sprite groups in groups
-        self.image = pg.image.load('./adventurer_idle.png').convert_alpha()
+        self.image = idle_granny
         self.image = pg.transform.scale(self.image, (64, 64))
         self.rect = self.image.get_rect(topleft = pos)
          
         self.collision_sprites = collision_sprites
 
     def controller_input(self, event):
-        #controller
         if event.type == JOYHATMOTION:
             self.direction.x = event.value[0]
             self.direction.y = -event.value[1]
         elif event.type == JOYBUTTONDOWN:
             if event.button == 5:
-                self.run = True
+                self.motion['run'] = True
         elif event.type == JOYBUTTONUP:
             if event.button == 5:
-                self.run = False
+                self.motion['run'] = False
 
+    def apply_input(self):
+        if self.motion['up'] and not self.motion['down']:
+            self.direction.y = -1
+        elif not self.motion['up'] and self.motion['down']:
+            self.direction.y = 1
+        else:
+            self.direction.y = 0
 
-    #This way of taking input causes weird behavior when you release two keys that have been pressed
-    #simultaneously, it makes the character wiggle when it should not
-    #It's very minimal but we may need to fix it (it happens in diagonal movements)
-    #To clearly see it press left then right, and then release at the same time
-    
+        if self.motion['right'] and not self.motion['left']:
+            self.direction.x = 1
+        elif not self.motion['right'] and self.motion['left']:
+            self.direction.x = -1
+        else:
+            self.direction.x = 0
+
     #I prefer to check for the events rather than using key.get_pressed()
     #with key.get_pressed lose precision on the order of key activations
-    def input(self, event, incr): 
-        #keyboard
+    def input(self, event, indicator):  #keyboard input
         if event.key == K_UP or event.key == K_w:
-            self.direction.y += -incr
+            self.motion['up'] = indicator
         if event.key == K_DOWN or event.key == K_s:
-            self.direction.y += incr
-
+            self.motion['down'] = indicator
         if event.key == K_RIGHT or event.key == K_d:
-            self.direction.x += incr
+            self.motion['right'] = indicator
         if event.key == K_LEFT or event.key == K_a:
-            self.direction.x -= incr
+            self.motion['left'] = indicator
 
         if event.key == K_LSHIFT:
-            self.run = (incr > 0) #to get true if keydown or false if keyup
+            self.motion['run'] = indicator
 
+        self.apply_input()
 
     def move(self):
         move = self.direction
         if self.direction.magnitude() != 0:
             move = self.direction.normalize()
         
-        if self.run:
+        if self.motion['run']:
             self.rect.x += move.x * self.running_speed
             self.collision('horizontal')
             self.rect.y += move.y * self.running_speed
@@ -123,9 +140,9 @@ class Level:
             if event.type == QUIT:
                 return False
             elif event.type == KEYDOWN:
-                self.player.input(event, 1)
+                self.player.input(event, True)
             elif event.type == KEYUP:
-                self.player.input(event, -1)
+                self.player.input(event, False)
             else:
                 self.player.controller_input(event)
     
@@ -148,6 +165,12 @@ joysticks = [pg.joystick.Joystick(i) for i in range(pg.joystick.get_count())]
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 clock = pg.time.Clock()
 run = True
+
+
+grandma_spritesheet = SpriteSheet(pg.image.load("../sprites/grandmother/front.png"))
+sprite_w, sprite_h = 16, 32 
+idle_granny = grandma_spritesheet.get_image(0, sprite_w, sprite_h, 5, (0,0,0))
+
 
 level = Level()
 level.create_map()
