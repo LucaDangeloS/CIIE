@@ -6,7 +6,7 @@ import numpy as np
 def generate_random_int(min, max):
     return random.randint(min, max)
 
-def generate_pnoise(x, y, resolution=0.03):
+def generate_pnoise(x, y, resolution=0.05):
     seed = random.randint(5000, 10000)  # Add a random component to the seed value
     noise_gen = SimplexNoise(period=seed, randint_function=generate_random_int)
     # Create a 2D noise map with the given dimensions
