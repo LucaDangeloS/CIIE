@@ -5,7 +5,6 @@ WIDTH =  1280
 HEIGHT = 720
 FPS = 60
 TILESIZE = 64
-
 class SpriteSheet(): #should reimplement this using sprite.Sprite
 	def __init__(self, image):
 		self.sheet = image
@@ -19,22 +18,45 @@ class SpriteSheet(): #should reimplement this using sprite.Sprite
 		return image
 
 class Player(pg.sprite.Sprite):
-    walking_speed = 3 
-    running_speed = 5
+    animation_idx = 0
+    walking_speed = 4 
+    running_speed = 6 
     direction = pg.math.Vector2()
     motion = {"up": False, "right": False, "down": False, "left": False, "run": False}
     def __init__(self, pos, group, collision_sprites):
         super().__init__(group) #adds this sprite to all sprite groups in groups
-        self.image = idle_granny
-        self.image = pg.transform.scale(self.image, (64, 64))
+        self.image = front_granny[0]
         self.rect = self.image.get_rect(topleft = pos)
          
         self.collision_sprites = collision_sprites
 
     def controller_input(self, event):
         if event.type == JOYHATMOTION:
-            self.direction.x = event.value[0]
-            self.direction.y = -event.value[1]
+            print("0: ", event.value[0])
+            print("1: ", event.value[1])
+            if event.value[0] == 1:
+                self.motion['right'] = True
+                self.motion['left'] = False
+            elif event.value[0] == -1:
+                self.motion['left'] = True
+                self.motion['right'] = False
+            elif event.value[0] == 0:
+                self.motion['left'] = False
+                self.motion['right'] = False
+
+            if event.value[1] == 1:
+                self.motion['down'] = False
+                self.motion['up'] = True
+            elif event.value[1] == -1:
+                self.motion['up'] = False
+                self.motion['down'] = True
+            elif event.value[1] == 0:
+                self.motion['down'] = False
+                self.motion['up'] = False
+
+
+            #self.direction.x = event.value[0]
+            #self.direction.y = -event.value[1]
         elif event.type == JOYBUTTONDOWN:
             if event.button == 5:
                 self.motion['run'] = True
@@ -42,24 +64,35 @@ class Player(pg.sprite.Sprite):
             if event.button == 5:
                 self.motion['run'] = False
 
+        self.apply_input()
+
     def apply_input(self):
         if self.motion['up'] and not self.motion['down']:
+            self.image = back_granny[self.animation_idx]
             self.direction.y = -1
         elif not self.motion['up'] and self.motion['down']:
+            self.image = front_granny[self.animation_idx]
             self.direction.y = 1
         else:
+            self.image = front_granny[self.animation_idx]
             self.direction.y = 0
 
         if self.motion['right'] and not self.motion['left']:
+            self.image = right_granny[self.animation_idx]
             self.direction.x = 1
         elif not self.motion['right'] and self.motion['left']:
+            self.image = left_granny[self.animation_idx]
             self.direction.x = -1
         else:
             self.direction.x = 0
 
     #I prefer to check for the events rather than using key.get_pressed()
     #with key.get_pressed lose precision on the order of key activations
-    def input(self, event, indicator):  #keyboard input
+    def input(self, event, indicator, index):  #keyboard input
+        self.animation_idx = index
+        if event == None:
+            self.apply_input()
+            return
         if event.key == K_UP or event.key == K_w:
             self.motion['up'] = indicator
         if event.key == K_DOWN or event.key == K_s:
@@ -78,7 +111,8 @@ class Player(pg.sprite.Sprite):
         move = self.direction
         if self.direction.magnitude() != 0:
             move = self.direction.normalize()
-        
+            self.animation_idx = (self.animation_idx+1)%4
+
         if self.motion['run']:
             self.rect.x += move.x * self.running_speed
             self.collision('horizontal')
@@ -111,7 +145,6 @@ class Player(pg.sprite.Sprite):
 
 
 
-
 class Tile(pg.sprite.Sprite): #example of a game asset
     def __init__(self, pos, groups):
         super().__init__(groups)
@@ -119,9 +152,9 @@ class Tile(pg.sprite.Sprite): #example of a game asset
         self.rect = self.image.get_rect(topleft=pos)
 
 
-
-
 class Level:
+    counter = 0
+    index = 0
     def __init__(self):
          #with this we can get the display surface from any point in the class
         self.display_surface = pg.display.get_surface()
@@ -136,16 +169,20 @@ class Level:
         Tile((200,200), [self.visible_sprites, self.collision_sprites]) 
     
     def run(self):
+        self.counter += 1
         for event in pg.event.get():
             if event.type == QUIT:
                 return False
             elif event.type == KEYDOWN:
-                self.player.input(event, True)
+                self.player.input(event, True, self.index)
             elif event.type == KEYUP:
-                self.player.input(event, False)
+                self.player.input(event, False, self.index)
             else:
                 self.player.controller_input(event)
-    
+        if self.counter == 30:
+            self.counter = 0
+            self.index = (self.index+1) % 4
+            self.player.input(None, True, self.index)
 
         self.visible_sprites.draw(self.display_surface)
         self.visible_sprites.update()
@@ -167,10 +204,19 @@ clock = pg.time.Clock()
 run = True
 
 
-grandma_spritesheet = SpriteSheet(pg.image.load("../sprites/grandmother/front.png"))
-sprite_w, sprite_h = 16, 32 
-idle_granny = grandma_spritesheet.get_image(0, sprite_w, sprite_h, 5, (0,0,0))
+front_grandma_spritesheet = SpriteSheet(pg.image.load("../sprites/grandmother/front.png"))
+back_grandma_spritesheet = SpriteSheet(pg.image.load("../sprites/grandmother/back.png"))
+left_grandma_spritesheet = SpriteSheet(pg.image.load("../sprites/grandmother/left.png"))
+right_grandma_spritesheet = SpriteSheet(pg.image.load("../sprites/grandmother/right.png"))
 
+sprite_w, sprite_h = 16, 32
+front_granny, back_granny, left_granny, right_granny = [], [], [], []
+
+for i in range(4):
+    front_granny.append(front_grandma_spritesheet.get_image(i, sprite_w, sprite_h, 8, (0,0,0)))
+    back_granny.append(back_grandma_spritesheet.get_image(i, sprite_w, sprite_h, 8, (0,0,0)))
+    left_granny.append(left_grandma_spritesheet.get_image(i, sprite_w, sprite_h, 8, (0,0,0)))
+    right_granny.append(right_grandma_spritesheet.get_image(i, sprite_w, sprite_h, 8, (0,0,0)))
 
 level = Level()
 level.create_map()
@@ -181,7 +227,7 @@ while run:
     run = level.run()
 
     pg.display.update()
-    clock.tick(FPS)
+    clock.tick(FPS) #Still need to use this to make FPS independent
 
 
 
