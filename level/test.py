@@ -1,18 +1,21 @@
 import itertools
 import pygame
 import numpy as np
-from structures import position_spawn
+from utils import get_chunks
+# from utils import largest_rectangle
+from structures import position_spawn, generate_main_structures
 from pnoise import generate_pnoise
-from dijkstra import dijkstra_map
 import os
 from tiles import Tile, TileEnum
 
 
 # Set the window size and title
 os.environ['SDL_VIDEO_CENTERED'] = '1'
-tile_size = (2, 2)
+tile_size = (4, 4)
 # size = (64, 40)
-size = (256, 160)
+divisions = 10
+chunks = (15, 15)
+size = (divisions * chunks[0], divisions * chunks[1])
 width, height = size[1], size[0]
 
 # Initialize Pygame
@@ -61,7 +64,7 @@ def display_pixel_map(map):
 #################################
 # A* usando pesos que favorezcan andar por los edges de dijkstra
 # Main
-spawn_radius = 16
+spawn_radius = 2
 first = True
 
 while True:
@@ -72,19 +75,20 @@ while True:
             quit()
     # R to regenerate
     if pygame.key.get_pressed()[pygame.K_r] or first:
-        grid = generate_pnoise(*size, resolution=0.05)
+        grid = generate_pnoise(*size, resolution=0.02)
         grid = np.interp(grid, (grid.min(), grid.max()), (0, 1))
         grid = np.array([[get_tile(grid[i][j]) for j in range(grid.shape[1])] for i in range(grid.shape[0])])
-        grid, _ = position_spawn(grid, spawn_radius, TileEnum.UNKNOWN, TileEnum.SPAWN)
-        map, regions, edges = dijkstra_map(grid, TileEnum.UNKNOWN, 10)
-        print(grid.shape)
-        # color every region with a different color
-        for coord in edges:
-            print(coord)
-            grid[coord] = TileEnum.SEED
-        # for i, j in itertools.product(range(grid.shape[0]), range(grid.shape[1])):
-        #     if dijkstra_map[i][j] == 0:
-        #         grid[i][j] = TileEnum.SEED
+        grid, spawn_point = position_spawn(grid, spawn_radius, TileEnum.UNKNOWN, TileEnum.SPAWN)
+        # draw chunk lines
+        # for i, j in itertools.product(range(0, size[0], divisions), range(0, size[1], divisions)):
+        #     grid[0:i, j] = TileEnum.GRASS
+        #     grid[i, 0:j] = TileEnum.GRASS
+        chunks = get_chunks(grid, divisions)
+        structs = generate_main_structures(grid, spawn_point, chunks)
+        # display the struct chunks
+        for struct in structs:
+            for tile in struct:
+                grid[tile[0], tile[1]] = TileEnum.GRASS
         first = False
         display_pixel_map(grid)
     # Q to quit
