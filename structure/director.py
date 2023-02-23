@@ -2,6 +2,7 @@ import pygame as pg
 from pygame.locals import *
 from settings import *
 from scene import SceneInterface
+from controller import KeyboardController
 
 # probably need to rework this class structure
 class Audio:
@@ -27,6 +28,7 @@ class Director(object):
     screen = pg.display.set_mode(DEFAULT_SCREEN_SIZE, flags=RESIZABLE)
     clock = pg.time.Clock()
     audio_controller = Audio()
+    controller = KeyboardController()
     #pile drawable scenes so it's easier to deal with translucid drawings
     scene_stack = [] #it should start with the main menu 
     def __new__(cls):
@@ -51,7 +53,7 @@ class Director(object):
                 if event.type == QUIT: 
                     return
             #access the scene on top
-            self.scene_stack[-1].events(event_list)
+            self.scene_stack[-1].handle_events(event_list)
             self.scene_stack[-1].update()
             self.scene_stack[-1].draw(self.screen)
             pg.display.update()

@@ -1,4 +1,6 @@
 import abc
+import pygame as pg
+
 
 class SceneInterface(metaclass=abc.ABCMeta):
     @classmethod
@@ -14,12 +16,12 @@ class SceneInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def events(self, event_list):
+    def handle_events(self, event_list: list[pg.event]):
         """Description"""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def draw(self, display):
+    def draw(self, screen: pg.display):
         """Description"""
         raise NotImplementedError
 

@@ -15,8 +15,8 @@ class Button():
         if self.callback is not None:
             self.callback()
 
-    def draw(self, display):
-        pg.draw.rect(display, (255,0,0), self.rect) 
+    def draw(self, screen):
+        pg.draw.rect(screen, (255,0,0), self.rect) 
         #we don't have images for the buttons yet
         #display.blit(self.image, self.rect) 
    
@@ -34,7 +34,7 @@ class Menu(SceneInterface):
     def update(self): #if we want to add any animations...
         pass
     
-    def events(self, event_list):
+    def handle_events(self, event_list):
      for event in event_list:
             if event.type == MOUSEBUTTONDOWN:
                 self.clicked_button = None #reset the previous pressdown
@@ -47,10 +47,10 @@ class Menu(SceneInterface):
                         if button == self.clicked_button:
                             button.run_callback()
 
-    def draw(self, display):
-        display.blit(self.background_img, self.background_rect)
+    def draw(self, screen):
+        screen.blit(self.background_img, self.background_rect)
         for button in self.buttons:
-            button.draw(display)
+            button.draw(screen)
 
 
 """
