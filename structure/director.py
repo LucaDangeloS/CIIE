@@ -29,8 +29,7 @@ class Director(object):
     clock = pg.time.Clock()
     audio_controller = Audio()
     controller = KeyboardController()
-    #pile drawable scenes so it's easier to deal with translucid drawings
-    scene_stack = [] #it should start with the main menu 
+    scene_stack = []
     def __new__(cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(Director, cls).__new__(cls)
@@ -63,6 +62,7 @@ class Director(object):
 
     def pop_scene(self):
         #close the current execution
+        
         #pop from the stack
         self.scene_stack.pop()
 

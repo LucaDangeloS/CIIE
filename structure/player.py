@@ -102,11 +102,11 @@ class Player(pg.sprite.Sprite):
         self.rect = pg.Rect(40,40,50,50)
 
     def apply_input(self):
-        #faster than using ifs
+        #faster than using ifs (probably)
         self.direction.y = self.dir_dict[ (self.motion['up'], self.motion['down']) ]
         self.direction.x = self.dir_dict[ (self.motion['left'], self.motion['right']) ]
 
-    def handle_input(self, inputs: list[tuple[bool,str]]): #tuple[keydown?, event_with_controller_encoding]
+    def handle_input(self, inputs: list[tuple[bool,str]]): #bool for keydown ? keyup
         for (keydown, action) in inputs:
             self.motion[action] = keydown
 
@@ -117,7 +117,7 @@ class Player(pg.sprite.Sprite):
 
     def move(self):
         move = self.direction
-        if self.direction.magnitude() != 0: #buggy: going top left is faster
+        if self.direction.magnitude() != 0: #buggy: going top left seems faster
             move = self.direction.normalize()
 
         if self.motion['run']:
@@ -133,8 +133,7 @@ class Player(pg.sprite.Sprite):
 
     def collision(self, direction): #may need to change this style
         if direction == 'horizontal':
-            # can this be optimized?
-            for sprite in self.collision_sprites: 
+            for sprite in self.collision_sprites: #optimize this?
                 if sprite.rect.colliderect(self.rect):
                     if self.direction.x > 0: #right
                         self.rect.right = sprite.rect.left
@@ -143,9 +142,9 @@ class Player(pg.sprite.Sprite):
         elif direction == 'vertical':
             for sprite in self.collision_sprites: 
                 if sprite.rect.colliderect(self.rect):
-                    if self.direction.y > 0: #right
+                    if self.direction.y > 0:
                         self.rect.bottom = sprite.rect.top
-                    if self.direction.y < 0: #left
+                    if self.direction.y < 0:
                         self.rect.top = sprite.rect.bottom
 
     def draw(self, screen: pg.display):

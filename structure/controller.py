@@ -38,7 +38,6 @@ class KeyboardController(ControllerInterface):
             if event.type == KEYDOWN or event.type == KEYUP: 
                 try:
                     action = self.key_dict[event.key]
-                    #this executes only when the previous line doesn't throw an error
                     action_list.append((event.type == KEYDOWN, action))
 
                     print('action ', action_list)

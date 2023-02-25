@@ -31,7 +31,7 @@ class Menu(SceneInterface):
         self.background_rect = self.background_img.get_rect(topleft = (0,0))
         self.buttons = buttons
 
-    def update(self): #if we want to add any animations...
+    def update(self): #if we want to add any animations to the menu...
         pass
     
     def handle_events(self, event_list):
