@@ -67,4 +67,67 @@ while run:
 pg.quit()
 """
 
+class JoystickController(ControllerInterface):
+    def __init__(self):
+        #looks like doing the init here doesn't work, seems a problem of scope.
+        pg.joystick.init()
+        self.joysticks = [pg.joystick.Joystick(i) for i in range(pg.joystick.get_count())]
+        #print("joys: ", joysticks)
+        self.hor_dict = {0: [(False, self._get_val(0)), (False, self._get_val(1))], 
+                1: [(False, self._get_val(0)), (True, self._get_val(1))],
+                -1: [(True, self._get_val(0)), (False, self._get_val(1))] }
+        self.ver_dict = {0: [(False, self._get_val(2)), (False, self._get_val(3))], 
+                1: [(False, self._get_val(2)), (True, self._get_val(3))],
+                -1: [(True, self._get_val(2)), (False, self._get_val(3))] }
+
+    def get_joy(self):
+        return self.joysticks
+ 
+    def _get_val(self, index: int): #just to avoid having this body repeated
+        return super(JoystickController, self).events[index]
+    
+    def get_input(self, event_list: list[pg.event]) -> list[tuple[bool, str]]:
+        action_list = []
+        for event in event_list:
+            if event.type == JOYAXISMOTION:
+                #there is a weird bug if you release the left joystick in a specific way
+                if event.axis == 0: #left joystick (horizontal)
+                    if event.value < 0:
+                        action_list.append((abs(event.value) > 0.5, 'left'))
+                    else:
+                        action_list.append((abs(event.value) > 0.5, 'right'))
+                elif event.axis == 1: #left joystick (vertical)
+                    if event.value < 0:
+                        action_list.append((abs(event.value) > 0.5, 'up'))
+                    else:
+                        action_list.append((abs(event.value) > 0.5, 'down'))            # event.axis == 2 => left-back trigger
+                """
+                if event.axis == 3: #right joystick (poorly designed, I know)
+                if event.axis == 4: #still right joystick
+                """ 
+            elif event.type == JOYHATMOTION: 
+                (x,y) = (event.value[0], -event.value[1]) #downwards -> positive y
+                for action in self.hor_dict[x]:
+                    action_list.append(action)
+                for action in self.ver_dict[y]:
+                    action_list.append(action)
+            elif event.type == JOYBUTTONDOWN or event.type == JOYBUTTONUP:
+                if event.button == 5:
+                    action_list.append((event.type == JOYBUTTONDOWN, self._get_val(4)))
+            """ 
+            if event.type == JOYBUTTONDOWN:
+                print(event)
+                if event.button == 0:
+                    print("You have pressed a")
+                if event.button == 1:
+                    print("You have pressed b")
+                if event.button == 2:
+                    print("You have pressed x")
+                if event.button == 3:
+                    print("You have pressed y")
+            """ 
+        return action_list 
+
+
+
 

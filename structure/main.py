@@ -3,7 +3,7 @@ from pygame.locals import *
 from settings import *
 from menu import Menu, Button
 from director import Director
-from controller import KeyboardController
+from controller import KeyboardController, JoystickController
 from level import Level
 
 
@@ -36,7 +36,11 @@ clock = pg.time.Clock()
 run = True
 
 director = Director()
-controller = KeyboardController()
+
+#controller = KeyboardController()
+controller = JoystickController()
+joysticks = controller.get_joy()
+
 myLevel = Level(controller)
 myLevel.get_map_representation(world_map)
 
