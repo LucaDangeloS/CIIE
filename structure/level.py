@@ -12,12 +12,42 @@ class Tile(pg.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect(topleft=pos)
 
+class CameraSpriteGroup(pg.sprite.Group):
+    def __init__(self):
+        super().__init__()
+        #is there a better way to get the size of the screen 
+        director = Director() 
+        self.half_width = director.screen.get_size()[0] // 2
+        self.half_height = director.screen.get_size()[1] // 2
+        
+
+        self.offset = pg.math.Vector2()
+    
+    def draw_offsetted(self, player, screen):
+        self.offset.x = player.rect.centerx - self.half_width
+        self.offset.y = player.rect.centery - self.half_height
+
+        for sprite in self.sprites():
+            offset_pos = sprite.rect.topleft - self.offset
+            screen.blit(sprite.image, offset_pos)
+
+"""
+pg.init()
+screen = pg.display.set_mode((1000, 700))
+clock = pg.time.Clock()
+run = True
+
+csprite = CameraSpriteGroup(screen)
+print(csprite.half_width, " ", csprite.half_height)
+
+pg.quit()
+"""
 
 
 class Level(SceneInterface):
     def __init__(self, controller):
         self.controller = controller
-        self.player = Player() #not sure if this should be a parameter
+        self.player = Player('../sprites/granny_movement', 3) #not sure if this should be a parameter
         self.load_graphics() 
  
     def load_graphics(self):
@@ -28,13 +58,13 @@ class Level(SceneInterface):
         self.load_map()
 
     def load_map(self):
-        self.floor_tiles = pg.sprite.Group()
+        self.floor_tiles = CameraSpriteGroup()
         #we'll use this to calculate collisions, need to specify it in the representation somehow
         self.collision_sprites = pg.sprite.Group()
         for row_idx, row in enumerate(self.world_map):
             for col_idx, value in enumerate(row):
                 Tile((col_idx*32, row_idx*32), [self.floor_tiles], self.floor_sprites[value])
- 
+        self.floor_tiles.add(self.player)
    
     #if the controller changes, the director will go through every scene updating the controller.
     def update_controller(controller):
@@ -52,13 +82,12 @@ class Level(SceneInterface):
 
     def draw(self, screen):
         screen.fill('white') #to refresh the whole screen
-        self.floor_tiles.draw(screen)
+        self.floor_tiles.draw_offsetted(self.player, screen)
         self.player.draw(screen)
 
 
-
-#Testing a level
 """
+#Testing a level
 world_map = [
                 [0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
                 [0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0],
@@ -107,7 +136,6 @@ while run:
 
 
 pg.quit()
-
 """
 
 
