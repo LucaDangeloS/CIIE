@@ -11,10 +11,15 @@ GRASS_DIR = f'{ASSETS_DIR}/grass/'
 class TileEnum(Enum):
     UNKNOWN = 0
     GRASS = 1
-    TREE = 2
-    WATER = 3
-    SEED = 4
-    SPAWN = 16
+    PATH = 3
+    
+    OBJECTIVE = 16
+    SPAWN = 17
+    POI = 18
+
+    OBSTACLE = 32
+    TREE = 33
+    WATER = 34
 
     # get tile sprite from tile type
     @staticmethod
