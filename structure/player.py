@@ -7,7 +7,7 @@ class SpriteSheet(): #should reimplement this using sprite.Sprite
     def __init__(self, image):
 	    self.sheet = image
 
-    def image_at(self, rect, scale, color):
+    def image_at(self, rect, scale=1, color=(0,0,0)):
         (x,y,w,h) = rect #to make it more legible
         image = pg.Surface((w, h)).convert_alpha()
         image.blit(self.sheet, (0,0), (x, y, w, h))
@@ -23,6 +23,80 @@ class SpriteSheet(): #should reimplement this using sprite.Sprite
         tups = [(rect[0]+rect[2]*x, rect[1], rect[2], rect[3])
                 for x in range(img_count)]
         return self.images_at(tups, scale, colorkey)
+   
+    #assumes no spacing between elements 
+    def load_tiled_style(self, sprite_dimensions: tuple[int, int]) -> list[pg.Surface]:
+        (s_width, s_height) = sprite_dimensions
+        row_elements = self.sheet.get_width() / s_width
+        col_elements = self.sheet.get_height() / s_height
+
+        sprite_list = []
+        print(col_elements)
+        for i in range(int(col_elements)):
+            for j in range(int(row_elements)):
+                sprite_list.append(self.image_at((j*s_width, i*s_height, s_width, s_height)))
+
+        return sprite_list
+
+def csv_to_list(csv_reader):
+    element = next(csv_reader, -1)
+    result = []
+    while not element == -1:
+        result.append(element)
+        element = next(csv_reader, -1)
+    return result
+
+def load_csv_into_surface(csv_reader, sprite_list, tile_size):
+    t_w, t_h = tile_size 
+    map_list = csv_to_list(csv_reader)
+    
+    map_srf = pg.Surface((t_w*len(map_list), t_h*len(map_list[0]))).convert_alpha()
+    
+    for row_idx, row in enumerate(map_list):
+        for col_idx, value in enumerate(row):
+            if not value == '-1':
+                map_srf.blit(sprite_list[int(value)], (row_idx*t_w, col_idx*t_h)) 
+    
+    return map_srf
+ 
+
+#testing load_tiled_style
+pg.init()
+
+screen = pg.display.set_mode((1000, 700))
+clock = pg.time.Clock()
+run = True
+
+floors_spritesheet = SpriteSheet(pg.image.load('../sprites/environment_tileset/Fields.png'))
+idx_sprites = floors_spritesheet.load_tiled_style((16,16))
+
+objects_spritesheet = SpriteSheet(pg.image.load('../sprites/environment_tileset/Objects.png'))
+idx_objects = objects_spritesheet.load_tiled_style((16,16))
+
+map_sprites = idx_sprites
+map_sprites.extend(idx_objects)
+
+#load map csv
+csv_file = open('../testing_map_bottom.csv')
+csv_reader = csv.reader(csv_file)
+
+#I'm taking the cols as rows somewhere in there
+srf = load_csv_into_surface(csv_reader, map_sprites, (16,16))
+ 
+
+
+while run:
+    for event in pg.event.get():
+        if event.type == QUIT:
+            run = False
+            break
+    screen.fill('white')
+
+    screen.blit(srf, (0,0))
+ 
+    pg.display.update()
+
+pg.quit()        
 
 #testing code for the sprites 
 """

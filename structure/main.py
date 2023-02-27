@@ -4,8 +4,7 @@ from settings import *
 from menu import Menu, Button
 from director import Director
 from controller import KeyboardController, JoystickController
-from level import Level
-
+from level.level import Level
 
 
 
