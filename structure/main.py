@@ -37,9 +37,9 @@ run = True
 
 director = Director()
 
-#controller = KeyboardController()
-controller = JoystickController()
-joysticks = controller.get_joy()
+controller = KeyboardController()
+# controller = JoystickController()
+# joysticks = controller.get_joy()
 
 myLevel = Level(controller)
 myLevel.get_map_representation(world_map)
