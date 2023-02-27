@@ -25,9 +25,9 @@ class TileEnum(Enum):
     @staticmethod
     def get_tile_sprite(tile):
         tile_correspondance = {
-            TileEnum.GRASS: pygame.image.load(f'{GRASS_DIR}/grass_0.png'),
-            TileEnum.TREE: pygame.image.load(f'{GRASS_DIR}/grass_1.png'),
-            TileEnum.WATER: pygame.image.load(f'{GRASS_DIR}/grass_2.png')
+            # TileEnum.GRASS: pygame.image.load(f'{GRASS_DIR}/grass_0.png'),
+            # TileEnum.TREE: pygame.image.load(f'{GRASS_DIR}/grass_1.png'),
+            # TileEnum.WATER: pygame.image.load(f'{GRASS_DIR}/grass_2.png')
         }
         return tile_correspondance[tile]
 
