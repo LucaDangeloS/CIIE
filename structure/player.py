@@ -31,7 +31,6 @@ class SpriteSheet(): #should reimplement this using sprite.Sprite
         col_elements = self.sheet.get_height() / s_height
 
         sprite_list = []
-        print(col_elements)
         for i in range(int(col_elements)):
             for j in range(int(row_elements)):
                 sprite_list.append(self.image_at((j*s_width, i*s_height, s_width, s_height)))
@@ -50,12 +49,14 @@ def load_csv_into_surface(csv_reader, sprite_list, tile_size):
     t_w, t_h = tile_size 
     map_list = csv_to_list(csv_reader)
     
-    map_srf = pg.Surface((t_w*len(map_list), t_h*len(map_list[0]))).convert_alpha()
+    map_srf = pg.Surface((t_w*len(map_list[0]), t_h*len(map_list)),  pg.SRCALPHA, 32).convert_alpha() #make the surface transparent by default
     
     for row_idx, row in enumerate(map_list):
         for col_idx, value in enumerate(row):
+            if row_idx == 0 and col_idx == 0:
+                print(value)
             if not value == '-1':
-                map_srf.blit(sprite_list[int(value)], (row_idx*t_w, col_idx*t_h)) 
+                map_srf.blit(sprite_list[int(value)], (col_idx*t_w, row_idx*t_h)) 
     
     return map_srf
  
@@ -80,9 +81,19 @@ map_sprites.extend(idx_objects)
 csv_file = open('../testing_map_bottom.csv')
 csv_reader = csv.reader(csv_file)
 
-#I'm taking the cols as rows somewhere in there
 srf = load_csv_into_surface(csv_reader, map_sprites, (16,16))
- 
+
+csv_file = open('../testing_map_top.csv')
+csv_reader = csv.reader(csv_file)
+
+srf2 = load_csv_into_surface(csv_reader, map_sprites, (16,16))
+
+csv_file = open('../testing_map_super_top.csv')
+csv_reader = csv.reader(csv_file)
+
+srf3 = load_csv_into_surface(csv_reader, map_sprites, (16,16))
+
+
 
 
 while run:
@@ -94,6 +105,9 @@ while run:
 
     screen.blit(srf, (0,0))
  
+    screen.blit(srf2, (0,0))
+    screen.blit(srf2, (0,0))
+    
     pg.display.update()
 
 pg.quit()        
