@@ -1,13 +1,13 @@
 import itertools
 import random
 from typing import List
-from chunks.utils import get_quadrants, get_chunk_center_point, remove_adjacent_chunks
+from level.chunks.utils import get_quadrants, get_chunk_center_point, remove_adjacent_chunks
 import numpy as np
-from tiles import TileEnum
+from level.chunks.utils import ChunkEnum
 
 
 # Randomly positions a spawn point on one chunk of the map
-def position_spawn(chunk_info, tile_type: TileEnum, paint_tile: TileEnum):
+def position_spawn(chunk_info, tile_type: ChunkEnum, paint_tile: ChunkEnum):
     # Get free chunks
     free_chunks = [chunk for chunk in chunk_info if chunk_info[chunk]["type"] == tile_type]
 
@@ -20,7 +20,7 @@ def position_spawn(chunk_info, tile_type: TileEnum, paint_tile: TileEnum):
     return chunk_info, chunk_center
 
 
-def position_main_structures(map, spawn_point, chunks, chunk_info: dict, tile_type: TileEnum, paint_tile: TileEnum):
+def position_main_structures(map, spawn_point, chunks, chunk_info: dict, tile_type: ChunkEnum, paint_tile: ChunkEnum):
     quadrants, quadrants_centers = get_quadrants(map)
 
     # Get the closest quadrant to the spawn point using quadrant centers
@@ -68,11 +68,11 @@ def position_main_structures(map, spawn_point, chunks, chunk_info: dict, tile_ty
     return chunk_info
 
 
-def position_poi(chunk_info: dict[dict], free_tile: TileEnum, n: int, radius: int = 1, exclude_tiles: List[TileEnum] = []):
-    free_chunks = [chunk for chunk in chunk_info if chunk_info[chunk]["type"] == free_tile]
+def position_poi(chunk_info: dict[dict], free_chunk: ChunkEnum, n: int, radius: int = 1, exclude_chunks: List[ChunkEnum] = []):
+    free_chunks = [chunk for chunk in chunk_info if chunk_info[chunk]["type"] == free_chunk]
     
     for _ in range(n):
-        free_chunks = remove_adjacent_chunks(free_chunks, chunk_info, radius, free_tile, exclude_tiles)
+        free_chunks = remove_adjacent_chunks(free_chunks, chunk_info, radius, free_chunk, exclude_chunks)
         if not free_chunks:
             raise Exception("No free chunks left to place POI")
         # Pick a random chunk
@@ -80,6 +80,6 @@ def position_poi(chunk_info: dict[dict], free_tile: TileEnum, n: int, radius: in
         free_chunks.remove(chunk)
         
         # Mark the chunk as the tile type
-        chunk_info[chunk]["type"] = TileEnum.POI
+        chunk_info[chunk]["type"] = ChunkEnum.POI
     
     return chunk_info

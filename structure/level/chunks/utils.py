@@ -1,6 +1,16 @@
 import itertools
 from typing import List, Tuple
-from tiles import TileEnum
+from enum import Enum
+
+class ChunkEnum(Enum):
+    EMPTY = 0
+    SPAWN = 1
+    GROUND = 2
+
+    OBJECTIVE = 16
+    POI = 17
+
+    OBSTACLE = 32
 
 def get_quadrants(map):
     '''
@@ -42,12 +52,8 @@ def update_chunk_info(map, chunks, size: Tuple[int, int]):
                 continue
 
             # If there's an obstacle automatically mark chunk as this obstacle
-            if type.value >= TileEnum.OBSTACLE.value:
+            if type == ChunkEnum.OBSTACLE:
                 tile_type = type
-                break
-            
-            # If the tile uniformity breaks
-            else:
                 break
 
         abbreviated_chunks[chunk_index] = {"type": tile_type, "tiles": chunk}
@@ -76,10 +82,10 @@ def get_chunks(map: List[List[int]], chunk_size: int) -> List[Tuple[int, int]]:
     return chunks, abbreviated_chunks
 
 
-def remove_adjacent_chunks(chunks, chunk_info, radius, free_tile: TileEnum, exclude_tiles: List[TileEnum] = []):
+def remove_adjacent_chunks(chunks, chunk_info, radius, free_chunk: ChunkEnum, exclude_chunks: List[ChunkEnum] = []):
     for chunk_index, chunk_data in chunk_info.items():
         chunk_type = chunk_data["type"]
-        if chunk_type != free_tile and chunk_type not in exclude_tiles:
+        if chunk_type != free_chunk and chunk_type not in exclude_chunks:
             # remove adjacent chunks in 8 directions
             for i in range(-radius, radius + 1):
                 for j in range(-radius, radius + 1):

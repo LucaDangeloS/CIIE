@@ -5,6 +5,7 @@ from menu import Menu, Button
 from director import Director
 from controller import KeyboardController, JoystickController
 from level.level import Level
+from level.tiles import TileMapper
 
 
 
@@ -40,8 +41,12 @@ controller = KeyboardController()
 # controller = JoystickController()
 # joysticks = controller.get_joy()
 
-myLevel = Level(controller)
-myLevel.get_map_representation(world_map)
+tile_mapper = TileMapper({
+    0: pg.image.load('../sprites/suelo_base.png'), 
+    1: pg.image.load('../sprites/suelo_base_hierbas2.png'),
+})
+myLevel = Level(controller, tile_mapper, 32)
+myLevel.load_map(world_map)
 
 
 #create a button

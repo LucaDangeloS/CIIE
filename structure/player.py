@@ -5,7 +5,7 @@ import csv
 
 class SpriteSheet(): #should reimplement this using sprite.Sprite
     def __init__(self, image):
-	    self.sheet = image
+        self.sheet = image
 
     def image_at(self, rect, scale=1, color=(0,0,0)):
         (x,y,w,h) = rect #to make it more legible
