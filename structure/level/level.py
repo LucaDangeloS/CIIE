@@ -1,4 +1,5 @@
 import pygame as pg
+import numpy as np
 from pygame.locals import *
 from scene import SceneInterface
 from player import SpriteSheet, Player
@@ -50,11 +51,11 @@ class TileEnum(Enum):
 class Level(SceneInterface):
     def __init__(self, controller, tile_correspondence: TileMapper, tile_size: int):
         self.controller = controller
-        self.player = Player('../sprites/granny_movement', 3) #not sure if this should be a parameter
+        self.player = Player('../sprites/players/grandmother/move/granny_movement', 3) #not sure if this should be a parameter
         self.tile_dict = tile_correspondence
         self.tile_size = tile_size
         try:
-            self.tile_dict.map(TileEnum.GROUND)
+            self.tile_dict.map(TileEnum.GROUND.value)
         except KeyError as e:
             raise Exception(
                 f"tile_correspondence must at least contain the key {TileEnum.GROUND.value}"
@@ -64,9 +65,9 @@ class Level(SceneInterface):
         try:
             return self.tile_dict.map(key)
         except KeyError as e:
-            return self.tile_dict.map(TileEnum.GROUND)
+            return self.tile_dict.map(TileEnum.GROUND.value)
 
-    def generate_map(self, size, chunk_size, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None):
+    def generate_map(self, size: tuple[int, int], chunk_size, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None):
         '''
         the noise map generated values in the range [-1, 1] \n
         lower_threshold: lower bound for the noise map to be considered other tile -> mapped to -1 in the TileMapper \n
@@ -79,6 +80,8 @@ class Level(SceneInterface):
 
         Returns (spawn_chunk, spawn_point), objective_chunks: list[list[tuple[int, int]], poi_chunks: list[list[tuple[int, int]]
         '''
+        self.size_x = size[0] * chunk_size
+        self.size_y = size[1] * chunk_size
         self.map = generate_pnoise(size[0]*chunk_size, size[1]*chunk_size, noise_resolution, seed=seed)
         self.chunk_generator = ChunkGenerator(chunk_size)
         self.chunk_generator.generate_chunk_map(self.map, [lower_threshold, upper_threshold])
@@ -96,13 +99,18 @@ class Level(SceneInterface):
             for tile in chunk:
                 self.map[tile] = TileEnum.POI.value
 
+        self.load_map()
         return (spawn_chunk, spawn), objective_chunks, poi_chunks
 
-    def load_map(self, map_representation):
+    def load_csv(self, map_representation):
         '''
         Load the csv representation (an external file should be used)
         '''
+        map_representation = np.array(map_representation)
+        self.size_x = map_representation.shape[0]
+        self.size_y = map_representation.shape[1]
         self.map = map_representation
+        self.load_map()
 
     def load_map(self):
         self.floor_tiles = CameraSpriteGroup()

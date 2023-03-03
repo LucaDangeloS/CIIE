@@ -28,7 +28,7 @@ class ChunkGenerator():
 
     def place_spawn(self):
         self.chunk_info, self.spawn_point = position_spawn(self.chunk_info, ChunkEnum.EMPTY, ChunkEnum.SPAWN)
-        return [chunk.values()["tiles"] for chunk in self.chunk_info if self.chunk_info[chunk]["type"] == ChunkEnum.SPAWN], self.spawn_point
+        return [self.chunk_info[chunk]["tiles"] for chunk in self.chunk_info.keys() if self.chunk_info[chunk]["type"] == ChunkEnum.SPAWN], self.spawn_point
 
     def get_chunk_info(self):
         '''
@@ -41,9 +41,9 @@ class ChunkGenerator():
         self.chunk_info = position_main_structures(self.map, self.spawn_point, self.chunks, 
             self.chunk_info, ChunkEnum.EMPTY, ChunkEnum.OBJECTIVE)
         # Retrieve the chunks of the objectives
-        return [chunk.values()["tiles"] for chunk in self.chunk_info if self.chunk_info[chunk]["type"] == ChunkEnum.OBJECTIVE]
+        return [self.chunk_info[chunk]["tiles"] for chunk in self.chunk_info.keys() if self.chunk_info[chunk]["type"] == ChunkEnum.OBJECTIVE]
 
     def position_poi(self, n, radius=1):
         self.chunk_info = position_poi(self.chunk_info, ChunkEnum.EMPTY, n, radius, [])
         # Retrieve the chunks of the poi
-        return [chunk.values()["tiles"] for chunk in self.chunk_info if self.chunk_info[chunk]["type"] == ChunkEnum.POI]
+        return [self.chunk_info[chunk]["tiles"] for chunk in self.chunk_info.keys() if self.chunk_info[chunk]["type"] == ChunkEnum.POI]

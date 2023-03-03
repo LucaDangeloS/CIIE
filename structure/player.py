@@ -62,55 +62,55 @@ def load_csv_into_surface(csv_reader, sprite_list, tile_size):
  
 
 #testing load_tiled_style
-pg.init()
+# pg.init()
 
-screen = pg.display.set_mode((1000, 700))
-clock = pg.time.Clock()
-run = True
+# screen = pg.display.set_mode((1000, 700))
+# clock = pg.time.Clock()
+# run = True
 
-floors_spritesheet = SpriteSheet(pg.image.load('../sprites/environment_tileset/Fields.png'))
-idx_sprites = floors_spritesheet.load_tiled_style((16,16))
+# floors_spritesheet = SpriteSheet(pg.image.load('../sprites/environment_tileset/Fields.png'))
+# idx_sprites = floors_spritesheet.load_tiled_style((16,16))
 
-objects_spritesheet = SpriteSheet(pg.image.load('../sprites/environment_tileset/Objects.png'))
-idx_objects = objects_spritesheet.load_tiled_style((16,16))
+# objects_spritesheet = SpriteSheet(pg.image.load('../sprites/environment_tileset/Objects.png'))
+# idx_objects = objects_spritesheet.load_tiled_style((16,16))
 
-map_sprites = idx_sprites
-map_sprites.extend(idx_objects)
+# map_sprites = idx_sprites
+# map_sprites.extend(idx_objects)
 
-#load map csv
-csv_file = open('../testing_map_bottom.csv')
-csv_reader = csv.reader(csv_file)
+# #load map csv
+# csv_file = open('../testing_map_bottom.csv')
+# csv_reader = csv.reader(csv_file)
 
-srf = load_csv_into_surface(csv_reader, map_sprites, (16,16))
+# srf = load_csv_into_surface(csv_reader, map_sprites, (16,16))
 
-csv_file = open('../testing_map_top.csv')
-csv_reader = csv.reader(csv_file)
+# csv_file = open('../testing_map_top.csv')
+# csv_reader = csv.reader(csv_file)
 
-srf2 = load_csv_into_surface(csv_reader, map_sprites, (16,16))
+# srf2 = load_csv_into_surface(csv_reader, map_sprites, (16,16))
 
-csv_file = open('../testing_map_super_top.csv')
-csv_reader = csv.reader(csv_file)
+# csv_file = open('../testing_map_super_top.csv')
+# csv_reader = csv.reader(csv_file)
 
-srf3 = load_csv_into_surface(csv_reader, map_sprites, (16,16))
-
-
+# srf3 = load_csv_into_surface(csv_reader, map_sprites, (16,16))
 
 
-while run:
-    for event in pg.event.get():
-        if event.type == QUIT:
-            run = False
-            break
-    screen.fill('white')
 
-    screen.blit(srf, (0,0))
+
+# while run:
+#     for event in pg.event.get():
+#         if event.type == QUIT:
+#             run = False
+#             break
+#     screen.fill('white')
+
+#     screen.blit(srf, (0,0))
  
-    screen.blit(srf2, (0,0))
-    screen.blit(srf2, (0,0))
+#     screen.blit(srf2, (0,0))
+#     screen.blit(srf2, (0,0))
     
-    pg.display.update()
+#     pg.display.update()
 
-pg.quit()        
+# pg.quit()        
 
 #testing code for the sprites 
 """

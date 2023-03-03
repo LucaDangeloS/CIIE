@@ -41,12 +41,13 @@ controller = KeyboardController()
 # controller = JoystickController()
 # joysticks = controller.get_joy()
 
+# Aún hay que encontrar una manera de cargar sprite sheets de tiles
 tile_mapper = TileMapper({
-    0: pg.image.load('../sprites/suelo_base.png'), 
-    1: pg.image.load('../sprites/suelo_base_hierbas2.png'),
+    0: pg.image.load('../sprites/environment_tileset/Grass.png'), 
 })
-myLevel = Level(controller, tile_mapper, 32)
-myLevel.load_map(world_map)
+myLevel = Level(controller, tile_mapper, 16)
+myLevel.load_csv(world_map)
+# myLevel.generate_map((4, 4), 5, 1)
 
 
 #create a button
