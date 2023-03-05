@@ -2,7 +2,8 @@ import pygame as pg
 import numpy as np
 from pygame.locals import *
 from scene import SceneInterface
-from player import SpriteSheet, Player
+from player import Player
+from sprites import SpriteSheet
 from director import Director
 from enum import Enum
 from controller import KeyboardController
@@ -51,7 +52,7 @@ class TileEnum(Enum):
 class Level(SceneInterface):
     def __init__(self, controller, tile_correspondence: TileMapper, tile_size: int):
         self.controller = controller
-        self.player = Player('../sprites/players/grandmother/move/granny_movement', 3) #not sure if this should be a parameter
+        self.player = Player(3) #not sure if this should be a parameter
         self.tile_dict = tile_correspondence
         self.tile_size = tile_size
         try:
@@ -138,7 +139,7 @@ class Level(SceneInterface):
     def draw(self, screen):
         screen.fill('white') #to refresh the whole screen
         self.floor_tiles.draw_offsetted(self.player, screen)
-        self.player.draw(screen)
+        #self.player.draw(screen)
 
 
 """

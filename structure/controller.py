@@ -5,7 +5,7 @@ from pygame.locals import *
 
 class ControllerInterface(metaclass=abc.ABCMeta):
     #all possible game events
-    events = ["left", "right", "up", "down", "run"]
+    events = ["left", "right", "up", "down", "run", "attack_1", "attack_2"]
 
     # The subclasshook allows this class to appear as the superclass of others when the
     # method issubclass(__ , __) is used
@@ -24,7 +24,8 @@ class KeyboardController(ControllerInterface):
     def __init__(self):
         self.key_dict = {K_LEFT: self._get_val(0), K_RIGHT: self._get_val(1), K_UP: self._get_val(2), 
                     K_DOWN: self._get_val(3), K_a: self._get_val(0), K_d: self._get_val(1), 
-                    K_w: self._get_val(2), K_s: self._get_val(3), K_LSHIFT: self._get_val(4)}
+                    K_w: self._get_val(2), K_s: self._get_val(3), K_LSHIFT: self._get_val(4),
+                    K_n: self._get_val(5), K_m: self._get_val(6)} #attacking with n and m
     
     def _get_val(self, index: int): #just to avoid having this body repeated
         return super(KeyboardController, self).events[index]
