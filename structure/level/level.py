@@ -2,8 +2,8 @@ import pygame as pg
 import numpy as np
 from pygame.locals import *
 from scene import SceneInterface
-from player import Player
-from sprites import SpriteSheet
+from entities.player import Player
+from entities.sprites import SpriteSheet
 from director import Director
 from enum import Enum
 from controller import KeyboardController
@@ -88,6 +88,9 @@ class Level(SceneInterface):
         self.chunk_generator = ChunkGenerator(chunk_size)
         self.chunk_generator.generate_chunk_map(self.map, [lower_threshold, upper_threshold])
         spawn_chunk, spawn = self.chunk_generator.place_spawn()
+        # override all map values with 0
+        self.map = np.zeros((self.size_x, self.size_y))
+        
         for tile in spawn_chunk:
             self.map[tile] = TileEnum.SPAWN.value
 
@@ -102,6 +105,7 @@ class Level(SceneInterface):
                 self.map[tile] = TileEnum.POI.value
 
         self.load_map()
+        print(self.map)
         return (spawn_chunk, spawn), objective_chunks, poi_chunks
 
     def load_csv(self, map_representation):

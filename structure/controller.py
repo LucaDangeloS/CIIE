@@ -15,7 +15,7 @@ class ControllerInterface(metaclass=abc.ABCMeta):
              or NotImplemented)
     
     @abc.abstractmethod
-    def get_input(event_list: list[pg.event]) -> list[tuple[bool, str]]:
+    def get_input(event_list: list[pg.event.Event]) -> list[tuple[bool, str]]:
         """Get the consequent action for a pygame event"""
         raise NotImplementedError
 
@@ -31,7 +31,7 @@ class KeyboardController(ControllerInterface):
         return super(KeyboardController, self).events[index]
     
     #returns a list of (?keydown?, action)
-    def get_input(self, event_list: list[pg.event]) -> list[tuple[bool, str]]:
+    def get_input(self, event_list: list[pg.event.Event]) -> list[tuple[bool, str]]:
         action_list = []
         for event in event_list:
             # we could also use an if event.key in self.key_dict which would be faster if there are a lot of missed attempts (which shouldn't be the case)
@@ -87,7 +87,7 @@ class JoystickController(ControllerInterface):
     def _get_val(self, index: int): #just to avoid having this body repeated
         return super(JoystickController, self).events[index]
     
-    def get_input(self, event_list: list[pg.event]) -> list[tuple[bool, str]]:
+    def get_input(self, event_list: list[pg.event.Event]) -> list[tuple[bool, str]]:
         action_list = []
         for event in event_list:
             if event.type == JOYAXISMOTION:

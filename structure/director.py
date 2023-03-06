@@ -18,7 +18,7 @@ class Audio:
 
     def start_rewinded(self): #start playing the music backwards (when you use the clock)
         pass
-   
+
     def end_rewinded(self): #stop playing music backwards and play it normally
         pass 
 
@@ -30,12 +30,13 @@ class Director(object):
     audio_controller = Audio()
     controller = KeyboardController()
     scene_stack = []
+
     def __new__(cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(Director, cls).__new__(cls)
             pg.display.set_caption("Chronos")
         return cls.instance
-   
+
     #when drawing with the director:
     #   if the scene is transparent(some points of the scene are) and it's not the last scene, draw next scene.
     def draw_until_not_translucid(self):
@@ -56,6 +57,9 @@ class Director(object):
             self.scene_stack[-1].update()
             self.scene_stack[-1].draw(self.screen)
             pg.display.update()
+            
+            # print fps
+            # print(self.clock.get_fps())
 
     def push_scene(self, scene: SceneInterface):
         self.scene_stack.append(scene)
@@ -66,5 +70,5 @@ class Director(object):
         #pop from the stack
         self.scene_stack.pop()
 
-   
+
 

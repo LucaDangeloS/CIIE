@@ -16,7 +16,7 @@ class SceneInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def handle_events(self, event_list: list[pg.event]):
+    def handle_events(self, event_list: list[pg.event.Event]):
         """Description"""
         raise NotImplementedError
 

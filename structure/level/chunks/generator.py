@@ -10,7 +10,24 @@ class ChunkGenerator():
     def __init__(self, chunk_size: int):
         self.chunk_size = chunk_size
 
-    def generate_chunk_map(self, map, assignable_threshold=[-1, 1]):
+    def __search_chunk(self, type):
+        return next(
+            (
+                chunk
+                for chunk in self.chunk_info.keys()
+                if self.chunk_info[chunk]["type"] == type
+            ),
+            None,
+        )
+
+    def __search_chunks(self, type):
+        return [
+            chunk
+            for chunk in self.chunk_info.keys()
+            if self.chunk_info[chunk]["type"] == type
+        ]
+
+    def generate_chunk_map(self, map, assignable_threshold=[-0.5, 0.5]):
         self.map = map
         # check ranges of the thresholds
         if assignable_threshold[0] < -1 or assignable_threshold[1] > 1:
@@ -28,7 +45,7 @@ class ChunkGenerator():
 
     def place_spawn(self):
         self.chunk_info, self.spawn_point = position_spawn(self.chunk_info, ChunkEnum.EMPTY, ChunkEnum.SPAWN)
-        return [self.chunk_info[chunk]["tiles"] for chunk in self.chunk_info.keys() if self.chunk_info[chunk]["type"] == ChunkEnum.SPAWN], self.spawn_point
+        return self.__search_chunk(ChunkEnum.SPAWN), self.spawn_point
 
     def get_chunk_info(self):
         '''
@@ -41,9 +58,9 @@ class ChunkGenerator():
         self.chunk_info = position_main_structures(self.map, self.spawn_point, self.chunks, 
             self.chunk_info, ChunkEnum.EMPTY, ChunkEnum.OBJECTIVE)
         # Retrieve the chunks of the objectives
-        return [self.chunk_info[chunk]["tiles"] for chunk in self.chunk_info.keys() if self.chunk_info[chunk]["type"] == ChunkEnum.OBJECTIVE]
+        return self.__search_chunks(ChunkEnum.OBJECTIVE)
 
     def position_poi(self, n, radius=1):
         self.chunk_info = position_poi(self.chunk_info, ChunkEnum.EMPTY, n, radius, [])
         # Retrieve the chunks of the poi
-        return [self.chunk_info[chunk]["tiles"] for chunk in self.chunk_info.keys() if self.chunk_info[chunk]["type"] == ChunkEnum.POI]
+        return self.__search_chunks(ChunkEnum.POI)
