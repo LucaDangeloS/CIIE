@@ -5,7 +5,7 @@ from menu import Menu, Button
 from director import Director
 from controller import KeyboardController, JoystickController
 from level.level import Level
-from level.tiles import TileMapper
+from level.tiles import TileMapper, Tile
 
 
 
@@ -48,9 +48,11 @@ tile_mapper = TileMapper({
         pg.transform.scale(pg.image.load('../sprites/environment_tileset/Grass decor.png'), (16*5, 16*5)),
     ]
 })
+
 myLevel = Level(controller, tile_mapper, 16*5)
-# myLevel.load_csv(world_map)
-myLevel.generate_map((6, 6), 5, 2)
+myLevel = Level(controller, tile_mapper, 16)
+myLevel.load_csv(world_map)
+
 
 
 #create a button

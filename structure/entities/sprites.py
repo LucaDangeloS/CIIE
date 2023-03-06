@@ -70,45 +70,29 @@ def load_csv_into_surface(csv_reader, sprite_list, tile_size):
                 map_srf.blit(sprite_list[int(value)], (col_idx*t_w, row_idx*t_h)) 
     
     return map_srf
-#testing code for the sprites 
+
+#testing code to load a spritesheet with the tiled style
 """
 pg.init()
-
 screen = pg.display.set_mode((1000, 700))
 clock = pg.time.Clock()
 run = True
 
-granny = SpriteSheet(pg.image.load('../sprites/granny_movement.png'))
-down_walk = granny.load_strip((0,0,16,32), 3, 3)
-left_walk = granny.load_strip((0,32,16,32),3,3)
-print("down walk: ", down_walk)
-sprite_w, sprite_h = 16, 32
+tileset = SpriteSheet(pg.image.load('/home/udc/Documents/CIIE/CIIE/sprites/environment_tileset/Fields.png'))
 
-granny_sprite = Sprites('../sprites/granny_movement')
-granny_sprite.append_animation([down_walk, left_walk], ['down', 'left'], 'walk')
+tile_list = tileset.load_tiled_style((16,16))
 
-spr_idx = 'down'
-print(granny_sprite.dict)
-
-counter = 0
 while run:
-    clock.tick(5)
-    counter += 1
-    spr = granny_sprite.dict['walk']
+    clock.tick(60)
     for event in pg.event.get():
         if event.type == QUIT:
             run = False
             break
-        if event.type == KEYDOWN:
-            if event.key == K_UP:
-                spr_idx = 'left'
-            elif event.key == K_DOWN:
-                spr_idx = 'down' 
-
     screen.fill('white')
-    srf = spr[spr_idx][counter % 3]
-    screen.blit(srf, (32,32))
-    pg.display.update() 
+    for idx, tile in enumerate(tile_list):
+        screen.blit(tile, (idx*16,0)) 
+    pg.display.update()
+
 pg.quit()
 """
 
@@ -148,8 +132,6 @@ class Sprite_handler():
             header = next(csv_reader, -1)
         
         self.dict[action] = orientation_dict
-        print("loading irregular: ", action)
-        print(self.dict[action])
 
 
     def load_regular_sprites_by_strips(self, spritesheet_path, scale=1): 
@@ -181,7 +163,6 @@ class Sprite_handler():
         #get the dimensions of the sprites
         header = next(csv_reader, -1)
         sprite_width, sprite_height = int(header[1]), int(header[3])
-        print(sprite_width, sprite_height)
       
         header = next(csv_reader, -1)
         while not(header == -1):
@@ -194,7 +175,6 @@ class Sprite_handler():
             orientation_tag = header[i]
             while (i < len(header)):
                 if not header[i].isnumeric(): #we have an orientation tag
-                    print(orientation_tag)
                     if acc_list != []:
                         orientation_dict[orientation_tag] = acc_list
                         acc_list = []
@@ -226,9 +206,6 @@ class Sprite_handler():
             self.state = (action, orientation)
             self.animation_idx = 0
             
-
-        print(self.dict['idle'])
-        print("\n\n", state)
         return orientation_dict[orientation][self.animation_idx]
 
 """

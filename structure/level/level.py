@@ -28,6 +28,9 @@ class CameraSpriteGroup(pg.sprite.Group):
         for sprite in self.sprites():
             offset_pos = sprite.rect.topleft - self.offset
             screen.blit(sprite.image, offset_pos)
+        #for sprite in self.sprites():
+            #screen.blit(sprite.image, sprite.rect)
+
 
 """
 pg.init()
@@ -52,7 +55,8 @@ class TileEnum(Enum):
 class Level(SceneInterface):
     def __init__(self, controller, tile_correspondence: TileMapper, tile_size: int):
         self.controller = controller
-        self.player = Player(3) #not sure if this should be a parameter
+        self.collision_sprites = pg.sprite.Group()
+        self.player = Player(self.collision_sprites, 10) #not sure if this should be a parameter
         self.tile_dict = tile_correspondence
         self.tile_size = tile_size
         try:
@@ -108,6 +112,7 @@ class Level(SceneInterface):
         print(self.map)
         return (spawn_chunk, spawn), objective_chunks, poi_chunks
 
+
     def load_csv(self, map_representation):
         '''
         Load the csv representation (an external file should be used)
@@ -121,10 +126,16 @@ class Level(SceneInterface):
     def load_map(self):
         self.floor_tiles = CameraSpriteGroup()
         #we'll use this to calculate collisions, need to specify it in the representation somehow
-        self.collision_sprites = pg.sprite.Group()
+
+
         for row_idx, row in enumerate(self.map):
             for col_idx, value in enumerate(row):
                 Tile((col_idx*self.tile_size, row_idx*self.tile_size), [self.floor_tiles], self.paint_tile(value))
+
+        img = pg.transform.scale(pg.image.load('../sprites/environment_tileset/Soil.png'), (32,32))
+        square = Tile((100,100), [self.floor_tiles, self.collision_sprites], img)
+        print(square.rect)       
+ 
         self.floor_tiles.add(self.player)
 
     #if the controller changes, the director will go through every scene updating the controller.
@@ -144,7 +155,7 @@ class Level(SceneInterface):
     def draw(self, screen):
         screen.fill('white') #to refresh the whole screen
         self.floor_tiles.draw_offsetted(self.player, screen)
-        #self.player.draw(screen)
+        self.player.draw(screen)
 
 
 """
