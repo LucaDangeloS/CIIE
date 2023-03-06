@@ -125,7 +125,7 @@ class Sprite_handler():
         self.state = ('idle', 'right')
         self.animation_idx = 0
        
-        self.animation_step = 50 #0.5 seconds
+        self.animation_step = 500
         self.last_step = 0
 
 
@@ -186,9 +186,11 @@ class Sprite_handler():
         header = next(csv_reader, -1)
         while not(header == -1):
             action = header[0]
+            animation_step = int(header[1]) 
+            #self.animation_step_list.append(int(header[1]))
             orientation_dict = {}
             acc_list = []
-            i = 1
+            i = 2
             orientation_tag = header[i]
             while (i < len(header)):
                 if not header[i].isnumeric(): #we have an orientation tag
@@ -204,7 +206,7 @@ class Sprite_handler():
                     i += 2 #advance 2 positions instead of just one (we used the x and y)
             
             orientation_dict[orientation_tag] = acc_list
-            self.dict[action] = orientation_dict
+            self.dict[action] = (orientation_dict, animation_step)
         
             header = next(csv_reader,-1) 
 
@@ -214,18 +216,20 @@ class Sprite_handler():
     #this function requires for the states used to be already loaded
     def get_img(self, state):
         action, orientation = state
+        orientation_dict, self.animation_step = self.dict[action.value]
         if self.state[0] == action and self.state[1] == orientation:
-            if pg.time.get_ticks() -  self.last_step >= self.animation_step:
+            if pg.time.get_ticks() - self.last_step >= self.animation_step:
                 self.last_step = pg.time.get_ticks()
-                self.animation_idx = (self.animation_idx + 1) % len(self.dict[action.value][orientation])
+                self.animation_idx = (self.animation_idx + 1) % len(orientation_dict[orientation])
         else: #no need to distinguish which one is not equal (still need to reset)
             self.last_step = pg.time.get_ticks()
             self.state = (action, orientation)
             self.animation_idx = 0
+            
 
         print(self.dict['idle'])
         print("\n\n", state)
-        return self.dict[action.value][orientation][self.animation_idx]
+        return orientation_dict[orientation][self.animation_idx]
 
 """
 #testing code for the sprites 
