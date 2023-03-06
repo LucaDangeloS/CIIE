@@ -2,6 +2,7 @@ import pygame as pg
 from pygame.locals import *
 from controller import ControllerInterface
 from sprites import Sprite_handler, ActionEnum
+from director import Director
 from weapons.stick import Stick
 
 
@@ -16,7 +17,8 @@ class Player(pg.sprite.Sprite):
              ControllerInterface.events[3]: False, ControllerInterface.events[4]:False, ControllerInterface.events[5]:False, ControllerInterface.events[6]:False}
     # possible actions [idle, walking, running, attack1, attack2]
     state = (ActionEnum.IDLE, 'down') #(action, orientation)
-    
+    director = Director()
+
     weapons = [Stick()]
 
 
@@ -40,11 +42,14 @@ class Player(pg.sprite.Sprite):
         else:
             if self.direction.magnitude() == 0:
                 self.update_player_state(ActionEnum.IDLE)
+                self.director.audio.stopSound()
             else: #must be either walking or running (missing attacks also)
                 if self.action_state['run']: 
                     self.update_player_state(ActionEnum.RUN)
                 else:
                     self.update_player_state(ActionEnum.WALK)
+                    self.director.audio.loadSound('../media/steps.mp3')
+                    self.director.audio.playSound()
 
     # this may alone determine the change of state of the player (using the previous state)
     # because the orientation or the action only change with a different input. No input -> Same state

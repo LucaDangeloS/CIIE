@@ -15,7 +15,7 @@ class CameraSpriteGroup(pg.sprite.Group):
     def __init__(self):
         super().__init__()
         #is there a better way to get the size of the screen 
-        director = Director() 
+        director = Director()
         self.half_width = director.screen.get_size()[0] // 2
         self.half_height = director.screen.get_size()[1] // 2
         
@@ -55,6 +55,8 @@ class Level(SceneInterface):
         self.player = Player(3) #not sure if this should be a parameter
         self.tile_dict = tile_correspondence
         self.tile_size = tile_size
+        self.director = Director()
+
         try:
             self.tile_dict.map(TileEnum.GROUND.value)
         except KeyError as e:
