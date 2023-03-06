@@ -24,8 +24,8 @@ class Player(pg.sprite.Sprite):
         super().__init__()
 
         self.sprite = Sprite_handler()
-        self.sprite.load_regular_sprites('../sprites/players/grandmother/move/granny_movement', sprite_scale)
-        self.sprite.load_irregular_sprites('../sprites/players/grandmother/stick_attack/stick_attack', sprite_scale)
+        self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', sprite_scale)
+        #self.sprite.load_irregular_sprites('../sprites/players/grandmother/stick_attack/stick_attack', sprite_scale)
         self.image = self.sprite.get_img(self.state)
         #testing rect
         self.rect = pg.Rect(40,40,50,50)

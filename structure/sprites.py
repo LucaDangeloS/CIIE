@@ -128,6 +128,7 @@ class Sprite_handler():
         self.animation_step = 50 #0.5 seconds
         self.last_step = 0
 
+
     def load_irregular_sprites(self, spritesheet_path, scale=1):
         spritesheet = SpriteSheet(pg.image.load(spritesheet_path + '.png'))
         csv_file = open(spritesheet_path + '.csv')
@@ -151,7 +152,7 @@ class Sprite_handler():
         print(self.dict[action])
 
 
-    def load_regular_sprites(self, spritesheet_path, scale=1): 
+    def load_regular_sprites_by_strips(self, spritesheet_path, scale=1): 
         spritesheet = SpriteSheet(pg.image.load(spritesheet_path + '.png'))
         csv_file = open(spritesheet_path + '.csv')
         csv_reader = csv.reader(csv_file)
@@ -172,6 +173,43 @@ class Sprite_handler():
             
             header = next(csv_reader, -1)      
 
+    def load_regular_sprites(self, spritesheet_path, scale=1):
+        spritesheet = SpriteSheet(pg.image.load(spritesheet_path + '.png'))
+        csv_file = open(spritesheet_path + '.csv')
+        csv_reader = csv.reader(csv_file)
+
+        #get the dimensions of the sprites
+        header = next(csv_reader, -1)
+        sprite_width, sprite_height = int(header[1]), int(header[3])
+        print(sprite_width, sprite_height)
+      
+        header = next(csv_reader, -1)
+        while not(header == -1):
+            action = header[0]
+            orientation_dict = {}
+            acc_list = []
+            i = 1
+            orientation_tag = header[i]
+            while (i < len(header)):
+                if not header[i].isnumeric(): #we have an orientation tag
+                    print(orientation_tag)
+                    if acc_list != []:
+                        orientation_dict[orientation_tag] = acc_list
+                        acc_list = []
+                    orientation_tag = header[i] #save the name for the next append
+                    i += 1
+                else: #save the animation to the list
+                    rect = (int(header[i])*sprite_width, int(header[i+1])*sprite_height, sprite_width, sprite_height)
+                    acc_list.append(spritesheet.image_at(rect, scale))
+                    i += 2 #advance 2 positions instead of just one (we used the x and y)
+            
+            orientation_dict[orientation_tag] = acc_list
+            self.dict[action] = orientation_dict
+        
+            header = next(csv_reader,-1) 
+
+
+
     #use pg.time.get_ticks() to change animations -> independent of game speed. 
     #this function requires for the states used to be already loaded
     def get_img(self, state):
@@ -185,6 +223,8 @@ class Sprite_handler():
             self.state = (action, orientation)
             self.animation_idx = 0
 
+        print(self.dict['idle'])
+        print("\n\n", state)
         return self.dict[action.value][orientation][self.animation_idx]
 
 """
