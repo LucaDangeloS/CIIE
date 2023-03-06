@@ -37,30 +37,31 @@ class Entity(pg.sprite.Sprite):
 
         if self.action_state['run']:
             self.rect.x += move.x * self.running_speed
-            #self.collision('horizontal')
+            self.collision('horizontal')
             self.rect.y += move.y * self.running_speed
-            #self.collision('vertical')
+            self.collision('vertical')
         else:
             self.rect.x += move.x * self.walking_speed
-            #self.collision('horizontal')
+            self.collision('horizontal')
             self.rect.y += move.y * self.walking_speed
-            #self.collision('vertical')
+            self.collision('vertical')
 
-    def collision(self, direction): #may need to change this style
-        if direction == 'horizontal':
-            for sprite in self.collision_sprites: #optimize this?
-                if sprite.rect.colliderect(self.rect):
-                    if self.direction.x > 0: #right
-                        self.rect.right = sprite.rect.left
-                    if self.direction.x < 0: #left
-                        self.rect.left = sprite.rect.right
-        elif direction == 'vertical':
-            for sprite in self.collision_sprites: 
-                if sprite.rect.colliderect(self.rect):
-                    if self.direction.y > 0:
-                        self.rect.bottom = sprite.rect.top
-                    if self.direction.y < 0:
-                        self.rect.top = sprite.rect.bottom
+    # TODO: Implement collision in Entities
+    # def collision(self, direction): #may need to change this style
+    #     if direction == 'horizontal':
+    #         for sprite in self.collision_sprites: #optimize this?
+    #             if sprite.rect.colliderect(self.rect):
+    #                 if self.direction.x > 0: #right
+    #                     self.rect.right = sprite.rect.left
+    #                 if self.direction.x < 0: #left
+    #                     self.rect.left = sprite.rect.right
+    #     elif direction == 'vertical':
+    #         for sprite in self.collision_sprites: 
+    #             if sprite.rect.colliderect(self.rect):
+    #                 if self.direction.y > 0:
+    #                     self.rect.bottom = sprite.rect.top
+    #                 if self.direction.y < 0:
+    #                     self.rect.top = sprite.rect.bottom
         
     def draw(self, screen: pg.display):
         #need to connect this with a Sprite object ->

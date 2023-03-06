@@ -1,38 +1,32 @@
 import pygame as pg
 from pygame.locals import *
 from controller import ControllerInterface
-from sprites import Sprite_handler, ActionEnum
+from entities.sprites import Sprite_handler, ActionEnum
+from entities.entity import Entity
 from weapons.stick import Stick
 
 
-
-class Player(pg.sprite.Sprite):
-    walking_speed = 4
-    running_speed = 6
-    direction = pg.math.Vector2()
-    #convert from action_state to a direction: (used in apply_input)
-    dir_dict = {(True, False): -1, (False, True): 1, (False, False): 0, (True, True): 0}
+class Player(Entity):
     action_state = {ControllerInterface.events[0]:False, ControllerInterface.events[1]: False, ControllerInterface.events[2]: False,
              ControllerInterface.events[3]: False, ControllerInterface.events[4]:False, ControllerInterface.events[5]:False, ControllerInterface.events[6]:False}
-    # possible actions [idle, walking, running, attack1, attack2]
-    state = (ActionEnum.IDLE, 'down') #(action, orientation)
-    
+    # possible actions [idle, walking, running, attack1, attack2]    
     weapons = [Stick()]
-
     
     def __init__(self, collision_sprites, sprite_scale=1): #if we don't add the player to the collision sprites how is he going to collide with enemies?
         super().__init__()
-
-        self.sprite = Sprite_handler()
         self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', sprite_scale)
         #self.sprite.load_irregular_sprites('../sprites/players/grandmother/stick_attack/stick_attack', sprite_scale)
         self.image = self.sprite.get_img(self.state)
-        
+
         #should we harcode the rect?
         self.rect = pg.Rect(380,50,16.6666*sprite_scale,26.666666*sprite_scale)
         self.collision_sprites = collision_sprites
         
         self.hitbox_offset = (7*sprite_scale, 10*sprite_scale)
+
+    def kill(self):
+        super().kill()
+        # more implementation
 
     def set_hitbox(self):
         self.hitbox_offset = (22, 30)
@@ -77,32 +71,6 @@ class Player(pg.sprite.Sprite):
             for orientation in orientations: #it only changes when there is movement
                 if self.action_state[orientation]:
                     self.state = (ActionEnum.WALK, orientation)
-  
-    def attack(self, attack: str): #call the attack of the correspondent weapon
-        pass
- 
-    #this is called in every frame
-    def update(self):
-        #self.update_player_state()
-        self.image = self.sprite.get_img(self.state)
-        self.move()
-
-    def move(self):
-        move = self.direction
-        if self.direction.magnitude() != 0: #buggy: going top left seems faster
-            move = self.direction.normalize()
-
-        if self.action_state['run']:
-            self.rect.x += move.x * self.running_speed
-            self.collision('horizontal')
-            self.rect.y += move.y * self.running_speed
-            self.collision('vertical')
-        else:
-            self.rect.x += move.x * self.walking_speed
-            self.collision('horizontal')
-            self.rect.y += move.y * self.walking_speed
-            self.collision('vertical')
-        
 
     def collision(self, direction): #may need to change this style
         # we need to add an offset to the collision to center the rect in the sprite
@@ -122,18 +90,3 @@ class Player(pg.sprite.Sprite):
                         self.rect.bottom = sprite.rect.top - self.hitbox_offset[1]
                     if self.direction.y < 0:
                         self.rect.top = sprite.rect.bottom - self.hitbox_offset[1]
-
-
-    def draw(self, screen: pg.display):
-        #need to connect this with a Sprite object ->
-        # how can we assure that Sprite.dict will have animations for all the events that the player has?
-        
-        offsetted_rect = self.rect.move(22,30)
-
-        pg.draw.rect(screen, (255,0,0), offsetted_rect)
-        #for sprite in self.collision_sprites:
-            #pg.draw.rect(screen, (0,255,0), sprite.rect) 
-
-        #this really should be drawn as part of a sprite group -> for easy offsetting
-
-

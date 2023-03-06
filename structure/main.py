@@ -50,7 +50,6 @@ tile_mapper = TileMapper({
 })
 
 myLevel = Level(controller, tile_mapper, 16*5)
-myLevel = Level(controller, tile_mapper, 16)
 myLevel.load_csv(world_map)
 
 

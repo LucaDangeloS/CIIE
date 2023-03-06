@@ -25,11 +25,11 @@ class CameraSpriteGroup(pg.sprite.Group):
         self.offset.x = player.rect.centerx - self.half_width
         self.offset.y = player.rect.centery - self.half_height
 
-        for sprite in self.sprites():
-            offset_pos = sprite.rect.topleft - self.offset
-            screen.blit(sprite.image, offset_pos)
         #for sprite in self.sprites():
-            #screen.blit(sprite.image, sprite.rect)
+        #    offset_pos = sprite.rect.topleft - self.offset
+        #    screen.blit(sprite.image, offset_pos)
+        for sprite in self.sprites():
+            screen.blit(sprite.image, sprite.rect)
 
 
 """
@@ -56,7 +56,7 @@ class Level(SceneInterface):
     def __init__(self, controller, tile_correspondence: TileMapper, tile_size: int):
         self.controller = controller
         self.collision_sprites = pg.sprite.Group()
-        self.player = Player(self.collision_sprites, 10) #not sure if this should be a parameter
+        self.player = Player(self.collision_sprites, 3) #not sure if this should be a parameter
         self.tile_dict = tile_correspondence
         self.tile_size = tile_size
         try:
