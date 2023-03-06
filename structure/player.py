@@ -24,6 +24,8 @@ class Player(pg.sprite.Sprite):
 
     def __init__(self, sprite_scale=1): #spritesheet_path with no file extension
         super().__init__()
+        self.walkSound = self.director.audio.loadSound('../media/steps.mp3')
+
 
         self.sprite = Sprite_handler()
         self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', sprite_scale)
@@ -42,14 +44,13 @@ class Player(pg.sprite.Sprite):
         else:
             if self.direction.magnitude() == 0:
                 self.update_player_state(ActionEnum.IDLE)
-                self.director.audio.stopSound()
+                self.director.audio.stopSound(self.walkSound)
             else: #must be either walking or running (missing attacks also)
                 if self.action_state['run']: 
                     self.update_player_state(ActionEnum.RUN)
                 else:
                     self.update_player_state(ActionEnum.WALK)
-                    self.director.audio.loadSound('../media/steps.mp3')
-                    self.director.audio.playSound()
+                    self.director.audio.playSound(self.walkSound)
 
     # this may alone determine the change of state of the player (using the previous state)
     # because the orientation or the action only change with a different input. No input -> Same state

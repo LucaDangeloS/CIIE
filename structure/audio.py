@@ -41,15 +41,15 @@ class Audio:
   # The following methods are in charge of managing the sounds like hits, etc
 
   def loadSound(self, track):
-    pg.mixer.Sound(track)
+    return pg.mixer.Sound(track)
 
-  def playSound(self):
+  def playSound(self, sound):
     if self.control:
-      pg.mixer.Sound.play(self.p, -1)   
+      pg.mixer.Sound.play(sound, -1)
     self.control = False
 
-  def stopSound(self):
-    pg.mixer.Sound.stop(self.p)
+  def stopSound(self, sound):
+    pg.mixer.Sound.stop(sound)
     self.control = True
 
 
