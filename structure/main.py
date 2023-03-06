@@ -43,7 +43,10 @@ controller = KeyboardController()
 
 # Aún hay que encontrar una manera de cargar sprite sheets de tiles
 tile_mapper = TileMapper({
-    0: pg.image.load('../sprites/environment_tileset/Grass.png'), 
+    0: [
+        pg.image.load('../sprites/environment_tileset/Grass.png'), 
+        pg.image.load('../sprites/environment_tileset/Grass decor.png'),
+    ]
 })
 myLevel = Level(controller, tile_mapper, 16)
 myLevel.load_csv(world_map)

@@ -68,7 +68,8 @@ class Level(SceneInterface):
         except KeyError as e:
             return self.tile_dict.map(TileEnum.GROUND.value)
 
-    def generate_map(self, size: tuple[int, int], chunk_size, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None):
+    def generate_map(self, size: tuple[int, int], chunk_size, n_poi, clear_radius_from_poi=1, 
+        noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None):
         '''
         the noise map generated values in the range [-1, 1] \n
         lower_threshold: lower bound for the noise map to be considered other tile -> mapped to -1 in the TileMapper \n

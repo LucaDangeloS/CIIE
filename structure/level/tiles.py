@@ -24,10 +24,10 @@ class TileMapper():
 
     def map(self, tile_num):
         # check if it's a list
-        if isinstance(tile_num, list):
+        if type(self.correspondence[tile_num]) is list:
             # return random
-            rand = random.randint(0, len(tile_num) - 1)
-            return self.correspondence[tile_num[rand]]
+            rand = random.randint(0, len(self.correspondence[tile_num]) - 1)
+            return self.correspondence[tile_num][rand]
         
         return self.correspondence[tile_num]
 
