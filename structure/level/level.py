@@ -25,11 +25,11 @@ class CameraSpriteGroup(pg.sprite.Group):
         self.offset.x = player.rect.centerx - self.half_width
         self.offset.y = player.rect.centery - self.half_height
 
-        #for sprite in self.sprites():
-        #    offset_pos = sprite.rect.topleft - self.offset
-        #    screen.blit(sprite.image, offset_pos)
         for sprite in self.sprites():
-            screen.blit(sprite.image, sprite.rect)
+            offset_pos = sprite.rect.topleft - self.offset
+            screen.blit(sprite.image, offset_pos)
+        #for sprite in self.sprites():
+            ##screen.blit(sprite.image, sprite.rect)
 
 
 """

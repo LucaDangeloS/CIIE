@@ -74,10 +74,8 @@ class Player(Entity):
 
     def collision(self, direction): #may need to change this style
         # we need to add an offset to the collision to center the rect in the sprite
-        print("checking collision")
         if direction == 'horizontal':
             for sprite in self.collision_sprites: #optimize this?
-                print("we are checking sprite: ", sprite, " result",  sprite.rect.colliderect(self.rect))
                 if sprite.rect.colliderect(self.rect.move(self.hitbox_offset)):
                     if self.direction.x > 0: #right
                         self.rect.right = sprite.rect.left - self.hitbox_offset[0]
