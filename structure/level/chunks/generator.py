@@ -27,13 +27,13 @@ class ChunkGenerator():
             if self.chunk_info[chunk]["type"] == type
         ]
 
-    def generate_chunk_map(self, map, assignable_threshold=[-0.5, 0.5]):
+    def generate_chunk_map(self, map, assignable_threshold: tuple[float, float]):
         self.map = map
         # check ranges of the thresholds
         if assignable_threshold[0] < -1 or assignable_threshold[1] > 1:
             raise Exception("Thresholds must be between -1 and 1")
 
-        chunk_map = np.array([[ChunkEnum.EMPTY if tile >= assignable_threshold[0] or tile <= assignable_threshold[1] else 
+        chunk_map = np.array([[ChunkEnum.EMPTY if tile >= assignable_threshold[0] and tile <= assignable_threshold[1] else 
             ChunkEnum.OBSTACLE for tile in row] for row in map])
 
         self.n = len(chunk_map)
@@ -43,8 +43,11 @@ class ChunkGenerator():
 
         return self.chunks
 
-    def place_spawn(self):
-        self.chunk_info, self.spawn_point = position_spawn(self.chunk_info, ChunkEnum.EMPTY, ChunkEnum.SPAWN)
+    def place_spawn(self) -> tuple[tuple[int, int], tuple[int, int]]:
+        try:
+            self.chunk_info, self.spawn_point = position_spawn(self.chunk_info, ChunkEnum.EMPTY, ChunkEnum.SPAWN)
+        except Exception as e:
+            raise Exception("Could not place spawn point")
         return self.__search_chunk(ChunkEnum.SPAWN), self.spawn_point
 
     def get_chunk_info(self):
@@ -54,13 +57,31 @@ class ChunkGenerator():
         '''
         return self.chunk_info
 
-    def position_objectives(self):
-        self.chunk_info = position_main_structures(self.map, self.spawn_point, self.chunks, 
-            self.chunk_info, ChunkEnum.EMPTY, ChunkEnum.OBJECTIVE)
+    def map_chunk_index_to_tiles(self, chunk_index) -> list[tuple[int, int]]:
+        '''
+        returns the tiles of a chunk
+        '''
+        return self.chunk_info[chunk_index]["tiles"]
+
+    def position_objectives(self) -> list[tuple[int, int]]:
+        try:
+            self.chunk_info = position_main_structures(self.map, self.spawn_point, self.chunks, self.chunk_info, ChunkEnum.EMPTY, ChunkEnum.OBJECTIVE)
+            # print(self.__search_chunks(ChunkEnum.OBJECTIVE))
+        except Exception as e:
+            raise Exception("Could not position objectives")
+
         # Retrieve the chunks of the objectives
         return self.__search_chunks(ChunkEnum.OBJECTIVE)
 
-    def position_poi(self, n, radius=1):
-        self.chunk_info = position_poi(self.chunk_info, ChunkEnum.EMPTY, n, radius, [])
+    def position_poi(self, n, radius) -> list[tuple[int, int]]:
+        # Try 5 times before giving up
+        for i in range(5):
+            try:
+                self.chunk_info = position_poi(self.chunk_info, ChunkEnum.EMPTY, n, radius, [])
+                break
+            except Exception as e:
+                continue
+        else:
+            raise Exception("Could not position poi")
         # Retrieve the chunks of the poi
         return self.__search_chunks(ChunkEnum.POI)

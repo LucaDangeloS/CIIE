@@ -82,7 +82,7 @@ def get_chunks(map: List[List[int]], chunk_size: int) -> List[Tuple[int, int]]:
     return chunks, abbreviated_chunks
 
 
-def remove_adjacent_chunks(chunks, chunk_info, radius, free_chunk: ChunkEnum, exclude_chunks: List[ChunkEnum] = []):
+def remove_adjacent_chunks(chunk_info, radius, free_chunk: ChunkEnum, exclude_chunks: List[ChunkEnum] = []):
     for chunk_index, chunk_data in chunk_info.items():
         chunk_type = chunk_data["type"]
         if chunk_type != free_chunk and chunk_type not in exclude_chunks:
@@ -90,10 +90,10 @@ def remove_adjacent_chunks(chunks, chunk_info, radius, free_chunk: ChunkEnum, ex
             for i in range(-radius, radius + 1):
                 for j in range(-radius, radius + 1):
                     try:
-                        chunks.remove((chunk_index[0] + i, chunk_index[1] + j))
+                        chunk_info.pop((chunk_index[0] + i, chunk_index[1] + j))
                     except ValueError:
                         pass
-    return chunks
+    return chunk_info
 
 
 def get_chunk_center_point(chunk: list[tuple[int, int]]):

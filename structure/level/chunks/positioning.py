@@ -20,7 +20,7 @@ def position_spawn(chunk_info, tile_type: ChunkEnum, paint_tile: ChunkEnum):
     return chunk_info, chunk_center
 
 
-def position_main_structures(map, spawn_point, chunks, chunk_info: dict, tile_type: ChunkEnum, paint_tile: ChunkEnum):
+def position_main_structures(map, spawn_point, chunks, chunk_info: dict, chunk_type: ChunkEnum, paint_tile: ChunkEnum):
     quadrants, quadrants_centers = get_quadrants(map)
 
     # Get the closest quadrant to the spawn point using quadrant centers
@@ -32,7 +32,7 @@ def position_main_structures(map, spawn_point, chunks, chunk_info: dict, tile_ty
 
     # Get free chunks
     free_chunks = [
-        chunk for chunk in chunks if all(map[tile] == tile_type for tile in chunk)
+        chunk_info[chunk]["tiles"] for chunk in chunk_info if chunk_info[chunk]["type"] == chunk_type
     ]
 
     # Group chunks by quadrant
@@ -40,7 +40,7 @@ def position_main_structures(map, spawn_point, chunks, chunk_info: dict, tile_ty
         [chunk for chunk in free_chunks if chunk[0][0] in range(quadrant[0], quadrant[2]) and chunk[0][1] in range(quadrant[1], quadrant[3])]
         for quadrant in other_quadrants
     ]
-
+    
     # Find the farthest chunk from the spawn point and previous structures for each quadrant
     farthest_chunks = []
     placed_structures = []
@@ -55,10 +55,11 @@ def position_main_structures(map, spawn_point, chunks, chunk_info: dict, tile_ty
             if distance > farthest_distance:
                 farthest_chunk = chunk
                 farthest_distance = distance
-        if farthest_chunk is not None:
-            farthest_chunks.append(farthest_chunk)
-            placed_structures.append(farthest_chunk)
+        if farthest_chunk is None:
+            raise Exception("No chunk found for quadrant")
 
+        farthest_chunks.append(farthest_chunk)
+        placed_structures.append(farthest_chunk)
     # Find the corresponding chunk in chunk_info
     chunk_size = chunks[1][0][1] - chunks[0][0][1]
     for chunk in farthest_chunks:
@@ -68,16 +69,17 @@ def position_main_structures(map, spawn_point, chunks, chunk_info: dict, tile_ty
     return chunk_info
 
 
-def position_poi(chunk_info: dict[dict], free_chunk: ChunkEnum, n: int, radius: int = 1, exclude_chunks: List[ChunkEnum] = []):
-    free_chunks = [chunk for chunk in chunk_info if chunk_info[chunk]["type"] == free_chunk]
+def position_poi(chunk_info: dict[dict], chunk_type: ChunkEnum, n: int, radius: int = 1, exclude_chunks: List[ChunkEnum] = []):
+    # filter out chunks that are not of the given type
+    free_chunks_info = {k: v for k, v in chunk_info.items() if v["type"] == chunk_type}
     
     for _ in range(n):
-        free_chunks = remove_adjacent_chunks(free_chunks, chunk_info, radius, free_chunk, exclude_chunks)
-        if not free_chunks:
+        free_chunks_info = remove_adjacent_chunks(free_chunks_info, radius, chunk_type, exclude_chunks)
+        if not free_chunks_info:
             raise Exception("No free chunks left to place POI")
         # Pick a random chunk
-        chunk = random.choice(free_chunks)
-        free_chunks.remove(chunk)
+        chunk = random.choice(list(free_chunks_info))
+        free_chunks_info.pop(chunk)
         
         # Mark the chunk as the tile type
         chunk_info[chunk]["type"] = ChunkEnum.POI

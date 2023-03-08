@@ -50,8 +50,18 @@ tile_mapper = TileMapper({
 })
 
 myLevel = Level(controller, tile_mapper, 16*5)
-myLevel.load_csv(world_map)
+# myLevel.load_csv(world_map)
 
+'''
+This returns:
+ - spawn_tiles: a list of tiles that compose the spawn chunk
+ - spawn: the center tile of the spawn chunk
+ - objective_chunks: a list of chunks that compose the objective
+ - poi_chunks: a list of chunks that compose the points of interest
+ - map_matrix: the raw matrix of the map, where each tile is a mapping of ChunkEnum values
+'''
+(spawn_tiles, spawn), objective_chunks, poi_chunks, map_matrix = myLevel.generate_map((6, 6), 5, 2, lower_threshold=-0.75, upper_threshold=0.8)
+print(map_matrix)
 
 
 #create a button

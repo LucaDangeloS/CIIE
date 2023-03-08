@@ -72,7 +72,7 @@ class Level(SceneInterface):
         except KeyError as e:
             return self.tile_dict.map(TileEnum.GROUND.value)
 
-    def generate_map(self, size: tuple[int, int], chunk_size, n_poi, clear_radius_from_poi=1, 
+    def __generate_map(self, size: tuple[int, int], chunk_size, n_poi, clear_radius_from_poi=1, 
         noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None):
         '''
         the noise map generated values in the range [-1, 1] \n
@@ -86,31 +86,50 @@ class Level(SceneInterface):
 
         Returns (spawn_chunk, spawn_point), objective_chunks: list[list[tuple[int, int]], poi_chunks: list[list[tuple[int, int]]
         '''
+
         self.size_x = size[0] * chunk_size
         self.size_y = size[1] * chunk_size
         self.map = generate_pnoise(size[0]*chunk_size, size[1]*chunk_size, noise_resolution, seed=seed)
         self.chunk_generator = ChunkGenerator(chunk_size)
         self.chunk_generator.generate_chunk_map(self.map, [lower_threshold, upper_threshold])
         spawn_chunk, spawn = self.chunk_generator.place_spawn()
-        # override all map values with 0
+
+        # override all map values with 0 and write the obstacles
+        lower_threshold_values = self.map < lower_threshold
+        upper_threshold_values = self.map > upper_threshold
         self.map = np.zeros((self.size_x, self.size_y))
-        
-        for tile in spawn_chunk:
-            self.map[tile] = TileEnum.SPAWN.value
+        self.map[lower_threshold_values] = TileEnum.OBSTACLE.value
+        self.map[upper_threshold_values] = TileEnum.OBSTACLE_2.value
+
+        spawn_tiles = self.chunk_generator.map_chunk_index_to_tiles(spawn_chunk)
+        for x, y in spawn_tiles:
+            self.map[x][y] = TileEnum.SPAWN.value
 
         objective_chunks = self.chunk_generator.position_objectives()
         for chunk in objective_chunks:
-            for tile in chunk:
-                self.map[tile] = TileEnum.OBJECTIVE.value
-
+            for x, y in self.chunk_generator.map_chunk_index_to_tiles(chunk):
+                self.map[x][y] = TileEnum.OBJECTIVE.value
+        
         poi_chunks = self.chunk_generator.position_poi(n_poi, clear_radius_from_poi)
         for chunk in poi_chunks:
-            for tile in chunk:
-                self.map[tile] = TileEnum.POI.value
+            for x, y in self.chunk_generator.map_chunk_index_to_tiles(chunk):
+                self.map[x][y] = TileEnum.POI.value
 
         self.load_map()
-        print(self.map)
-        return (spawn_chunk, spawn), objective_chunks, poi_chunks
+
+        return (spawn_tiles, spawn), objective_chunks, poi_chunks, self.map
+
+    def generate_map(self, size: tuple[int, int], chunk_size, n_poi, clear_radius_from_poi=1, 
+        noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None) -> tuple[tuple[list[tuple[int, int]], tuple[int, int]], list[list[tuple[int, int]]], list[list[tuple[int, int]]], np.ndarray]:
+        
+        # Try 10 times, highly unlikely to fail if the parameters are not tweaked too much
+        for _ in range(10):
+            try:
+                return self.__generate_map(size, chunk_size, n_poi, clear_radius_from_poi, noise_resolution, lower_threshold, upper_threshold, seed)
+            except Exception as e:
+                continue
+        raise Exception("Failed to generate map")
+
 
 
     def load_csv(self, map_representation):
