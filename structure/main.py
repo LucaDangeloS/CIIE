@@ -66,7 +66,7 @@ This returns:
  - map_matrix: the raw matrix of the map, where each tile is a mapping of TileEnum values
 '''
 (spawn_tiles, spawn), objective_chunks, poi_chunks, map_matrix = myLevel.generate_map((6, 6), 5, 2, lower_threshold=-0.75, upper_threshold=0.8)
-
+"""
 tile_mapper.map_matrix = map_matrix
 
 map_surf = tile_mapper.hardcoded_example()
@@ -100,9 +100,8 @@ while run:
     #screen.blit(water, (0,0))
         
     pg.display.update()
+"""
 
-
-'''
 #create a button
 button1 = Button(lambda: director.push_scene(myLevel), None, Rect(100,100,200,100))
 mainMenu = Menu(pg.image.load('../menu/background.jpg'), [button1])
@@ -111,7 +110,6 @@ mainMenu = Menu(pg.image.load('../menu/background.jpg'), [button1])
 #the directors handles the loop
 director.push_scene(mainMenu)
 director.running_loop()
-'''
 
 pg.quit()
 

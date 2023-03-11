@@ -41,7 +41,7 @@ class KeyboardController(ControllerInterface):
                     action = self.key_dict[event.key]
                     action_list.append((event.type == KEYDOWN, action))
 
-                    print('action ', action_list)
+                    #print('action ', action_list)
                 except KeyError: #not functional key (any other error will crash the program)
                     pass
                     

@@ -3,6 +3,7 @@ import numpy as np
 from pygame.locals import *
 from scene import SceneInterface
 from entities.player import Player
+from entities.enemy import Enemy
 from entities.sprites import SpriteSheet
 from director import Director
 from enum import Enum
@@ -10,6 +11,7 @@ from controller import KeyboardController
 from level.noise.pnoise import generate_pnoise
 from level.chunks.generator import ChunkGenerator
 from level.tiles import Tile, TileMapper
+
 
 class CameraSpriteGroup(pg.sprite.Group):
     def __init__(self):
@@ -31,18 +33,6 @@ class CameraSpriteGroup(pg.sprite.Group):
         #for sprite in self.sprites():
             ##screen.blit(sprite.image, sprite.rect)
 
-
-"""
-pg.init()
-screen = pg.display.set_mode((1000, 700))
-clock = pg.time.Clock()
-run = True
-
-csprite = CameraSpriteGroup(screen)
-print(csprite.half_width, " ", csprite.half_height)
-
-pg.quit()
-"""
 class TileEnum(Enum):
     OBSTACLE = -1
     OBSTACLE_2 = 1
@@ -56,7 +46,14 @@ class Level(SceneInterface):
     def __init__(self, controller, tile_correspondence: TileMapper, tile_size: int):
         self.controller = controller
         self.collision_sprites = pg.sprite.Group()
-        self.player = Player(self.collision_sprites, 3) #not sure if this should be a parameter
+
+        self.damagable_sprites = CameraSpriteGroup()
+        self.wasp = Enemy(None, '../sprites/players/enemies/wasp', pg.Rect(300, 200, 40, 40), 3)
+        self.damagable_sprites.add(self.wasp)
+
+        #player needs to be instantiated after the damagable_sprites
+        self.player = Player(self.collision_sprites, self.damagable_sprites, 3)
+
         self.tile_dict = tile_correspondence
         self.tile_size = tile_size
         try:
@@ -163,6 +160,7 @@ class Level(SceneInterface):
 
     def update(self):
         #call the update method on all moving entities
+        self.wasp.update()
         self.player.update()
 
     def handle_events(self, event_list):
@@ -174,62 +172,15 @@ class Level(SceneInterface):
     def draw(self, screen):
         screen.fill('white') #to refresh the whole screen
         self.floor_tiles.draw_offsetted(self.player, screen)
-        self.player.draw(screen)
-
-
-"""
-#Testing a level
-world_map = [
-                [0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-                [0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-                [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
-                [1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-                [1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-                [0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-                [0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-                [0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
-                [1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-            ]
-pg.init()
-
-screen = pg.display.set_mode((1000, 700))
-clock = pg.time.Clock()
-run = True
-
-
-controller = KeyboardController()
-myLevel = Level(controller)
-myLevel.get_map_representation(world_map)
-
-while run:
-    clock.tick(60)
-    event_list = pg.event.get()
-    for event in event_list:
-        if event.type == QUIT:
-            run = False
-            break
-   
-    screen.fill('white')
-    myLevel.handle_events(event_list)
-    myLevel.update()    
-    myLevel.draw(screen)  
-    pg.display.update() 
-
-
-
-pg.quit()
-"""
-
-
-
-
+       
+        #rect drawing for debugging 
+        #self.player.draw(screen)
+        #self.wasp.draw(screen)
+        
+        #self.damagable_sprites.draw(screen)
+        self.damagable_sprites.draw_offsetted(self.player, screen)
+    
+    def get_damagable_sprites(self):
+        return self.damagable_sprites
+    
 

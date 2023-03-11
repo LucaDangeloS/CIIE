@@ -61,6 +61,7 @@ class Director(object):
             # print fps
             # print(self.clock.get_fps())
 
+
     def push_scene(self, scene: SceneInterface):
         self.scene_stack.append(scene)
 
@@ -69,6 +70,9 @@ class Director(object):
         
         #pop from the stack
         self.scene_stack.pop()
+
+    def get_damagable_sprites(self):
+        return self.scene_stack[-1].get_damagable_sprites()
 
 
 

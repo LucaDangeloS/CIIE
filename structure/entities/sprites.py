@@ -71,30 +71,6 @@ def load_csv_into_surface(csv_reader, sprite_list, tile_size):
     
     return map_srf
 
-#testing code to load a spritesheet with the tiled style
-"""
-pg.init()
-screen = pg.display.set_mode((1000, 700))
-clock = pg.time.Clock()
-run = True
-
-tileset = SpriteSheet(pg.image.load('/home/udc/Documents/CIIE/CIIE/sprites/environment_tileset/Fields.png'))
-
-tile_list = tileset.load_tiled_style((16,16))
-
-while run:
-    clock.tick(60)
-    for event in pg.event.get():
-        if event.type == QUIT:
-            run = False
-            break
-    screen.fill('white')
-    for idx, tile in enumerate(tile_list):
-        screen.blit(tile, (idx*16,0)) 
-    pg.display.update()
-
-pg.quit()
-"""
 
 #need to refine my csv animation indications.
 
@@ -106,7 +82,7 @@ class Sprite_handler():
         self.dict = {} #dictionary of dictionaries
 
         #use these to track the animation we are on
-        self.state = ('idle', 'right')
+        self.state = (ActionEnum.IDLE, 'right')
         self.animation_idx = 0
        
         self.animation_step = 500
@@ -196,17 +172,36 @@ class Sprite_handler():
     #this function requires for the states used to be already loaded
     def get_img(self, state):
         action, orientation = state
-        orientation_dict, self.animation_step = self.dict[action.value]
+        (orientation_dict, self.animation_step) = self.dict[self.state[0].value]
+        
         if self.state[0] == action and self.state[1] == orientation:
             if pg.time.get_ticks() - self.last_step >= self.animation_step:
                 self.last_step = pg.time.get_ticks()
                 self.animation_idx = (self.animation_idx + 1) % len(orientation_dict[orientation])
+        
+        elif self.state[0] == ActionEnum.ATTACK_1: #attack_1
+            if pg.time.get_ticks() - self.last_step >= self.animation_step:
+            
+                if (self.animation_idx == len(orientation_dict[orientation])-1):
+                    orient, idx = self.state[1], self.animation_idx
+                    
+                    self.animation_idx, self.state = 0, (action, orientation)
+                    self.last_step = pg.time.get_ticks()
+                   
+                    return orientation_dict[orient][idx]
+
+                #if we are attacking complete the animation before switching 
+                self.last_step = pg.time.get_ticks()
+                self.animation_idx = (self.animation_idx + 1) % len(orientation_dict[self.state[1]])
+ 
         else: #no need to distinguish which one is not equal (still need to reset)
             self.last_step = pg.time.get_ticks()
             self.state = (action, orientation)
             self.animation_idx = 0
-            
-        return orientation_dict[orientation][self.animation_idx]
+            orientation_dict, self.animation_speed = self.dict[action.value]
+           
+ 
+        return orientation_dict[self.state[1]][self.animation_idx]
 
 """
 #testing code for the sprites 

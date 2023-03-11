@@ -1,6 +1,7 @@
 import pygame as pg
 from pygame.locals import *
 from controller import ControllerInterface
+from director import Director
 from entities.sprites import Sprite_handler, ActionEnum
 from entities.entity import Entity
 from weapons.stick import Stick
@@ -10,12 +11,13 @@ class Player(Entity):
     action_state = {ControllerInterface.events[0]:False, ControllerInterface.events[1]: False, ControllerInterface.events[2]: False,
              ControllerInterface.events[3]: False, ControllerInterface.events[4]:False, ControllerInterface.events[5]:False, ControllerInterface.events[6]:False}
     # possible actions [idle, walking, running, attack1, attack2]    
-    weapons = [Stick()]
-    
-    def __init__(self, collision_sprites, sprite_scale=1): #if we don't add the player to the collision sprites how is he going to collide with enemies?
+    weapons = []
+  
+ 
+    def __init__(self, collision_sprites, damagable_sprites, sprite_scale=1): #if we don't add the player to the collision sprites how is he going to collide with enemies?
         super().__init__()
+        director = Director()
         self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', sprite_scale)
-        #self.sprite.load_irregular_sprites('../sprites/players/grandmother/stick_attack/stick_attack', sprite_scale)
         self.image = self.sprite.get_img(self.state)
 
         #should we harcode the rect?
@@ -23,6 +25,11 @@ class Player(Entity):
         self.collision_sprites = collision_sprites
         
         self.hitbox_offset = (7*sprite_scale, 10*sprite_scale)
+
+        self.weapons.append(Stick(self.rect.topright))
+
+        #self.damagable_sprite_group = director.get_damagable_sprites()
+        self.damagable_sprite_group = damagable_sprites
 
     def kill(self):
         super().kill()
@@ -40,6 +47,13 @@ class Player(Entity):
         self.direction.x = self.dir_dict[ (self.action_state['left'], self.action_state['right']) ]
        
         if self.action_state['attack_1']:
+            '''   
+            Problem: right now is that the attack has a logical cooldown
+             but the animation has not, so you can spam the animation and you may not be hitting as 
+             fast as the animation shows if it isn't well coordinated.
+            '''
+ 
+            self.weapons[0].attack(self.rect, self.state[1], self.damagable_sprite_group)
             self.update_player_state(ActionEnum.ATTACK_1)
         else:
             if self.direction.magnitude() == 0:
@@ -88,3 +102,18 @@ class Player(Entity):
                         self.rect.bottom = sprite.rect.top - self.hitbox_offset[1]
                     if self.direction.y < 0:
                         self.rect.top = sprite.rect.bottom - self.hitbox_offset[1]
+
+    def update(self):
+        self.image = self.sprite.get_img(self.state)
+        for weapon in self.weapons:
+            weapon.update(self.rect.topright)
+        self.move()
+
+    def draw(self, screen: pg.display):
+        pg.draw.rect(screen, (0,255,0), self.rect)
+        for weapon in self.weapons:
+            weapon.draw_hitbox(screen)
+    
+
+
+
