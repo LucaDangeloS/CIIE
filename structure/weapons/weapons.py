@@ -15,7 +15,7 @@ class Weapon(metaclass=abc.ABCMeta):
              or NotImplemented)
  
     @abc.abstractmethod
-    def attack(player_pos: tuple[int, int], orientation: tuple[int,int]) -> pg.Rect:
+    def attack(player_pos: tuple[int, int], orientation: tuple[int,int], damagable_group: pg.sprite.Group):
         """ Returns  the rectangle where the attack can deal damage """
         raise NotImplementedError
 

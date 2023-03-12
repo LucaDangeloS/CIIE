@@ -6,7 +6,7 @@ from weapons.weapons import Weapon #using the module name because we launch from
 class Stick(Weapon):
     cooldown = 200
     damage = 1
-    rect_dim = (38, 50)
+    rect_dim = (38, 60)
     
     def __init__(self, player_pos: tuple[int, int]):
         self.rect = pg.Rect(player_pos[0], player_pos[1], self.rect_dim[0], self.rect_dim[1]) 
@@ -35,17 +35,11 @@ class Stick(Weapon):
            
 
             damaged = pg.sprite.spritecollide(self.sprite, damagable_group, False)
-            for entity in damaged:
+            for entity in damaged: #if it doesn't hit anything damaged = []
                 entity.receive_damage(self.damage)
-            if damaged != []:
-                print("we hittin' something")
 
 
-
-
-        return 'attaaack'
-
-    def update(self, player_pos: tuple[int,int]): #this is just for testing purposes
+    def update(self, player_pos: tuple[int,int]):
         #check for cooldown to be up
         if pg.time.get_ticks() - self.last_step > self.cooldown:
             self.attack_ready = True

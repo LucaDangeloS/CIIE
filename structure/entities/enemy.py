@@ -4,7 +4,7 @@ from entities.entity import Entity
 
 #probably create a general enemy class with a default functionalities and then reinstantiate if needed.
 class Enemy(Entity):
-    health = 3    
+    health = 2
 
     def __init__(self, collision_sprites, sprite_path, entity_rect, sprite_scale=1):
         super().__init__()
@@ -20,9 +20,7 @@ class Enemy(Entity):
     '''
     def receive_damage(self, damage_amount):
         self.health -= damage_amount
-        print("health_remaining: ", self.health)
         if self.health <= 0: #kill the sprite
-            print("DEAD")
             #we should launch the dying animation here
             self.kill()           
     def update(self, state=None):

@@ -6,7 +6,7 @@ class Entity(pg.sprite.Sprite):
     invincible = True
     alive = True
     walking_speed = 4
-    running_speed = 6
+    running_speed = 7 
     direction = pg.math.Vector2()
     dir_dict = {(True, False): -1, (False, True): 1, (False, False): 0, (True, True): 0}
     state = (ActionEnum.IDLE, 'down') #(action, orientation)

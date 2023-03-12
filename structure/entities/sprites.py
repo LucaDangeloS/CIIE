@@ -78,8 +78,8 @@ def load_csv_into_surface(csv_reader, sprite_list, tile_size):
 #use this class to store the sprites, the animations and iterate through them
 class Sprite_handler():
     def __init__(self): #spritesheet_path: name of the spritesheet without extensions
-        #self.dict will have keys like walking that'll give another dict that has keys like up, down, left, right
-        self.dict = {} #dictionary of dictionaries
+        self.dict = {} #list of dictionary of dictionaries, and animation time per step
+        
 
         #use these to track the animation we are on
         self.state = (ActionEnum.IDLE, 'right')
@@ -87,49 +87,6 @@ class Sprite_handler():
        
         self.animation_step = 500
         self.last_step = 0
-
-
-    def load_irregular_sprites(self, spritesheet_path, scale=1):
-        spritesheet = SpriteSheet(pg.image.load(spritesheet_path + '.png'))
-        csv_file = open(spritesheet_path + '.csv')
-        csv_reader = csv.reader(csv_file)
-
-        header = next(csv_reader, -1)
-        action = header[0]
-        orientation_dict = {}
-
-        header = next(csv_reader, -1)
-        while not (header == -1):
-            animation_list = []
-            for i in range(int(header[1])): #number of sprites for that orientation
-                rect = ( int(header[2+i*4]), int(header[3+i*4]), int(header[4+i*4]), int(header[5+i*4]) )
-                animation_list.append(spritesheet.image_at(rect, scale))
-            orientation_dict[header[0]] = animation_list
-            header = next(csv_reader, -1)
-        
-        self.dict[action] = orientation_dict
-
-
-    def load_regular_sprites_by_strips(self, spritesheet_path, scale=1): 
-        spritesheet = SpriteSheet(pg.image.load(spritesheet_path + '.png'))
-        csv_file = open(spritesheet_path + '.csv')
-        csv_reader = csv.reader(csv_file)
-
-        #get the dimensions of the sprites
-        header = next(csv_reader, -1)
-        sprite_width, sprite_height = int(header[1]), int(header[3])
-       
-        #get the sprites
-        header = next(csv_reader, -1) #add also a default value so we know when to stop 
-        while not (header == - 1):
-            action = header[0]
-            orientation_dict = {}
-            for i in range(int((len(header)-1)/4)): #specification well formed -> that division gives an float .0
-                x, y = int(header[i*4+2])*sprite_width, int(header[i*4+3])*sprite_height
-                orientation_dict[header[i*4+1]] = spritesheet.load_strip((x,y,sprite_width,sprite_height), 3, scale)
-            self.dict[action] = orientation_dict
-            
-            header = next(csv_reader, -1)      
 
     def load_regular_sprites(self, spritesheet_path, scale=1):
         spritesheet = SpriteSheet(pg.image.load(spritesheet_path + '.png'))
@@ -166,9 +123,6 @@ class Sprite_handler():
         
             header = next(csv_reader,-1) 
 
-
-
-    #use pg.time.get_ticks() to change animations -> independent of game speed. 
     #this function requires for the states used to be already loaded
     def get_img(self, state):
         action, orientation = state
@@ -179,7 +133,7 @@ class Sprite_handler():
                 self.last_step = pg.time.get_ticks()
                 self.animation_idx = (self.animation_idx + 1) % len(orientation_dict[orientation])
         
-        elif self.state[0] == ActionEnum.ATTACK_1: #attack_1
+        elif self.state[0] == ActionEnum.ATTACK_1 or self.state[0] == ActionEnum.ATTACK_2: #attack_1
             if pg.time.get_ticks() - self.last_step >= self.animation_step:
             
                 if (self.animation_idx == len(orientation_dict[orientation])-1):

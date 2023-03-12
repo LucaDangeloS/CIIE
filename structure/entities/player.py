@@ -5,12 +5,13 @@ from director import Director
 from entities.sprites import Sprite_handler, ActionEnum
 from entities.entity import Entity
 from weapons.stick import Stick
+from weapons.slipper import Slipper
 
 
 class Player(Entity):
     action_state = {ControllerInterface.events[0]:False, ControllerInterface.events[1]: False, ControllerInterface.events[2]: False,
              ControllerInterface.events[3]: False, ControllerInterface.events[4]:False, ControllerInterface.events[5]:False, ControllerInterface.events[6]:False}
-    # possible actions [idle, walking, running, attack1, attack2]    
+    # possible actions [idle, walking, running, attack_1, attack_2]
     weapons = []
   
  
@@ -27,9 +28,14 @@ class Player(Entity):
         self.hitbox_offset = (7*sprite_scale, 10*sprite_scale)
 
         self.weapons.append(Stick(self.rect.topright))
+        self.weapons.append(Slipper(5))
 
         #self.damagable_sprite_group = director.get_damagable_sprites()
         self.damagable_sprite_group = damagable_sprites
+
+    def set_drawing_sprite_group(self, sprite_group):
+        sprite_group.add(self)
+        self.weapons[1].drawing_spr_group = sprite_group
 
     def kill(self):
         super().kill()
@@ -55,6 +61,9 @@ class Player(Entity):
  
             self.weapons[0].attack(self.rect, self.state[1], self.damagable_sprite_group)
             self.update_player_state(ActionEnum.ATTACK_1)
+        elif self.action_state['attack_2']:
+            self.weapons[1].attack(self.rect, self.state[1])
+            self.update_player_state(ActionEnum.ATTACK_2)
         else:
             if self.direction.magnitude() == 0:
                 self.update_player_state(ActionEnum.IDLE)
@@ -80,6 +89,9 @@ class Player(Entity):
             self.state = (ActionEnum.IDLE, self.state[1])
         elif action == ActionEnum.ATTACK_1:
             self.state = (ActionEnum.ATTACK_1, self.state[1])
+        elif action == ActionEnum.ATTACK_2:
+            self.state = (ActionEnum.ATTACK_2, self.state[1])
+        #this else is to control the animation behavior when walking diagonally
         else:
         #for now walking and running will have the same animations
             for orientation in orientations: #it only changes when there is movement
@@ -105,14 +117,16 @@ class Player(Entity):
 
     def update(self):
         self.image = self.sprite.get_img(self.state)
-        for weapon in self.weapons:
-            weapon.update(self.rect.topright)
+        self.weapons[0].update(self.rect.topright) #cooldown purpose
+        self.weapons[1].update(self.damagable_sprite_group)
         self.move()
 
     def draw(self, screen: pg.display):
+        if self.weapons[1].launched:
+            self.weapons[1].draw_hitbox(screen)
         pg.draw.rect(screen, (0,255,0), self.rect)
-        for weapon in self.weapons:
-            weapon.draw_hitbox(screen)
+        #for weapon in self.weapons:
+            #weapon.draw_hitbox(screen)
     
 
 

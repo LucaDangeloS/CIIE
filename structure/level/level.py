@@ -124,6 +124,7 @@ class Level(SceneInterface):
             try:
                 return self.__generate_map(size, chunk_size, n_poi, clear_radius_from_poi, noise_resolution, lower_threshold, upper_threshold, seed)
             except Exception as e:
+                print(e)
                 continue
         raise Exception("Failed to generate map")
 
@@ -151,8 +152,10 @@ class Level(SceneInterface):
         img = pg.transform.scale(pg.image.load('../sprites/environment_tileset/Soil.png'), (32,32))
         square = Tile((100,100), [self.floor_tiles, self.collision_sprites], img)
         print(square.rect)       
- 
-        self.floor_tiles.add(self.player)
+
+        self.player.set_drawing_sprite_group(self.floor_tiles) 
+        #self.floor_tiles.add(self.player)
+        #self.floor_tiles.add(self.player.weapons[1].sprite)
 
     #if the controller changes, the director will go through every scene updating the controller.
     def update_controller(self, controller):
