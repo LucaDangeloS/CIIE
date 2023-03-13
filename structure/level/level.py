@@ -14,7 +14,7 @@ class CameraSpriteGroup(pg.sprite.Group):
         super().__init__()
 
         #is there a better way to get the size of the screen 
-        director = Director() 
+        director = Director()
         self.half_width = director.screen.get_size()[0] // 2
         self.half_height = director.screen.get_size()[1] // 2
         

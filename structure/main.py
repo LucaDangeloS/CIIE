@@ -6,7 +6,7 @@ from director import Director
 from controller import KeyboardController, JoystickController
 from level.level import Level
 from level.level_generator import LevelGenerator
-
+from audio import Audio
 
 
 world_map = [
@@ -94,12 +94,12 @@ while run:
 """
 
 #create a button
-button1 = Button(lambda: director.push_scene(myLevel), None, Rect(100,100,200,100))
+button1 = Button(lambda: director.push_scene((myLevel, "../media/levelMusic.ogg")), None, Rect(100,100,200,100))
 mainMenu = Menu(pg.image.load('../menu/background.jpg'), [button1])
 
 
 #the directors handles the loop
-director.push_scene(mainMenu)
+director.push_scene((mainMenu, "../media/music.ogg"))
 director.running_loop()
 
 pg.quit()

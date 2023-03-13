@@ -1,17 +1,24 @@
 import pygame as pg
 from pygame.locals import *
 from scene import SceneInterface
+from director import Director
+
 
 class Button():
     def __init__(self, callback, image, rect):
         self.callback = callback
         self.image = image
         self.rect = rect
+        self.director = Director()
+
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
     def run_callback(self):
+        self.director.audio.stopMusic()
+        self.director.audio.change_track('../media/levelMusic.ogg')
+        self.director.audio.startSound()
         if self.callback is not None:
             self.callback()
 
@@ -25,8 +32,11 @@ class Button():
 #or we can do that by returning an specific signal from events.
 class Menu(SceneInterface): 
     clicked_button = None
+    director = Director()
     def __init__(self, background_img: pg.Surface, buttons: list[Button]):
-        self.current_res = (pg.display.Info().current_w, pg.display.Info().current_h)   
+        self.director.audio.change_track('../media/music.ogg')
+        self.director.audio.startSound()
+        self.current_res = (pg.display.Info().current_w, pg.display.Info().current_h)
         self.background_img = pg.transform.scale(background_img, self.current_res)
         self.background_rect = self.background_img.get_rect(topleft = (0,0))
         self.buttons = buttons

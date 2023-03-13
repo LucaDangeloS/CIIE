@@ -6,6 +6,7 @@ from entities.sprites import Sprite_handler, ActionEnum
 from entities.entity import Entity
 from weapons.stick import Stick
 from weapons.slipper import Slipper, WeaponPool
+import time
 
 
 class Player(Entity):
@@ -13,13 +14,15 @@ class Player(Entity):
              ControllerInterface.events[3]: False, ControllerInterface.events[4]:False, ControllerInterface.events[5]:False, ControllerInterface.events[6]:False}
     # possible actions [idle, walking, running, attack_1, attack_2]
     weapons = []
+    director = Director()
   
  
     def __init__(self, collision_sprites, damagable_sprites, sprite_scale=1): #if we don't add the player to the collision sprites how is he going to collide with enemies?
         super().__init__()
-        director = Director()
         self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', sprite_scale)
         self.image = self.sprite.get_img(self.state)
+        self.walk_sound = self.director.audio.loadSound('../media/steps.mp3')
+        self.shoe_sound = self.director.audio.loadSound('../media/zapatillazo.mp3')
 
         #should we harcode the rect?
         self.rect = pg.Rect(380,50,16.6666*sprite_scale,26.666666*sprite_scale)
@@ -67,14 +70,19 @@ class Player(Entity):
         elif self.action_state['attack_2']:
             self.weapons[1].attack(self.rect, self.state[1])
             self.update_player_state(ActionEnum.ATTACK_2)
+            self.director.audio.playAttackSound(self.shoe_sound)
+            # self.director.audio.setChannel(0)
+
         else:
             if self.direction.magnitude() == 0:
                 self.update_player_state(ActionEnum.IDLE)
+                self.director.audio.stopSound(self.walk_sound)
             else: #must be either walking or running (missing attacks also)
                 if self.action_state['run']: 
                     self.update_player_state(ActionEnum.RUN)
                 else:
                     self.update_player_state(ActionEnum.WALK)
+                    self.director.audio.playSound(self.walk_sound)
 
     # this may alone determine the change of state of the player (using the previous state)
     # because the orientation or the action only change with a different input. No input -> Same state
