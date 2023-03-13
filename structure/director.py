@@ -59,7 +59,7 @@ class Director(object):
             pg.display.update()
             
             # print fps
-            # print(self.clock.get_fps())
+            print(self.clock.get_fps())
 
 
     def push_scene(self, scene: SceneInterface):

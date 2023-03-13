@@ -44,9 +44,10 @@ controller = KeyboardController()
 # joysticks = controller.get_joy()
 
 
-level_generator = LevelGenerator((6, 6), 5)
+#level_generator = LevelGenerator((6, 6), 5)
 # Feed this into the Level
-level_surf = level_generator.generate_map(2, lower_threshold=-0.75, upper_threshold=0.8)
+#level_surf = level_generator.generate_map(2, lower_threshold=-0.75, upper_threshold=0.8)
+
 myLevel = Level(controller)
 # myLevel.load_csv(world_map)
 

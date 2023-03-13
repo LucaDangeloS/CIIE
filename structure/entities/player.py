@@ -5,7 +5,7 @@ from director import Director
 from entities.sprites import Sprite_handler, ActionEnum
 from entities.entity import Entity
 from weapons.stick import Stick
-from weapons.slipper import Slipper
+from weapons.slipper import Slipper, WeaponPool
 
 
 class Player(Entity):
@@ -28,14 +28,17 @@ class Player(Entity):
         self.hitbox_offset = (7*sprite_scale, 10*sprite_scale)
 
         self.weapons.append(Stick(self.rect.topright))
-        self.weapons.append(Slipper(5))
+        self.weapons.append(WeaponPool(Slipper, 30, 300, 4))
+        #self.weapons.append(Slipper(5))
 
         #self.damagable_sprite_group = director.get_damagable_sprites()
         self.damagable_sprite_group = damagable_sprites
 
     def set_drawing_sprite_group(self, sprite_group):
         sprite_group.add(self)
-        self.weapons[1].drawing_spr_group = sprite_group
+        #self.weapons[1].drawing_spr_group = sprite_group
+        self.weapons[1].set_drawing_sprite_group(sprite_group)
+
 
     def kill(self):
         super().kill()

@@ -3,14 +3,51 @@ from pygame.locals import *
 from weapons.weapons import Weapon
 from entities.sprites import ActionEnum, Sprite_handler
 
-class SlipperContainer:
+class WeaponPool:
     '''
     class to store all the slippers we can use and to properly handle the timeout between 
     the use of slipper throws 
     '''
-    pass
+    active_weapons = []
+    def __init__(self, WeaponClass, poolSize: int, cooldown, sprite_scale=1):
+        self.weapon_pool = []
+        for i in range(poolSize):
+            self.weapon_pool.append(WeaponClass(sprite_scale))
+        
+        self.cooldown = cooldown
+        self.last_step = pg.time.get_ticks()
+        self.weapon_idx = 0
+
+        print("weapon pool: ", self.weapon_pool)
+    
+    def set_drawing_sprite_group(self, drawing_spr_group: pg.sprite.Group):
+        for weapon in self.weapon_pool:
+            weapon.drawing_spr_group = drawing_spr_group
 
 
+    def attack(self, player_rect:pg.Rect, orientation:tuple[int,int]):
+        if pg.time.get_ticks() - self.last_step > self.cooldown:
+            if self.weapon_pool[self.weapon_idx].ready:
+                self.weapon_pool[self.weapon_idx].attack(player_rect, orientation)
+                self.active_weapons.append(self.weapon_pool[self.weapon_idx])
+                self.weapon_idx += 1 
+                self.last_step = pg.time.get_ticks()
+            else:
+                print("the weapon pool might be to small")
+
+    '''
+    This could be optimized keeping a list of active weapons and the weapon should have a call
+    to unlist itself when ready switchs to true
+    '''
+    def update(self, damagable_group: pg.sprite.Group):
+        print('we are updating the pool')
+        for weapon in self.active_weapons:
+            print('we are updating weapon: ', weapon)
+            weapon.update(damagable_group)
+        
+    def draw_hitboxes(self, screen):
+        for weapon in self.active_weapons:
+            weapon.draw_hitbox(screen)     
 
 
 class Slipper(Weapon):
@@ -23,7 +60,7 @@ class Slipper(Weapon):
     damage = 2
     moving_speed = 8
     direction = pg.math.Vector2()
-    launched = False #to know if the slipper is already in the air
+    ready = True #to know if the slipper is already in the air
     rect_dim = (40,40)
 
     drawing_spr_group = None #setted by player
@@ -43,7 +80,7 @@ class Slipper(Weapon):
 
     #maybe add a collide_group to check if we should delete the slipper
     def attack(self, player_rect:pg.Rect, orientation:tuple[int,int]):
-        if not self.launched:
+        if self.ready:
             if orientation == 'down':
                 x, y = player_rect.midbottom[0] - (self.rect_dim[0]/2), player_rect.midbottom[1]
                 self.direction.x, self.direction.y = 0, 1
@@ -58,14 +95,14 @@ class Slipper(Weapon):
                 self.direction.x, self.direction.y = 1, 0 
     
             self.rect.x, self.rect.y = x, y
-            self.launched = True
+            self.ready = False
             self.drawing_spr_group.add(self.sprite)
  
     
     def update(self, damagable_group: pg.sprite.Group): #iterate through the animation
         self.sprite.image = self.sprite_handler.get_img(self.state)
         #update the rect position and check for hits
-        if self.launched:
+        if not self.ready:
             self.rect.x += self.direction.x * self.moving_speed 
             self.rect.y += self.direction.y * self.moving_speed
             self.sprite.rect = self.rect

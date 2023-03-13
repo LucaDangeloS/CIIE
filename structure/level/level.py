@@ -6,6 +6,8 @@ from entities.player import Player
 from entities.enemy import Enemy
 from entities.sprites import SpriteSheet
 from director import Director
+from level.level_generator import LevelGenerator, SurfaceMapper
+
 
 class CameraSpriteGroup(pg.sprite.Group):
     def __init__(self):
@@ -32,18 +34,38 @@ class CameraSpriteGroup(pg.sprite.Group):
 class Level(SceneInterface):
 
     def __init__(self, controller):
+        #create the level surface
+        levelGenerator = LevelGenerator((6, 6), 5)
+
+        (spawn_tiles, spawn), poi_chunks, map_matrix = levelGenerator.generate_map(2, lower_threshold=-0.75, upper_threshold=0.8)
+ 
+        surfaceMapper = SurfaceMapper(map_matrix)
+        self.back_sprite = pg.sprite.Sprite()
+        self.back_sprite.image = surfaceMapper.hardcoded_example()
+        self.back_sprite.rect = self.back_sprite.image.get_rect(topleft=(0,0))
+        
+
+        self.visible_sprites = CameraSpriteGroup()
+
+        self.visible_sprites.add(self.back_sprite)
+
+
+
         # TODO: Make it receive a surface or whatever to draw the level
 
         self.controller = controller
         self.collision_sprites = pg.sprite.Group()
 
         self.damagable_sprites = CameraSpriteGroup()
-        # haaaaaaardcoded
-        self.wasp = Enemy(None, '../sprites/players/enemies/wasp', pg.Rect(300, 200, 40, 40), 3)
+        # haaaaaaardcoded -> LMAOOOOO you want sprite masking and death???
+        self.wasp = Enemy(None, '../sprites/players/enemies/wasp', pg.Rect(800, 200, 40, 40), 3)
         self.damagable_sprites.add(self.wasp)
 
         #player needs to be instantiated after the damagable_sprites
         self.player = Player(self.collision_sprites, self.damagable_sprites, 3)
+        self.player.set_drawing_sprite_group(self.visible_sprites)
+        
+
 
     #if the controller changes, the director will go through every scene updating the controller.
     def update_controller(self, controller):
@@ -62,16 +84,15 @@ class Level(SceneInterface):
 
     def draw(self, screen):
         screen.fill('white') #to refresh the whole screen
-
-        # TODO: Floor tiles integration
-        # self.floor_tiles.draw_offsetted(self.player, screen)
-
+        
         #rect drawing for debugging 
         #self.player.draw(screen)
         #self.wasp.draw(screen)
         
         #self.damagable_sprites.draw(screen)
+        self.visible_sprites.draw_offsetted(self.player, screen)
         self.damagable_sprites.draw_offsetted(self.player, screen)
+
     
     def get_damagable_sprites(self):
         return self.damagable_sprites
