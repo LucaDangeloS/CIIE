@@ -4,11 +4,8 @@ from settings import *
 from menu import Menu, Button
 from director import Director
 from controller import KeyboardController, JoystickController
-from level.level import Level, TileEnum
-from level.tiles import TileMapper, Tile
-from entities.sprites import SpriteSheet
-import random
-
+from level.level import Level
+from level.level_generator import LevelGenerator
 
 
 
@@ -46,15 +43,11 @@ controller = KeyboardController()
 # controller = JoystickController()
 # joysticks = controller.get_joy()
 
-# Aún hay que encontrar una manera de cargar sprite sheets de tiles
-tile_mapper = TileMapper({
-    0: [
-        pg.transform.scale(pg.image.load('../sprites/environment_tileset/Grass.png'), (16*5, 16*5)),
-        pg.transform.scale(pg.image.load('../sprites/environment_tileset/Grass decor.png'), (16*5, 16*5)),
-    ]
-}, None)
 
-myLevel = Level(controller, tile_mapper, 16*5)
+level_generator = LevelGenerator((6, 6), 5)
+# Feed this into the Level
+level_surf = level_generator.generate_map(2, lower_threshold=-0.75, upper_threshold=0.8)
+myLevel = Level(controller)
 # myLevel.load_csv(world_map)
 
 '''
@@ -65,8 +58,6 @@ This returns:
  - poi_chunks: a list of chunks that compose the points of interest
  - map_matrix: the raw matrix of the map, where each tile is a mapping of TileEnum values
 '''
-(spawn_tiles, spawn), objective_chunks, poi_chunks, map_matrix = myLevel.generate_map((6, 6), 5, 2, lower_threshold=-0.75, upper_threshold=0.8)
-tile_mapper.map_matrix = map_matrix
 """
 map_surf = tile_mapper.hardcoded_example()
 
@@ -112,3 +103,6 @@ director.running_loop()
 
 pg.quit()
 
+# TODO
+# Reformat TileMapper/LevelGenerator
+# Pathfinding for enemies

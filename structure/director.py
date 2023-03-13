@@ -46,7 +46,7 @@ class Director(object):
         pg.event.clear()
 
         while True:
-            self.clock.tick(30)
+            self.clock.tick(60)
 
             event_list = pg.event.get()
             for event in event_list:

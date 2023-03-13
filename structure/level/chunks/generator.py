@@ -3,6 +3,10 @@ from level.chunks.utils import get_chunks, ChunkEnum
 from level.chunks.positioning import position_spawn, position_poi
 import numpy as np
 
+class GenerationException(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
 class ChunkGenerator():
     # Chunk size
     # N of chunks
@@ -31,7 +35,7 @@ class ChunkGenerator():
         self.map = map
         # check ranges of the thresholds
         if assignable_threshold[0] < -1 or assignable_threshold[1] > 1:
-            raise Exception("Thresholds must be between -1 and 1")
+            raise GenerationException("Thresholds must be between -1 and 1")
 
         chunk_map = np.array([[ChunkEnum.EMPTY if tile >= assignable_threshold[0] and tile <= assignable_threshold[1] else 
             ChunkEnum.OBSTACLE for tile in row] for row in map])
@@ -47,7 +51,7 @@ class ChunkGenerator():
         try:
             self.chunk_info, self.spawn_point = position_spawn(self.chunk_info, ChunkEnum.EMPTY, ChunkEnum.SPAWN)
         except Exception as e:
-            raise Exception("Could not place spawn point")
+            raise GenerationException("Could not place spawn point")
         return self.__search_chunk(ChunkEnum.SPAWN), self.spawn_point
 
     def get_chunk_info(self):
@@ -68,7 +72,7 @@ class ChunkGenerator():
             self.chunk_info = position_main_structures(self.map, self.spawn_point, self.chunks, self.chunk_info, ChunkEnum.EMPTY, ChunkEnum.OBJECTIVE)
             # print(self.__search_chunks(ChunkEnum.OBJECTIVE))
         except Exception as e:
-            raise Exception("Could not position objectives")
+            raise GenerationException("Could not position objectives")
 
         # Retrieve the chunks of the objectives
         return self.__search_chunks(ChunkEnum.OBJECTIVE)
@@ -82,6 +86,6 @@ class ChunkGenerator():
             except Exception as e:
                 continue
         else:
-            raise Exception("Could not position poi")
+            raise GenerationException("Could not position poi")
         # Retrieve the chunks of the poi
         return self.__search_chunks(ChunkEnum.POI)
