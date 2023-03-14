@@ -17,7 +17,7 @@ class Player(Entity):
     director = Director()
 
 
-    def __init__(self, collision_sprites, damagable_sprites, sprite_scale=1): #if we don't add the player to the collision sprites how is he going to collide with enemies?
+    def __init__(self, collision_sprites, damagable_sprites, thrown_sprite_group, sprite_scale=1): #if we don't add the player to the collision sprites how is he going to collide with enemies?
         super().__init__()
         self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', sprite_scale)
         self.image = self.sprite.get_img(self.state)
@@ -31,7 +31,7 @@ class Player(Entity):
         self.hitbox_offset = (7*sprite_scale, 10*sprite_scale)
 
         self.weapons.append(Stick(self.rect.topright))
-        self.weapons.append(WeaponPool(Slipper, 30, 300, 4))
+        self.weapons.append(WeaponPool(Slipper, 30, 300, thrown_sprite_group, 4))
         #self.weapons.append(Slipper(5))
 
         #self.damagable_sprite_group = director.get_damagable_sprites()
@@ -40,8 +40,6 @@ class Player(Entity):
     def set_drawing_sprite_group(self, sprite_group):
         sprite_group.add(self)
         #self.weapons[1].drawing_spr_group = sprite_group
-        self.weapons[1].set_drawing_sprite_group(sprite_group)
-
 
     def kill(self):
         super().kill()

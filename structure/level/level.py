@@ -11,16 +11,21 @@ from entities.enemies.wasp import Wasp
 
 
 class CameraSpriteGroup(pg.sprite.Group):
-    def __init__(self):
+    screen_res = None
+    def __init__(self, screen_resolution):
         super().__init__()
-
-        #is there a better way to get the size of the screen 
-        director = Director()
-        self.half_width = director.screen.get_size()[0] // 2
-        self.half_height = director.screen.get_size()[1] // 2
+        self.screen_res = screen_resolution
+        self.screen_rect = Rect(0,0,self.screen_res[0], self.screen_res[1])
+        self.half_width = screen_resolution[0] // 2
+        self.half_height = screen_resolution[1] // 2
         
         self.offset = pg.math.Vector2()
     
+    def update_screen_resolution(self, res):
+        self.screen_res = res 
+        self.screen_rect = Rect(0,0,self.screen_res[0], self.screen_res[1])
+ 
+
     def draw_offsetted(self, player, screen):
         self.offset.x = player.rect.centerx - self.half_width
         self.offset.y = player.rect.centery - self.half_height
@@ -30,11 +35,21 @@ class CameraSpriteGroup(pg.sprite.Group):
             screen.blit(sprite.image, offset_pos)
         #for sprite in self.sprites():
             ##screen.blit(sprite.image, sprite.rect)
+    
+    def draw_offsetted_throwables(self, player, screen):
+        self.offset.x = player.rect.centerx - self.half_width
+        self.offset.y = player.rect.centery - self.half_height
+
+        for sprite in self.sprites():
+            offset_pos = sprite.rect.topleft - self.offset
+            screen.blit(sprite.image, offset_pos)
+            if not self.screen_rect.collidepoint(offset_pos):
+                sprite.kill()
 
 
 class Level(SceneInterface):
 
-    def __init__(self, controller):
+    def __init__(self, controller, screen_res):
         #create the level surface
         levelGenerator = LevelGenerator((6, 6), 5)
 
@@ -46,7 +61,7 @@ class Level(SceneInterface):
         self.back_sprite.rect = self.back_sprite.image.get_rect(topleft=(0,0))
         
 
-        self.visible_sprites = CameraSpriteGroup()
+        self.visible_sprites = CameraSpriteGroup(screen_res)
 
         self.visible_sprites.add(self.back_sprite)
 
@@ -56,14 +71,15 @@ class Level(SceneInterface):
 
         self.controller = controller
         self.collision_sprites = pg.sprite.Group()
-        self.enemy_sprite_group = CameraSpriteGroup()
+        self.enemy_sprite_group = CameraSpriteGroup(screen_res)
 
         # haaaaaaardcoded -> LMAOOOOO you want sprite masking and death???
         wasp = Wasp(None, [], '../sprites/players/enemies/wasp', pg.Rect(800, 200, 40, 40), 3)
         self.enemy_sprite_group.add(wasp)
 
         #player needs to be instantiated after the damagable_sprites
-        self.player = Player(self.collision_sprites, self.enemy_sprite_group, 3)
+        self.thrown_sprites = CameraSpriteGroup(screen_res)
+        self.player = Player(self.collision_sprites, self.enemy_sprite_group, self.thrown_sprites, 3)
         self.player.set_drawing_sprite_group(self.visible_sprites)
         
 
@@ -94,7 +110,7 @@ class Level(SceneInterface):
         #self.damagable_sprites.draw(screen)
         self.visible_sprites.draw_offsetted(self.player, screen)
         self.enemy_sprite_group.draw_offsetted(self.player, screen)
-
+        self.thrown_sprites.draw_offsetted_throwables(self.player, screen)
     
     def get_damagable_sprites(self):
         return self.enemy_sprite_group

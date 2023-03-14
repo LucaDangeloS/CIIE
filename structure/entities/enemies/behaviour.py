@@ -1,6 +1,6 @@
 import math
 from typing import List, Tuple
-from entities.astar import astar
+#from entities.astar import astar
 from entities.sprites import ActionEnum
 
 

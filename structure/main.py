@@ -48,7 +48,7 @@ controller = KeyboardController()
 # Feed this into the Level
 #level_surf = level_generator.generate_map(2, lower_threshold=-0.75, upper_threshold=0.8)
 
-myLevel = Level(controller)
+myLevel = Level(controller, director.screen.get_size())
 # myLevel.load_csv(world_map)
 
 '''
