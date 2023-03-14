@@ -6,7 +6,9 @@ import numpy as np
 from pygame import transform, image, Surface, SRCALPHA, draw, Rect
 from entities.sprites import SpriteSheet
 from level.chunks.generator import GenerationException
-
+from level.camera import CameraSpriteGroup
+import pygame as pg
+from pygame.locals import *
 
 class TileEnum(Enum):
     OBSTACLE = -1
@@ -125,13 +127,6 @@ class SurfaceMapper():
         self.rock_dict = {"center": obst2_sprites[8], "left":obst2_sprites[8], "right":obst2_sprites[8],
                         "top":obst2_sprites[2], "topleft_inner": obst2_sprites[2], "topleft_outer": obst2_sprites[2], "topright_inner": obst2_sprites[2], "topright_outer": obst2_sprites[2],
                         "bottom": obst2_sprites[14], "bottomleft_inner": obst2_sprites[14], "bottomleft_outer": obst2_sprites[14], "bottomright_inner": obst2_sprites[14], "bottomright_outer": obst2_sprites[14]}
-
-
-    def hardcoded_example(self) -> Surface:
-
-        map_surf = self.generate_map_surface(self.map_matrix, (64,64))
-        #scale to appreciate the details 
-        return transform.scale(map_surf, (3500,3500))
 
 
     def draw_lines(self, bitmask_dict, surf_size, sprite_size, surf, line):
@@ -268,9 +263,90 @@ class SurfaceMapper():
         return transform.scale(surf, (surf_size[0]*scale, surf_size[1]*scale))
 
 
-    def generate_map_surface(self, map_matrix, size_per_tile: tuple[int,int]):
+    def get_region_as_sprite(self, map_matrix, pos, size_per_tile, sprite_size, bitmasking_dict) -> pg.sprite.Sprite:
+        value = map_matrix[pos[0]][pos[1]]
+
+        not_processed = [pos]
+        final_points = []
+
+        #initialize to unkeepable values
+        left, right, top, bottom = 100000, -100000, 100000, -100000
+
+        while not_processed != []:
+            for position in not_processed:
+                final_points.append(position)
+                not_processed.remove(position)
+                row, col = position
+
+                if col < left:
+                    left = col
+                if col > right:
+                    right = col
+                if row < top:
+                    top = row
+                if row > bottom:
+                    bottom = row
+
+
+                try: 
+                    if (row, col-1) not in final_points and (row, col-1) not in not_processed:
+                        if map_matrix[row][col-1] == value:
+                            not_processed.append((row, col-1))
+                    if (row, col+1) not in final_points and (row, col+1) not in not_processed:
+                        if map_matrix[row][col+1] == value:
+                            not_processed.append((row, col+1))
+
+                    if (row-1, col) not in final_points and (row-1, col) not in not_processed:
+                        if map_matrix[row-1][col] == value:
+                            not_processed.append((row-1, col))
+                    if (row+1, col) not in final_points and (row+1, col) not in not_processed:
+                        if map_matrix[row+1][col] == value:
+                            not_processed.append((row+1, col))
+
+                    if (row+1, col-1) not in final_points and (row+1, col-1) not in not_processed:
+                        if map_matrix[row+1][col-1] == value:
+                            not_processed.append((row+1, col-1))
+                    if (row-1, col+1) not in final_points and (row-1, col+1) not in not_processed:
+                        if map_matrix[row-1][col+1] == value:
+                            not_processed.append((row-1, col+1))
+
+                    if (row-1, col-1) not in final_points and (row-1, col-1) not in not_processed:
+                        if map_matrix[row-1][col-1] == value:
+                            not_processed.append((row-1, col-1))
+                    if (row+1, col+1) not in final_points and (row+1, col+1) not in not_processed:
+                        if map_matrix[row+1][col+1] == value:
+                            not_processed.append((row+1, col+1))
+                except IndexError: #simplest way
+                    pass
+
+        w = (right-left+1)*size_per_tile[0]
+        h = (bottom-top+1)*size_per_tile[1]
+        region_image = Surface((w, h), SRCALPHA, 32)
+
+        x = left * size_per_tile[0]
+        y = top * size_per_tile[0]
+        region_rect = pg.Rect(x, y, w, h)
+
+        for position in final_points:
+            temp_surf = self.tile_bitmasking(map_matrix, position, bitmasking_dict, size_per_tile, sprite_size)
+            region_image.blit(temp_surf, ((position[1]-left)*size_per_tile[0], (position[0]-top)*size_per_tile[1]))
+        
+        region_sprite = pg.sprite.Sprite()
+        region_sprite.image = region_image
+        region_sprite.rect = region_rect
+
+        return (region_sprite, final_points)
+
+
+    def generate_map_surface(self, map_matrix, size_per_tile: tuple[int,int], screen_res):
         sprite_size = (16,16)
         map_surf = Surface( (len(map_matrix[1]) * size_per_tile[0], len(map_matrix[0]) * size_per_tile[1]), SRCALPHA, 32) 
+
+        water_visited_points = []
+        water_regions = CameraSpriteGroup(screen_res)
+
+        rock_visited_points = []
+        rock_regions = CameraSpriteGroup(screen_res)
 
         for row_idx, row in enumerate(map_matrix):
             for col_idx, value in enumerate(row):
@@ -278,16 +354,18 @@ class SurfaceMapper():
                     tile_surf = self.generate_random_surf(self.ground_sprite_pool, sprite_size, size_per_tile)
                     map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
                 elif value == TileEnum.OBSTACLE.value:
-                    tile_surf = self.tile_bitmasking(map_matrix, (row_idx, col_idx), self.water_dict, size_per_tile, sprite_size)
-                    map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
+                    if (row_idx, col_idx) not in water_visited_points: 
+                        (water_region, visited_points) =  self.get_region_as_sprite(map_matrix, (row_idx, col_idx), size_per_tile, sprite_size, self.water_dict)
+                        water_visited_points.extend(visited_points)
+                        water_regions.add(water_region) 
                 elif value == TileEnum.OBSTACLE_2.value:
-                    #tile_surf = transform.scale(self.obst2_sprite_pool, size_per_tile)
-                    #map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
-                    rocks = self.tile_bitmasking(map_matrix, (row_idx, col_idx), self.rock_dict, size_per_tile, sprite_size)
-                    tile_surf = self.generate_random_surf(self.ground_sprite_pool, sprite_size, size_per_tile)
-                    tile_surf.blit(rocks, (0,0))
+                    if (row_idx, col_idx) not in rock_visited_points: 
+                        (rock_region, visited_points) =  self.get_region_as_sprite(map_matrix, (row_idx, col_idx), size_per_tile, sprite_size, self.rock_dict)
+                        rock_visited_points.extend(visited_points)
+                        rock_regions.add(rock_region) 
 
-                    map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
+
+
                 elif value == TileEnum.SPAWN.value:
                     draw.rect(map_surf, (255,0,0), Rect(col_idx*size_per_tile[0], row_idx*size_per_tile[1],size_per_tile[1],size_per_tile[0])) 
                 elif value == TileEnum.OBJECTIVE.value:
@@ -295,4 +373,4 @@ class SurfaceMapper():
                 elif value == TileEnum.POI.value:
                     draw.rect(map_surf, (0,0,255), Rect(col_idx*size_per_tile[0], row_idx*size_per_tile[1],size_per_tile[1],size_per_tile[0])) 
                     
-        return map_surf
+        return (map_surf, water_regions, rock_regions)

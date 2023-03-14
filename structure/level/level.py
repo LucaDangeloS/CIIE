@@ -7,44 +7,9 @@ from entities.enemy import Enemy
 from entities.sprites import SpriteSheet
 from director import Director
 from level.level_generator import LevelGenerator, SurfaceMapper
+from level.camera import CameraSpriteGroup
 from entities.enemies.wasp import Wasp
 
-
-class CameraSpriteGroup(pg.sprite.Group):
-    screen_res = None
-    def __init__(self, screen_resolution):
-        super().__init__()
-        self.screen_res = screen_resolution
-        self.screen_rect = Rect(0,0,self.screen_res[0], self.screen_res[1])
-        self.half_width = screen_resolution[0] // 2
-        self.half_height = screen_resolution[1] // 2
-        
-        self.offset = pg.math.Vector2()
-    
-    def update_screen_resolution(self, res):
-        self.screen_res = res 
-        self.screen_rect = Rect(0,0,self.screen_res[0], self.screen_res[1])
- 
-
-    def draw_offsetted(self, player, screen):
-        self.offset.x = player.rect.centerx - self.half_width
-        self.offset.y = player.rect.centery - self.half_height
-
-        for sprite in self.sprites():
-            offset_pos = sprite.rect.topleft - self.offset
-            screen.blit(sprite.image, offset_pos)
-        #for sprite in self.sprites():
-            ##screen.blit(sprite.image, sprite.rect)
-    
-    def draw_offsetted_throwables(self, player, screen):
-        self.offset.x = player.rect.centerx - self.half_width
-        self.offset.y = player.rect.centery - self.half_height
-
-        for sprite in self.sprites():
-            offset_pos = sprite.rect.topleft - self.offset
-            screen.blit(sprite.image, offset_pos)
-            if not self.screen_rect.collidepoint(offset_pos):
-                sprite.kill()
 
 
 class Level(SceneInterface):
@@ -54,12 +19,13 @@ class Level(SceneInterface):
         levelGenerator = LevelGenerator((6, 6), 5)
 
         (spawn_tiles, spawn), poi_chunks, map_matrix = levelGenerator.generate_map(2, lower_threshold=-0.75, upper_threshold=0.8)
- 
+
         surfaceMapper = SurfaceMapper(map_matrix)
         self.back_sprite = pg.sprite.Sprite()
-        self.back_sprite.image = surfaceMapper.hardcoded_example()
+        self.back_sprite.image, self.water_regions, self.rock_regions = surfaceMapper.generate_map_surface(map_matrix, (64,64), screen_res)
         self.back_sprite.rect = self.back_sprite.image.get_rect(topleft=(0,0))
-        
+
+        print("len water regions: ", self.water_regions) 
 
         self.visible_sprites = CameraSpriteGroup(screen_res)
 
@@ -71,6 +37,9 @@ class Level(SceneInterface):
 
         self.controller = controller
         self.collision_sprites = pg.sprite.Group()
+        self.collision_sprites.add(self.water_regions)
+        self.collision_sprites.add(self.rock_regions)
+
         self.enemy_sprite_group = CameraSpriteGroup(screen_res)
 
         # haaaaaaardcoded -> LMAOOOOO you want sprite masking and death???
@@ -109,6 +78,10 @@ class Level(SceneInterface):
         
         #self.damagable_sprites.draw(screen)
         self.visible_sprites.draw_offsetted(self.player, screen)
+        self.water_regions.draw_offsetted(self.player, screen)
+        self.rock_regions.draw_offsetted(self.player, screen)
+
+
         self.enemy_sprite_group.draw_offsetted(self.player, screen)
         self.thrown_sprites.draw_offsetted_throwables(self.player, screen)
     
