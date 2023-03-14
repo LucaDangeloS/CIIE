@@ -1,98 +1,53 @@
-
-class Node():
-    """A node class for A* Pathfinding"""
-
-    def __init__(self, parent=None, position=None):
-        self.parent = parent
-        self.position = position
-
-        self.g = 0
-        self.h = 0
-        self.f = 0
-
-    def __eq__(self, other):
-        return self.position == other.position
+import math
+from typing import List, Tuple
+from entities.astar import astar
+from entities.sprites import ActionEnum
 
 
-def astar(maze, start, end):
-    """Returns a list of tuples as a path from the given start to the given end in the given maze"""
+class Behavior():
 
-    # Create start and end node
-    start_node = Node(None, start)
-    start_node.g = start_node.h = start_node.f = 0
-    end_node = Node(None, end)
-    end_node.g = end_node.h = end_node.f = 0
+    def __init__(self, enemy):
+        self.enemy = enemy
 
-    # Initialize both open and closed list
-    open_list = []
-    closed_list = []
+    def get_goal(self, player_pos: Tuple[int, int]) -> Tuple[int, int]:
+        return None
 
-    # Add the start node
-    open_list.append(start_node)
 
-    # Loop until you find the end
-    while len(open_list) > 0:
+class IdleBehavior(Behavior):
 
-        # Get the current node
-        current_node = open_list[0]
-        current_index = 0
-        for index, item in enumerate(open_list):
-            if item.f < current_node.f:
-                current_node = item
-                current_index = index
+    def __init__(self, enemy):
+        super().__init__(enemy)
 
-        # Pop current off open list, add to closed list
-        open_list.pop(current_index)
-        closed_list.append(current_node)
+    def get_goal(self, player_pos: Tuple[int, int]) -> Tuple[int, int]:
+        super().get_goal(player_pos)
 
-        # Found the goal
-        if current_node == end_node:
-            path = []
-            current = current_node
-            while current is not None:
-                path.append(current.position)
-                current = current.parent
-            return path[::-1] # Return reversed path
 
-        # Generate children
-        children = []
-        for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]: # Adjacent squares
+class ChaseBehavior(Behavior):
+    def __init__(self, enemy, follow_range=200, attack_range=40):
+        super().__init__(enemy)
+        self.follow_range = follow_range
+        self.attack_range = attack_range
 
-            # Get node position
-            node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
+    def get_goal(self, player_pos: Tuple[int, int]) -> Tuple[int, int]:
+        # Calculate the distance between the enemy and the player
+        x_dist = player_pos[0] - self.enemy.rect.centerx
+        y_dist = player_pos[1] - self.enemy.rect.centery
+        distance = math.sqrt(x_dist**2 + y_dist**2)
 
-            # Make sure within range
-            if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (len(maze[len(maze)-1]) -1) or node_position[1] < 0:
-                continue
+        if distance < self.attack_range:
+            # Update enemy state
+            # self.enemy.state = (ActionEnum.ATTACK, "right" if x_dist > 0 else "left")
+            return None
 
-            # Make sure walkable terrain
-            if maze[node_position[0]][node_position[1]] != 0:
-                continue
-
-            # Create new node
-            new_node = Node(current_node, node_position)
-
-            # Append
-            children.append(new_node)
-
-        # Loop through children
-        for child in children:
-
-            # Child is on the closed list
-            for closed_child in closed_list:
-                if child == closed_child:
-                    continue
-
-            # Create the f, g, and h values
-            child.g = current_node.g + 1
-            child.h = ((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2)
-            child.f = child.g + child.h
-
-            # Child is already in the open list
-            for open_node in open_list:
-                if child == open_node and child.g > open_node.g:
-                    continue
-
-            # Add the child to the open list
-            open_list.append(child)
+        # If the player is within range, move towards it
+        if distance <= self.follow_range:
+            # Update enemy state
+            # self.enemy.state = (ActionEnum.WALK, "right" if x_dist > 0 else "left")
+            return player_pos
+        
+        # If the player is out of range, stay in place
+        # Update enemy state so that he idles in the direction he was facing
+        # facing_dir = self.enemy.get_orientation()
+        # self.enemy.state = (ActionEnum.IDLE, facing_dir)
+        return None
 
