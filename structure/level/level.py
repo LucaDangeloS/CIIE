@@ -73,7 +73,8 @@ class Level(SceneInterface):
 
     def update(self):
         #call the update method on all moving entities
-        self.wasp.update()
+        # self.wasp.update()
+        self.damagable_sprites.update()
         self.player.update()
 
     def handle_events(self, event_list):

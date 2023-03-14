@@ -23,10 +23,10 @@ class Enemy(Entity):
         if self.health <= 0: #kill the sprite
             #we should launch the dying animation here
             self.kill()          
- 
+
     def update(self, state=None):
         self.image = self.sprite.get_img(self.state)
-        goal = self.behavior.get_goal()
+        # goal = self.behavior.get_goal()
 
 
     #use the map_matrix checking against TileEnum to know fi there is an obstacle
@@ -38,23 +38,23 @@ class Enemy(Entity):
 
 
 
-class Enemy:
-    def __init__(self, map, player_pos):
-        self.map = map
-        self.player_pos = player_pos
-        self.path = []
+# class Enemy:
+#     def __init__(self, map, player_pos):
+#         self.map = map
+#         self.player_pos = player_pos
+#         self.path = []
 
-    def update(self):
-        if len(self.path) == 0:
-            self.path = astar(self.map, self.get_current_pos(), self.player_pos)
+#     def update(self):
+#         if len(self.path) == 0:
+#             self.path = astar(self.map, self.get_current_pos(), self.player_pos)
         
-        if len(self.path) > 0:
-            next_pos = self.path.pop(0)
-            self.move_to(next_pos)
+#         if len(self.path) > 0:
+#             next_pos = self.path.pop(0)
+#             self.move_to(next_pos)
         
 
-    def get_current_pos(self):
-        # your implementation here, e.g. using the enemy's coordinates on the map
+#     def get_current_pos(self):
+#         # your implementation here, e.g. using the enemy's coordinates on the map
 
-    def move_to(self, position):
-        # your implementation here, e.g. moving the enemy to a specific position on the map
+#     def move_to(self, position):
+#         # your implementation here, e.g. moving the enemy to a specific position on the map
