@@ -7,6 +7,7 @@ from entities.enemy import Enemy
 from entities.sprites import SpriteSheet
 from director import Director
 from level.level_generator import LevelGenerator, SurfaceMapper
+from entities.enemies.wasp import Wasp
 
 
 class CameraSpriteGroup(pg.sprite.Group):
@@ -55,14 +56,14 @@ class Level(SceneInterface):
 
         self.controller = controller
         self.collision_sprites = pg.sprite.Group()
+        self.enemy_sprite_group = CameraSpriteGroup()
 
-        self.damagable_sprites = CameraSpriteGroup()
         # haaaaaaardcoded -> LMAOOOOO you want sprite masking and death???
-        self.wasp = Enemy(None, '../sprites/players/enemies/wasp', pg.Rect(800, 200, 40, 40), 3)
-        self.damagable_sprites.add(self.wasp)
+        wasp = Wasp(None, [], '../sprites/players/enemies/wasp', pg.Rect(800, 200, 40, 40), 3)
+        self.enemy_sprite_group.add(wasp)
 
         #player needs to be instantiated after the damagable_sprites
-        self.player = Player(self.collision_sprites, self.damagable_sprites, 3)
+        self.player = Player(self.collision_sprites, self.enemy_sprite_group, 3)
         self.player.set_drawing_sprite_group(self.visible_sprites)
         
 
@@ -74,7 +75,7 @@ class Level(SceneInterface):
     def update(self):
         #call the update method on all moving entities
         # self.wasp.update()
-        self.damagable_sprites.update()
+        self.enemy_sprite_group.update(self.player.get_pos())
         self.player.update()
 
     def handle_events(self, event_list):
@@ -92,9 +93,9 @@ class Level(SceneInterface):
         
         #self.damagable_sprites.draw(screen)
         self.visible_sprites.draw_offsetted(self.player, screen)
-        self.damagable_sprites.draw_offsetted(self.player, screen)
+        self.enemy_sprite_group.draw_offsetted(self.player, screen)
 
     
     def get_damagable_sprites(self):
-        return self.damagable_sprites
+        return self.enemy_sprite_group
     
