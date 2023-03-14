@@ -15,8 +15,8 @@ class Player(Entity):
     # possible actions [idle, walking, running, attack_1, attack_2]
     weapons = []
     director = Director()
-  
- 
+
+
     def __init__(self, collision_sprites, damagable_sprites, sprite_scale=1): #if we don't add the player to the collision sprites how is he going to collide with enemies?
         super().__init__()
         self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', sprite_scale)
@@ -138,7 +138,5 @@ class Player(Entity):
         pg.draw.rect(screen, (0,255,0), self.rect)
         #for weapon in self.weapons:
             #weapon.draw_hitbox(screen)
-    
-
 
 

@@ -30,6 +30,10 @@ class Entity(pg.sprite.Sprite):
         self.image = self.sprite.get_img(self.state)
         self.move()
 
+    def get_pos(self):
+        # Returns centered rect position
+        return self.rect.center
+
     def move(self):
         move = self.direction
         if self.direction.magnitude() != 0: #buggy: going top left seems faster
@@ -70,7 +74,11 @@ class Entity(pg.sprite.Sprite):
         #this really should be drawn as part of a sprite group -> for easy offsetting
         pass
 
-    def hit(self):
-        self.health -= 1
-        if self.health <= 0:
+    def receive_damage(self, damage_amount):
+        self.health -= damage_amount
+        if self.health <= 0: #kill the sprite
+            #we should launch the dying animation here
             self.kill()
+
+    def get_orientation(self):
+        return self.state[1]
