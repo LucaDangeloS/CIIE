@@ -73,8 +73,7 @@ class Level(SceneInterface):
         self.collision_sprites = pg.sprite.Group()
         self.enemy_sprite_group = CameraSpriteGroup(screen_res)
 
-        # haaaaaaardcoded -> LMAOOOOO you want sprite masking and death???
-        wasp = Wasp(None, [], '../sprites/players/enemies/wasp', pg.Rect(800, 200, 40, 40), 3)
+        wasp = Wasp(self.collision_sprites, [], '../sprites/players/enemies/wasp', pg.Rect(800, 200, 40, 40), 3)
         self.enemy_sprite_group.add(wasp)
 
         #player needs to be instantiated after the damagable_sprites

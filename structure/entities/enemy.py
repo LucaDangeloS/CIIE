@@ -11,6 +11,7 @@ class Enemy(Entity):
         super().__init__()
         self.walking_speed = 2
         self.sprite.load_regular_sprites(sprite_path, sprite_scale)
+        self.collision_sprites = collision_sprites
         self.image = self.sprite.get_img(self.state)
         self.rect = entity_rect
         self.behavior = IdleBehavior(self)
@@ -34,10 +35,12 @@ class Enemy(Entity):
             self.move(goal)
 
     def move(self, goal):
-        dist = pg.math.Vector2(goal) - pg.math.Vector2(self.rect.center)
-        if dist.magnitude() != 0:
-            dist = dist.normalize()
-        self.rect.center += dist * self.walking_speed
+        self.direction = pg.math.Vector2(goal) - pg.math.Vector2(self.rect.center)
+        super().move() 
+        
+        #if dist.magnitude() != 0:
+            #dist = dist.normalize()
+        #self.rect.center += dist * self.walking_speed
 
     def draw(self, screen):
         pg.draw.rect(screen, (0,0,255), self.rect)

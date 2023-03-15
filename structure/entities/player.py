@@ -107,22 +107,22 @@ class Player(Entity):
                 if self.action_state[orientation]:
                     self.state = (ActionEnum.WALK, orientation)
 
-    def collision(self, direction): #may need to change this style
-        # we need to add an offset to the collision to center the rect in the sprite
-        if direction == 'horizontal':
-            for sprite in self.collision_sprites: #optimize this?
-                if sprite.rect.colliderect(self.rect.move(self.hitbox_offset)):
-                    if self.direction.x > 0: #right
-                        self.rect.right = sprite.rect.left - self.hitbox_offset[0]
-                    if self.direction.x < 0: #left
-                        self.rect.left = sprite.rect.right - self.hitbox_offset[0]
-        elif direction == 'vertical':
-            for sprite in self.collision_sprites: 
-                if sprite.rect.colliderect(self.rect.move(self.hitbox_offset)):
-                    if self.direction.y > 0:
-                        self.rect.bottom = sprite.rect.top - self.hitbox_offset[1]
-                    if self.direction.y < 0:
-                        self.rect.top = sprite.rect.bottom - self.hitbox_offset[1]
+    def move(self):
+        move = self.direction
+        if self.direction.magnitude() != 0: #buggy: going top left seems faster
+            move = self.direction.normalize()
+
+        if self.action_state['run']:
+            self.rect.x += move.x * self.running_speed
+            self.collision('horizontal')
+            self.rect.y += move.y * self.running_speed
+            self.collision('vertical')
+        else:
+            self.rect.x += move.x * self.walking_speed
+            self.collision('horizontal')
+            self.rect.y += move.y * self.walking_speed
+            self.collision('vertical')
+
 
     def update(self):
         self.image = self.sprite.get_img(self.state)
