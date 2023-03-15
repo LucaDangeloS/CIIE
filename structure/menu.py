@@ -2,31 +2,31 @@ import pygame as pg
 from pygame.locals import *
 from scene import SceneInterface
 from director import Director
+from entities.sprites import SpriteSheet
 
 
 class Button():
-    def __init__(self, callback, image, rect):
+    def __init__(self, callback, image, x, y, w, h,rect):
         self.callback = callback
-        self.image = image
+        self.image = SpriteSheet(image)
         self.rect = rect
-        self.director = Director()
-
+        self.x, self.y, self.w, self.h = x, y, w, h
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
     def run_callback(self):
-        self.director.audio.stopMusic()
-        self.director.audio.change_track('../media/levelMusic.ogg')
-        self.director.audio.startSound()
         if self.callback is not None:
             self.callback()
 
-    def draw(self, screen):
-        pg.draw.rect(screen, (255,0,0), self.rect) 
-        #we don't have images for the buttons yet
-        #display.blit(self.image, self.rect) 
-   
+    def draw(self,screen):
+        button = self.image.load_strip((self.x,self.y,self.w,self.h), 3, 3)
+        screen.blit(button[1], self.rect) 
+
+    def draw_idle(self, screen):
+        button = self.image.load_strip((self.x,self.y,self.w,self.h), 3, 3)
+        screen.blit(button[0], self.rect) 
+      
  
 #we may want to store a reference to the director so we can call to exit the scene
 #or we can do that by returning an specific signal from events.
@@ -40,6 +40,7 @@ class Menu(SceneInterface):
         self.background_img = pg.transform.scale(background_img, self.current_res)
         self.background_rect = self.background_img.get_rect(topleft = (0,0))
         self.buttons = buttons
+        self.selected = 0
 
     def update(self): #if we want to add any animations to the menu...
         pass
@@ -56,11 +57,21 @@ class Menu(SceneInterface):
                     if button.is_clicked(pg.mouse.get_pos()):
                         if button == self.clicked_button:
                             button.run_callback()
+            if event.type == KEYDOWN:
+                if event.key == K_DOWN:
+                    self.selected = (self.selected + 1)%(len(self.buttons))
+                if event.key == K_UP:
+                    self.selected = (self.selected-1)%(len(self.buttons))
+                if event.key == K_RETURN:
+                    self.buttons[self.selected].callback()
 
     def draw(self, screen):
         screen.blit(self.background_img, self.background_rect)
-        for button in self.buttons:
-            button.draw(screen)
+        for i, button in enumerate(self.buttons):
+            if i == self.selected:
+                button.draw(screen)
+            else:
+                button.draw_idle(screen)
 
 
 """

@@ -32,13 +32,29 @@ class Audio:
   def play_track(self):
     pg.mixer.music.play(-1)
 
+  #def turnUpVolume(self):
+    #volume = pg.mixer.music.get_volume()
+    #pg.mixer.music.set_volume(volume+0.10 if volume >= 1 else 1)
+  
+  def getVolume(self):
+    volume = pg.mixer.music.get_volume()
+    return round(volume,1)
+
   def turnUpVolume(self):
     volume = pg.mixer.music.get_volume()
-    pg.mixer.music.set_volume(volume+0.10 if volume >= 1 else 1)
+    print(round(volume,1))
+    pg.mixer.music.set_volume(volume+0.10)
 
   def turnDownVolume(self):
     volume = pg.mixer.music.get_volume()
-    pg.mixer.music.set_volume(volume-0.10 if volume <= 0 else 0)
+    print(round(volume,1))
+    pg.mixer.music.set_volume(volume-0.10)
+    if volume < 0.090:
+      pg.mixer.music.set_volume(0.0)
+
+  #def turnDownVolume(self):
+    #volume = pg.mixer.music.get_volume()
+    #pg.mixer.music.set_volume(volume-0.10 if volume <= 0 else 0)
 
 
   # The following methods are in charge of managing the sounds like hits, etc
