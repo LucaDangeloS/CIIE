@@ -8,44 +8,7 @@ from entities.sprites import SpriteSheet
 from director import Director
 from level.level_generator import LevelGenerator, SurfaceMapper
 from entities.enemies.wasp import Wasp
-
-
-class CameraSpriteGroup(pg.sprite.Group):
-    screen_res = None
-    def __init__(self, screen_resolution):
-        super().__init__()
-        self.screen_res = screen_resolution
-        self.screen_rect = Rect(0,0,self.screen_res[0], self.screen_res[1])
-        self.half_width = screen_resolution[0] // 2
-        self.half_height = screen_resolution[1] // 2
-        
-        self.offset = pg.math.Vector2()
-    
-    def update_screen_resolution(self, res):
-        self.screen_res = res 
-        self.screen_rect = Rect(0,0,self.screen_res[0], self.screen_res[1])
- 
-
-    def draw_offsetted(self, player, screen):
-        self.offset.x = player.rect.centerx - self.half_width
-        self.offset.y = player.rect.centery - self.half_height
-
-        for sprite in self.sprites():
-            offset_pos = sprite.rect.topleft - self.offset
-            screen.blit(sprite.image, offset_pos)
-        #for sprite in self.sprites():
-            ##screen.blit(sprite.image, sprite.rect)
-    
-    def draw_offsetted_throwables(self, player, screen):
-        self.offset.x = player.rect.centerx - self.half_width
-        self.offset.y = player.rect.centery - self.half_height
-
-        for sprite in self.sprites():
-            offset_pos = sprite.rect.topleft - self.offset
-            screen.blit(sprite.image, offset_pos)
-            if not self.screen_rect.collidepoint(offset_pos):
-                sprite.kill()
-
+from level.camera import CameraSpriteGroup
 
 class Level(SceneInterface):
 
@@ -58,19 +21,23 @@ class Level(SceneInterface):
         surfaceMapper = SurfaceMapper(map_matrix)
         self.back_sprite = pg.sprite.Sprite()
         self.back_sprite.image = surfaceMapper.hardcoded_example()
+        self.back_sprite.image, self.borders_group = surfaceMapper.generate_map_surface(map_matrix, (64,64), screen_res)
+
         self.back_sprite.rect = self.back_sprite.image.get_rect(topleft=(0,0))
         
 
         self.visible_sprites = CameraSpriteGroup(screen_res)
 
         self.visible_sprites.add(self.back_sprite)
-
+        #self.visible_sprites.add(self.borders_group)
 
 
         # TODO: Make it receive a surface or whatever to draw the level
 
         self.controller = controller
         self.collision_sprites = pg.sprite.Group()
+        self.collision_sprites.add(self.borders_group)
+
         self.enemy_sprite_group = CameraSpriteGroup(screen_res)
 
         wasp = Wasp(self.collision_sprites, [], '../sprites/players/enemies/wasp', pg.Rect(800, 200, 40, 40), 3)
@@ -108,6 +75,7 @@ class Level(SceneInterface):
         
         #self.damagable_sprites.draw(screen)
         self.visible_sprites.draw_offsetted(self.player, screen)
+        #self.borders_group.draw_offsetted(self.player, screen)
         self.enemy_sprite_group.draw_offsetted(self.player, screen)
         self.thrown_sprites.draw_offsetted_throwables(self.player, screen)
     

@@ -1,3 +1,4 @@
+import pygame as pg
 from enum import Enum
 import random
 from level.noise.pnoise import generate_pnoise
@@ -6,6 +7,7 @@ import numpy as np
 from pygame import transform, image, Surface, SRCALPHA, draw, Rect
 from entities.sprites import SpriteSheet
 from level.chunks.generator import GenerationException
+from level.camera import CameraSpriteGroup
 
 
 class TileEnum(Enum):
@@ -118,20 +120,19 @@ class SurfaceMapper():
                 "bottomleft_inner": obst_sprites[22], "bottomleft_outer": obst_sprites[17], "bottomright_inner": obst_sprites[24], "bottomright_outer": obst_sprites[16]}
 
         
-        obst2_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/obstacles2.png'))
+        obst2_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/desert_house.png'))
         obst2_sprites = obst2_spritesheet.load_tiled_style((16,16))
-        self.obst2_sprite_pool = obst2_sprites[10]
         
-        self.rock_dict = {"center": obst2_sprites[8], "left":obst2_sprites[8], "right":obst2_sprites[8],
-                        "top":obst2_sprites[2], "topleft_inner": obst2_sprites[2], "topleft_outer": obst2_sprites[2], "topright_inner": obst2_sprites[2], "topright_outer": obst2_sprites[2],
-                        "bottom": obst2_sprites[14], "bottomleft_inner": obst2_sprites[14], "bottomleft_outer": obst2_sprites[14], "bottomright_inner": obst2_sprites[14], "bottomright_outer": obst2_sprites[14]}
+        self.rock_dict = {"center": obst2_sprites[4], "left":obst2_sprites[3], "right":obst2_sprites[5],
+                        "top":obst2_sprites[1], "topleft_inner": obst2_sprites[0], "topleft_outer": obst2_sprites[3], "topright_inner": obst2_sprites[2], "topright_outer": obst2_sprites[5],
+                        "bottom": obst2_sprites[7], "bottomleft_inner": obst2_sprites[6], "bottomleft_outer": obst2_sprites[3], "bottomright_inner": obst2_sprites[8], "bottomright_outer": obst2_sprites[5]}
 
 
     def hardcoded_example(self) -> Surface:
-
-        map_surf = self.generate_map_surface(self.map_matrix, (64,64))
+        pass
+        #map_surf = self.generate_map_surface(self.map_matrix, (64,64))
         #scale to appreciate the details 
-        return transform.scale(map_surf, (3500,3500))
+        #return transform.scale(map_surf, (3500,3500))
 
 
     def draw_lines(self, bitmask_dict, surf_size, sprite_size, surf, line):
@@ -193,6 +194,8 @@ class SurfaceMapper():
         
         bitmask = self.calculate_bitmask(map_matrix, map_pos)
 
+        center = [True, True,True,True]
+
         #fill the surface with the default 
         for i in range(int(surf_size[0] / sprite_size[0])):
             for j in range(int(surf_size[1] / sprite_size[1])):
@@ -212,6 +215,8 @@ class SurfaceMapper():
             self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'left')
         elif (bitmask & 0b10000000) == 0:
             surf.blit(bitmask_dict['topleft_outer'], (0,0))
+        else:
+            center[0] = False
 
         #topright corner
         if (bitmask & 0b1) == 0 and (bitmask & 0b100) == 0:
@@ -226,6 +231,8 @@ class SurfaceMapper():
             self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'right')
         elif (bitmask & 0b10) == 0:
             surf.blit(bitmask_dict['topright_outer'], (surf_size[1]-sprite_size[1], 0))
+        else:
+            center[1] = False
 
         #bottomright
         if (bitmask & 0b100) == 0 and (bitmask & 0b10000) == 0:
@@ -240,6 +247,8 @@ class SurfaceMapper():
             self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'bottom')
         elif (bitmask & 0b1000) == 0:
             surf.blit(bitmask_dict['bottomright_outer'], (surf_size[1]-sprite_size[1], surf_size[0]-sprite_size[0]))
+        else:
+            center[2] = False
 
         #bottomleft
         if (bitmask & 0b10000) == 0 and (bitmask & 0b1000000) == 0:
@@ -254,8 +263,14 @@ class SurfaceMapper():
             self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'left')
         elif (bitmask & 0b100000) == 0:
             surf.blit(bitmask_dict['bottomleft_outer'], (0, surf_size[0]-sprite_size[0]))
+        else:
+            center[3] = False
 
-        return surf
+        rect = None
+        if center[0] or center[1] or center[2] or center[3]:
+            rect = pg.Rect(c*surf_size[0]-sprite_size[0], r*surf_size[1]-sprite_size[1]*2, surf_size[0]-sprite_size[0], surf_size[1]-sprite_size[1]*2)
+
+        return surf, rect
 
 
     def generate_random_surf(self, sprite_pool: list[Surface], sprite_size: tuple[int,int], surf_size: tuple[int,int], scale=1):
@@ -268,9 +283,11 @@ class SurfaceMapper():
         return transform.scale(surf, (surf_size[0]*scale, surf_size[1]*scale))
 
 
-    def generate_map_surface(self, map_matrix, size_per_tile: tuple[int,int]):
+    def generate_map_surface(self, map_matrix, size_per_tile: tuple[int,int], screen_res):
         sprite_size = (16,16)
         map_surf = Surface( (len(map_matrix[1]) * size_per_tile[0], len(map_matrix[0]) * size_per_tile[1]), SRCALPHA, 32) 
+
+        collision_borders = CameraSpriteGroup(screen_res)
 
         for row_idx, row in enumerate(map_matrix):
             for col_idx, value in enumerate(row):
@@ -278,15 +295,22 @@ class SurfaceMapper():
                     tile_surf = self.generate_random_surf(self.ground_sprite_pool, sprite_size, size_per_tile)
                     map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
                 elif value == TileEnum.OBSTACLE.value:
-                    tile_surf = self.tile_bitmasking(map_matrix, (row_idx, col_idx), self.water_dict, size_per_tile, sprite_size)
+                    tile_surf, rect = self.tile_bitmasking(map_matrix, (row_idx, col_idx), self.water_dict, size_per_tile, sprite_size)
+                    if rect != None: #it is a border
+                        temp_sprite = pg.sprite.Sprite()
+                        temp_sprite.image = tile_surf
+                        temp_sprite.rect = rect
+                        collision_borders.add(temp_sprite)
                     map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
+                
                 elif value == TileEnum.OBSTACLE_2.value:
-                    #tile_surf = transform.scale(self.obst2_sprite_pool, size_per_tile)
-                    #map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
-                    rocks = self.tile_bitmasking(map_matrix, (row_idx, col_idx), self.rock_dict, size_per_tile, sprite_size)
-                    tile_surf = self.generate_random_surf(self.ground_sprite_pool, sprite_size, size_per_tile)
-                    tile_surf.blit(rocks, (0,0))
-
+                    tile_surf, rect = self.tile_bitmasking(map_matrix, (row_idx, col_idx), self.rock_dict, size_per_tile, sprite_size)
+                    if rect != None: #it is a border
+                        temp_sprite = pg.sprite.Sprite()
+                        temp_sprite.image = tile_surf
+                        temp_sprite.rect = rect
+                        collision_borders.add(temp_sprite)
+                    
                     map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
                 elif value == TileEnum.SPAWN.value:
                     draw.rect(map_surf, (255,0,0), Rect(col_idx*size_per_tile[0], row_idx*size_per_tile[1],size_per_tile[1],size_per_tile[0])) 
@@ -295,4 +319,4 @@ class SurfaceMapper():
                 elif value == TileEnum.POI.value:
                     draw.rect(map_surf, (0,0,255), Rect(col_idx*size_per_tile[0], row_idx*size_per_tile[1],size_per_tile[1],size_per_tile[0])) 
                     
-        return map_surf
+        return map_surf, collision_borders
