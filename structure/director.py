@@ -22,11 +22,27 @@ class Director(object):
             cls.instance = super(Director, cls).__new__(cls)
             pg.display.set_caption("Chronos")
         return cls.instance
-   
+
     #when drawing with the director:
     #   if the scene is transparent(some points of the scene are) and it's not the last scene, draw next scene.
     def draw_until_not_translucid(self):
         pass
+
+    def fade_in(self, screen, fade_speed):
+        fade_surf = pg.Surface(screen.get_size()).convert_alpha()
+        for alpha in range(255, 0, -fade_speed):
+            fade_surf.fill((0, 0, 0, alpha))
+            screen.blit(fade_surf, (0, 0))
+            pg.display.update()
+            pg.time.wait(10)
+
+    def fade_out(self, screen, fade_speed):
+        fade_surf = pg.Surface(screen.get_size()).convert_alpha()
+        for alpha in range(0, 255, fade_speed):
+            fade_surf.fill((0, 0, 0, alpha))
+            screen.blit(fade_surf, (0, 0))
+            pg.display.update()
+            pg.time.wait(10)
 
     def running_loop(self):
         pg.event.clear()
@@ -53,6 +69,7 @@ class Director(object):
         self.audio.startSound()
         #self.scene_stack.append(scene)
         self.director_stack.append(stack_element)
+
     def pop_scene(self):
         #close the current execution
         
@@ -61,5 +78,5 @@ class Director(object):
 
     def close(self):
         self.run = False
-   
+
 

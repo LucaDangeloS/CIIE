@@ -21,9 +21,10 @@ class TileEnum(Enum):
 
 class LevelGenerator():
 
-    def __init__(self, size: tuple[int, int], chunk_size):
+    def __init__(self, size: tuple[int, int], chunk_size, scale=1):
         self.size = size
         self.chunk_size = chunk_size
+        self.scale = scale
 
     def __generate_map(self, size: tuple[int, int], chunk_size, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None):
         '''
@@ -67,15 +68,25 @@ class LevelGenerator():
             for x, y in self.chunk_generator.map_chunk_index_to_tiles(chunk):
                 self.map[x][y] = TileEnum.POI.value
 
-        map_surface = SurfaceMapper(self.map)
+        map_surface, map_collisions = self.surface_mapper(self.map, scale=self.scale).generate_map_surface((64, 64))
 
         # Ideally it should now only return the player spawn position, the global map surface (or whatever should be drawn) 
         # and *maybe* the map grid for path calculations or something
-        return spawn, map_surface, self.map
+        return spawn, map_surface, map_collisions
 
-    def generate_map(self, n_poi, clear_radius_from_poi=1, 
-        noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None) -> tuple[tuple[int, int], Surface, list[list[tuple[int, int]]]]:
-        
+    def generate_map_level1(self, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None) -> tuple[tuple[int, int], Surface, list[list[tuple[int, int]]]]:
+        self.surface_mapper = Level1Surface
+        # Try 10 times, highly unlikely to fail if the parameters are not tweaked too much
+        attempts = 10
+        for _ in range(attempts):
+            try:
+                return self.__generate_map(self.size, self.chunk_size, n_poi, clear_radius_from_poi, noise_resolution, lower_threshold, upper_threshold, seed)
+            except GenerationException as e:
+                continue
+        raise GenerationException(f"Failed to generate map after {attempts} attemps")
+
+    def generate_map_level2(self):
+        self.surface_mapper = Level2Surface
         # Try 10 times, highly unlikely to fail if the parameters are not tweaked too much
         attempts = 10
         for _ in range(attempts):
@@ -86,54 +97,8 @@ class LevelGenerator():
         raise GenerationException(f"Failed to generate map after {attempts} attemps")
 
 
-    # TODO: Rewrite this according to the new SurfaceMapper to load csv tilesets
-    def load_csv(self, map_representation):
-        '''
-        Load the csv representation (an external file should be used)
-        '''
-        map_representation = np.array(map_representation)
-        self.size_x = map_representation.shape[0]
-        self.size_y = map_representation.shape[1]
-        self.map = map_representation
-        self.load_map()
-
-
 
 class SurfaceMapper():
-
-    def __init__(self, map_matrix):
-        '''
-        Maps ints to pygame images.
-        Supports lists of tiles for randomization.
-        '''
-        self.map_matrix = map_matrix
-    
-        grnd_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/ground.png'))
-        ground_sprites = grnd_spritesheet.load_tiled_style((16,16))
-        self.ground_sprite_pool = ground_sprites[0:10]
-
-        obst_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/obstacles.png'))
-        obst_sprites = obst_spritesheet.load_tiled_style((16,16))
-        
-        self.water_dict = {"center": obst_sprites[12],"top": obst_sprites[1], "left": obst_sprites[11], "right": obst_sprites[13], "bottom": obst_sprites[23],
-                "topleft_inner": obst_sprites[0], "topleft_outer": obst_sprites[28], "topright_inner": obst_sprites[2], "topright_outer": obst_sprites[27],
-                "bottomleft_inner": obst_sprites[22], "bottomleft_outer": obst_sprites[17], "bottomright_inner": obst_sprites[24], "bottomright_outer": obst_sprites[16]}
-
-        
-        obst2_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/desert_house.png'))
-        obst2_sprites = obst2_spritesheet.load_tiled_style((16,16))
-        
-        self.rock_dict = {"center": obst2_sprites[4], "left":obst2_sprites[3], "right":obst2_sprites[5],
-                        "top":obst2_sprites[1], "topleft_inner": obst2_sprites[0], "topleft_outer": obst2_sprites[3], "topright_inner": obst2_sprites[2], "topright_outer": obst2_sprites[5],
-                        "bottom": obst2_sprites[7], "bottomleft_inner": obst2_sprites[6], "bottomleft_outer": obst2_sprites[3], "bottomright_inner": obst2_sprites[8], "bottomright_outer": obst2_sprites[5]}
-
-
-    def hardcoded_example(self) -> Surface:
-        pass
-        #map_surf = self.generate_map_surface(self.map_matrix, (64,64))
-        #scale to appreciate the details 
-        #return transform.scale(map_surf, (3500,3500))
-
 
     def draw_lines(self, bitmask_dict, surf_size, sprite_size, surf, line):
         if line == 'top':
@@ -273,29 +238,29 @@ class SurfaceMapper():
         return surf, rect
 
 
-    def generate_random_surf(self, sprite_pool: list[Surface], sprite_size: tuple[int,int], surf_size: tuple[int,int], scale=1):
+    def generate_random_surf(self, sprite_pool: list[Surface], sprite_size: tuple[int,int], surf_size: tuple[int,int]):
         surf = Surface(surf_size, SRCALPHA, 32)
 
         for i in range(int(surf_size[0] / sprite_size[0])):
             for j in range(int(surf_size[1] / sprite_size[1])):
                 surf.blit(sprite_pool[random.randint(0, len(sprite_pool)-1)], (j*sprite_size[1], i*sprite_size[0]) )
 
-        return transform.scale(surf, (surf_size[0]*scale, surf_size[1]*scale))
+        return transform.scale(surf, (surf_size[0]*self.scale, surf_size[1]*self.scale))
 
 
-    def generate_map_surface(self, map_matrix, size_per_tile: tuple[int,int], screen_res):
+    def generate_map_surface(self, size_per_tile: tuple[int,int]):
         sprite_size = (16,16)
-        map_surf = Surface( (len(map_matrix[1]) * size_per_tile[0], len(map_matrix[0]) * size_per_tile[1]), SRCALPHA, 32) 
+        map_surf = Surface( (len(self.map_matrix[1]) * size_per_tile[0], len(self.map_matrix[0]) * size_per_tile[1]), SRCALPHA, 32) 
 
-        collision_borders = CameraSpriteGroup(screen_res)
+        collision_borders = pg.sprite.Group()
 
-        for row_idx, row in enumerate(map_matrix):
+        for row_idx, row in enumerate(self.map_matrix):
             for col_idx, value in enumerate(row):
                 if value == TileEnum.GROUND.value:
                     tile_surf = self.generate_random_surf(self.ground_sprite_pool, sprite_size, size_per_tile)
                     map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
                 elif value == TileEnum.OBSTACLE.value:
-                    tile_surf, rect = self.tile_bitmasking(map_matrix, (row_idx, col_idx), self.water_dict, size_per_tile, sprite_size)
+                    tile_surf, rect = self.tile_bitmasking(self.map_matrix, (row_idx, col_idx), self.obst1_dict, size_per_tile, sprite_size)
                     if rect != None: #it is a border
                         temp_sprite = pg.sprite.Sprite()
                         temp_sprite.image = tile_surf
@@ -304,13 +269,14 @@ class SurfaceMapper():
                     map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
                 
                 elif value == TileEnum.OBSTACLE_2.value:
-                    tile_surf, rect = self.tile_bitmasking(map_matrix, (row_idx, col_idx), self.rock_dict, size_per_tile, sprite_size)
+                    tile_surf, rect = self.tile_bitmasking(self.map_matrix, (row_idx, col_idx), self.obst2_dict, size_per_tile, sprite_size)
                     if rect != None: #it is a border
                         temp_sprite = pg.sprite.Sprite()
                         temp_sprite.image = tile_surf
                         temp_sprite.rect = rect
                         collision_borders.add(temp_sprite)
                     
+                # TODO
                     map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
                 elif value == TileEnum.SPAWN.value:
                     draw.rect(map_surf, (255,0,0), Rect(col_idx*size_per_tile[0], row_idx*size_per_tile[1],size_per_tile[1],size_per_tile[0])) 
@@ -320,3 +286,100 @@ class SurfaceMapper():
                     draw.rect(map_surf, (0,0,255), Rect(col_idx*size_per_tile[0], row_idx*size_per_tile[1],size_per_tile[1],size_per_tile[0])) 
                     
         return map_surf, collision_borders
+
+
+class Level1Surface(SurfaceMapper):
+
+    def __init__(self, map_matrix, scale):
+        '''
+        Maps ints to pygame images.
+        Supports lists of tiles for randomization.
+        '''
+        self.scale = scale
+        self.map_matrix = map_matrix
+        grnd_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level1/ground.png'))
+        self.ground_sprite_pool = grnd_spritesheet.load_tiled_style((16,16))
+
+        obst_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level1/water.png'))
+        obst_sprites = obst_spritesheet.load_tiled_style((16,16))
+        
+        self.obst1_dict = {
+            "center": obst_sprites[12],
+            "top": obst_sprites[1], 
+            "left": obst_sprites[11], 
+            "right": obst_sprites[13], 
+            "bottom": obst_sprites[23],
+            "topleft_inner": obst_sprites[0], 
+            "topleft_outer": obst_sprites[28], 
+            "topright_inner": obst_sprites[2], 
+            "topright_outer": obst_sprites[27],
+            "bottomleft_inner": obst_sprites[22], 
+            "bottomleft_outer": obst_sprites[17], 
+            "bottomright_inner": obst_sprites[24], 
+            "bottomright_outer": obst_sprites[16]
+        }
+
+        obst2_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level1/obstacles2.png'))
+        obst2_sprites = obst2_spritesheet.load_tiled_style((16,16))
+        self.obst2_sprite_pool = obst2_sprites[10]
+        
+        self.obst2_dict = {
+            "center": obst2_sprites[8], 
+            "left":obst2_sprites[8], 
+            "right":obst2_sprites[8],
+            "top":obst2_sprites[2], 
+            "bottom": obst2_sprites[14], 
+            "topleft_inner": obst2_sprites[2], 
+            "topleft_outer": obst2_sprites[2], 
+            "topright_inner": obst2_sprites[2], 
+            "topright_outer": obst2_sprites[2],
+            "bottomleft_inner": obst2_sprites[14], 
+            "bottomleft_outer": obst2_sprites[14], 
+            "bottomright_inner": obst2_sprites[14], 
+            "bottomright_outer": obst2_sprites[14]
+        }
+
+
+class Level2Surface(SurfaceMapper):
+    def __init__(self, map_matrix):
+        self.map_matrix = map_matrix
+        grnd_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level1/ground.png'))
+        self.ground_sprite_pool = grnd_spritesheet.load_tiled_style((16,16))
+
+        obst_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level1/water.png'))
+        obst_sprites = obst_spritesheet.load_tiled_style((16,16))
+        
+        self.obst1_dict = {
+            "center": obst_sprites[12],
+            "top": obst_sprites[1], 
+            "left": obst_sprites[11], 
+            "right": obst_sprites[13], 
+            "bottom": obst_sprites[23],
+            "topleft_inner": obst_sprites[0], 
+            "topleft_outer": obst_sprites[28], 
+            "topright_inner": obst_sprites[2], 
+            "topright_outer": obst_sprites[27],
+            "bottomleft_inner": obst_sprites[22], 
+            "bottomleft_outer": obst_sprites[17], 
+            "bottomright_inner": obst_sprites[24], 
+            "bottomright_outer": obst_sprites[16]
+        }
+
+        obst2_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/desert_house.png'))
+        obst2_sprites = obst2_spritesheet.load_tiled_style((16,16))
+        
+        self.obst2_dict = {
+            "center": obst2_sprites[4], 
+            "left":obst2_sprites[3], 
+            "right":obst2_sprites[5],
+            "top":obst2_sprites[1], 
+            "topleft_inner": obst2_sprites[0], 
+            "topleft_outer": obst2_sprites[3], 
+            "topright_inner": obst2_sprites[2], 
+            "topright_outer": obst2_sprites[5],
+            "bottom": obst2_sprites[7], 
+            "bottomleft_inner": obst2_sprites[6], 
+            "bottomleft_outer": obst2_sprites[3], 
+            "bottomright_inner": obst2_sprites[8], 
+            "bottomright_outer": obst2_sprites[5]
+        }
