@@ -7,6 +7,7 @@ class Entity(pg.sprite.Sprite):
     def __init__(self, sprite_groups=[], **kwargs):
         super().__init__(sprite_groups)
         self.sprite_groups = []
+        self.is_attacking = False
         self.invincible = False
         self.alive = True
         self.speed = 3
@@ -24,9 +25,25 @@ class Entity(pg.sprite.Sprite):
     def attack(self, attack: str): #call the attack of the correspondent weapon
         pass
 
+    def ended_attack(self):
+        print("ENDED ATTACK")
+        self.is_attacking = False
+
+    def update_state(self, state: tuple, orientation=None):
+        if self.is_attacking:
+            return
+        
+        if orientation is not None:
+            self.state = (state, orientation)
+        else:
+            self.state[0] = state
+
+
     #this is called in every frame
     def update(self):
-        self.image = self.sprite.get_img(self.state)
+        if self.state in [ActionEnum.ATTACK_1, ActionEnum.ATTACK_2]:
+            self.is_attacking = True
+        self.image = self.sprite.get_img(self.state, ended_attack_callback=self.ended_attack)
         self.move()
 
     def get_pos(self):
@@ -34,7 +51,7 @@ class Entity(pg.sprite.Sprite):
         return self.rect.center
 
     def move(self):
-        if self.state[0] in [ActionEnum.ATTACK_1, ActionEnum.ATTACK_2]:
+        if self.is_attacking:
             return
 
         move_to = self.direction

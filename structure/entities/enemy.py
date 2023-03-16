@@ -36,7 +36,7 @@ class Enemy(Entity):
 
     def set_goal(self, goal):
         if not goal:
-            self.direction = pg.math.Vector2(0,0)
+            self.direction = pg.math.Vector2(0, 0)
             return
         self.direction = pg.math.Vector2(goal[0] - self.rect.x, goal[1] - self.rect.y)
 

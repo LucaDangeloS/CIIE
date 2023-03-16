@@ -104,6 +104,8 @@ class Player(Entity):
         self.apply_input()
 
     def update_state(self, action):
+        if self.is_attacking:
+            return
         #get what action we are on and orientation
         orientations = ['right', 'left', 'up', 'down']
   
