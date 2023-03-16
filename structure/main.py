@@ -26,7 +26,7 @@ controller = KeyboardController()
 back = Button(lambda: director.pop_scene(), pg.image.load('../sprites/menu/back_sett.png'), 0, 0,50,50, Rect(690,490,200,100))
 menuSettings = Settings(controller, pg.image.load('../sprites/menu/background.png'), [back])
 
-level = Level(controller, director.screen.get_size())
+level = Level(controller, director.screen.get_size(), scale_level=3)
 
 #Buttons for initial menu:
 btt_play = Button(lambda: director.push_scene((level, "../media/levelMusic.ogg")), pg.image.load('../sprites/menu/buttons.png'), 0, 0,97,41, Rect(360,150,200,100))

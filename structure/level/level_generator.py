@@ -68,7 +68,7 @@ class LevelGenerator():
             for x, y in self.chunk_generator.map_chunk_index_to_tiles(chunk):
                 self.map[x][y] = TileEnum.POI.value
 
-        map_surface, map_collisions = self.surface_mapper(self.map, scale=self.scale).generate_map_surface((64, 64))
+        map_surface, map_collisions = self.surface_mapper(self.map, scale=self.scale).generate_map_surface(chunk_size=(64, 64), sprite_size=(16,16))
 
         # Ideally it should now only return the player spawn position, the global map surface (or whatever should be drawn) 
         # and *maybe* the map grid for path calculations or something
@@ -98,13 +98,13 @@ class SurfaceMapper():
 
     def draw_lines(self, bitmask_dict, surf_size, sprite_size, surf, line):
         if line == 'top':
-            pos = lambda x: (x*sprite_size[1], 0)
+            pos = lambda x: (x*sprite_size[1]*self.scale, 0)
         elif line == 'bottom':
-            pos = lambda x: (x*sprite_size[1], surf_size[0]-sprite_size[0])
+            pos = lambda x: (x*sprite_size[1]*self.scale, (surf_size[0]-sprite_size[0])*self.scale)
         elif line == 'left':
-            pos = lambda y: (0, y*sprite_size[0])
+            pos = lambda y: (0, y*sprite_size[0]*self.scale)
         elif line == 'right':
-            pos = lambda y: (surf_size[1]-sprite_size[1], y*sprite_size[0])
+            pos = lambda y: ((surf_size[1]-sprite_size[1])*self.scale, y*sprite_size[0]*self.scale)
 
         #problems if the map is not a square
         for x in range(1, int(surf_size[0] / sprite_size[0])-1):
@@ -147,33 +147,33 @@ class SurfaceMapper():
         return bitmask
 
 
-    def tile_bitmasking(self, map_matrix, map_pos:tuple[int,int], bitmask_dict: dict[str, Surface], surf_size:tuple[int,int], sprite_size:tuple[int,int]):
+    def tile_bitmasking(self, map_matrix, map_pos:tuple[int,int], bitmask_dict: dict[str, Surface], chunk_size:tuple[int,int], sprite_size:tuple[int,int]):
         r, c = map_pos[0], map_pos[1]
         value = map_matrix[r][c]
 
-        surf = Surface(surf_size, SRCALPHA, 32)
+        surf = Surface((chunk_size[0]*self.scale, chunk_size[1]*self.scale), SRCALPHA, 32)
         
         bitmask = self.calculate_bitmask(map_matrix, map_pos)
 
         center = [True, True,True,True]
 
         #fill the surface with the default 
-        for i in range(int(surf_size[0] / sprite_size[0])):
-            for j in range(int(surf_size[1] / sprite_size[1])):
+        for i in range(int(chunk_size[0] / sprite_size[0])):
+            for j in range(int(chunk_size[1] / sprite_size[1])):
                 #maybe add some randomization here
-                surf.blit(bitmask_dict['center'], (j*sprite_size[1], i*sprite_size[0]))
+                surf.blit(bitmask_dict['center'], (j*sprite_size[1]*self.scale, i*sprite_size[0]*self.scale))
 
         #determine what to draw on the topleft corner
         if (bitmask & 0b1) == 0 and (bitmask & 0b1000000) == 0 :
             surf.blit(bitmask_dict['topleft_inner'], (0,0))
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'top')
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'left')
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'top')
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'left')
         elif (bitmask & 0b1) == 0:
             surf.blit(bitmask_dict['top'], (0,0))
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'top')
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'top')
         elif (bitmask & 0b1000000) == 0:
             surf.blit(bitmask_dict['left'], (0,0))
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'left')
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'left')
         elif (bitmask & 0b10000000) == 0:
             surf.blit(bitmask_dict['topleft_outer'], (0,0))
         else:
@@ -181,55 +181,64 @@ class SurfaceMapper():
 
         #topright corner
         if (bitmask & 0b1) == 0 and (bitmask & 0b100) == 0:
-            surf.blit(bitmask_dict['topright_inner'], (surf_size[1]-sprite_size[1], 0))
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'top')
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'right')
+            surf.blit(bitmask_dict['topright_inner'], ((chunk_size[1]-sprite_size[1])*self.scale, 0))
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'top')
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'right')
         elif (bitmask & 0b1) == 0:
-            surf.blit(bitmask_dict['top'], (surf_size[1]-sprite_size[1], 0))
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'top')
+            surf.blit(bitmask_dict['top'], ((chunk_size[1]-sprite_size[1])*self.scale, 0))
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'top')
         elif (bitmask & 0b100) == 0:
-            surf.blit(bitmask_dict['right'], (surf_size[1]-sprite_size[1], 0))
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'right')
+            surf.blit(bitmask_dict['right'], ((chunk_size[1]-sprite_size[1])*self.scale, 0))
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'right')
         elif (bitmask & 0b10) == 0:
-            surf.blit(bitmask_dict['topright_outer'], (surf_size[1]-sprite_size[1], 0))
+            surf.blit(bitmask_dict['topright_outer'], ((chunk_size[1]-sprite_size[1])*self.scale, 0))
         else:
             center[1] = False
 
         #bottomright
         if (bitmask & 0b100) == 0 and (bitmask & 0b10000) == 0:
-            surf.blit(bitmask_dict['bottomright_inner'], (surf_size[1]-sprite_size[1], surf_size[0]-sprite_size[0]))
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'right')
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'bottom')
+            surf.blit(bitmask_dict['bottomright_inner'], ((chunk_size[1]-sprite_size[1])*self.scale, (chunk_size[0]-sprite_size[0])*self.scale))
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'right')
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'bottom')
         elif (bitmask & 0b100) == 0:
-            surf.blit(bitmask_dict['right'], (surf_size[1]-sprite_size[1], surf_size[0]-sprite_size[0]))
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'right')
+            surf.blit(bitmask_dict['right'], ((chunk_size[1]-sprite_size[1])*self.scale, (chunk_size[0]-sprite_size[0])*self.scale))
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'right')
         elif (bitmask & 0b10000) == 0:
-            surf.blit(bitmask_dict['bottom'], (surf_size[1]-sprite_size[1], surf_size[0]-sprite_size[0]))
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'bottom')
+            surf.blit(bitmask_dict['bottom'], ((chunk_size[1]-sprite_size[1])*self.scale, (chunk_size[0]-sprite_size[0])*self.scale))
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'bottom')
         elif (bitmask & 0b1000) == 0:
-            surf.blit(bitmask_dict['bottomright_outer'], (surf_size[1]-sprite_size[1], surf_size[0]-sprite_size[0]))
+            surf.blit(bitmask_dict['bottomright_outer'], ((chunk_size[1]-sprite_size[1])*self.scale, (chunk_size[0]-sprite_size[0])*self.scale))
         else:
             center[2] = False
 
         #bottomleft
         if (bitmask & 0b10000) == 0 and (bitmask & 0b1000000) == 0:
-            surf.blit(bitmask_dict['bottomleft_inner'], (0, surf_size[0]-sprite_size[0]))
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'left')
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'bottom')
+            surf.blit(bitmask_dict['bottomleft_inner'], (0, (chunk_size[0]-sprite_size[0])*self.scale))
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'left')
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'bottom')
         elif (bitmask & 0b10000) == 0:
-            surf.blit(bitmask_dict['bottom'], (0, surf_size[0]-sprite_size[0]))
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'bottom')
+            surf.blit(bitmask_dict['bottom'], (0, (chunk_size[0]-sprite_size[0])*self.scale))
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'bottom')
         elif (bitmask & 0b1000000) == 0: 
-            surf.blit(bitmask_dict['left'], (0, surf_size[0]-sprite_size[0]))
-            self.draw_lines(bitmask_dict, surf_size, sprite_size, surf, 'left')
+            surf.blit(bitmask_dict['left'], (0, (chunk_size[0]-sprite_size[0])*self.scale))
+            self.draw_lines(bitmask_dict, chunk_size, sprite_size, surf, 'left')
         elif (bitmask & 0b100000) == 0:
-            surf.blit(bitmask_dict['bottomleft_outer'], (0, surf_size[0]-sprite_size[0]))
+            surf.blit(bitmask_dict['bottomleft_outer'], (0, (chunk_size[0]-sprite_size[0])*self.scale))
         else:
             center[3] = False
 
         rect = None
         if center[0] or center[1] or center[2] or center[3]:
-            rect = pg.Rect(c*surf_size[0]-sprite_size[0], r*surf_size[1]-sprite_size[1]*2, surf_size[0]-sprite_size[0], surf_size[1]-sprite_size[1]*2)
+            #x = (c*chunk_size[0]-(sprite_size[0]*self.scale))*self.scale
+            #y = (r*chunk_size[1]-(sprite_size[1]*2*self.scale))*self.scale
+            #w =  (chunk_size[0]-sprite_size[0])
+            #h = chunk_size[1]-sprite_size[1]*2
+            x = c*chunk_size[0]*self.scale
+            y = r*chunk_size[1]*self.scale
+            w = chunk_size[0] * self.scale
+            h = chunk_size[1] * self.scale
+            #hardcoded values to make the game look better
+            rect = pg.Rect(x-10, y-26, w-22, h-64)
 
         return surf, rect
 
@@ -246,42 +255,41 @@ class SurfaceMapper():
 
     # def populate_enemies(self, ):
 
-    def generate_map_surface(self, size_per_tile: tuple[int,int]):
-        sprite_size = (16,16)
-        map_surf = Surface( (len(self.map_matrix[1]) * size_per_tile[0], len(self.map_matrix[0]) * size_per_tile[1]), SRCALPHA, 32) 
+    def generate_map_surface(self, chunk_size: tuple[int,int], sprite_size: tuple[int, int]):
+        map_surf = Surface( (len(self.map_matrix[1]) * chunk_size[0] * self.scale, len(self.map_matrix[0]) * chunk_size[1] * self.scale), SRCALPHA, 32) 
 
         collision_borders = pg.sprite.Group()
 
         for row_idx, row in enumerate(self.map_matrix):
             for col_idx, value in enumerate(row):
                 if value == TileEnum.GROUND.value or value == TileEnum.SPAWN.value:
-                    tile_surf = self.generate_random_surf(self.ground_sprite_pool, sprite_size, size_per_tile)
-                    map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
+                    tile_surf = self.generate_random_surf(self.ground_sprite_pool, sprite_size, chunk_size)
+                    map_surf.blit(tile_surf, (col_idx*chunk_size[0]*self.scale, row_idx*chunk_size[1]*self.scale))
                 elif value == TileEnum.OBSTACLE.value:
-                    tile_surf, rect = self.tile_bitmasking(self.map_matrix, (row_idx, col_idx), self.obst1_dict, size_per_tile, sprite_size)
+                    tile_surf, rect = self.tile_bitmasking(self.map_matrix, (row_idx, col_idx), self.obst1_dict, chunk_size, sprite_size)
                     if rect != None: #it is a border
                         temp_sprite = pg.sprite.Sprite()
                         temp_sprite.image = tile_surf
                         temp_sprite.rect = rect
                         collision_borders.add(temp_sprite)
-                    map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
+                    map_surf.blit(tile_surf, (col_idx*chunk_size[0]*self.scale, row_idx*chunk_size[1]*self.scale))
                 
                 elif value == TileEnum.OBSTACLE_2.value:
-                    tile_surf, rect = self.tile_bitmasking(self.map_matrix, (row_idx, col_idx), self.obst2_dict, size_per_tile, sprite_size)
+                    tile_surf, rect = self.tile_bitmasking(self.map_matrix, (row_idx, col_idx), self.obst2_dict, chunk_size, sprite_size)
                     if rect != None: #it is a border
                         temp_sprite = pg.sprite.Sprite()
                         temp_sprite.image = tile_surf
                         temp_sprite.rect = rect
                         collision_borders.add(temp_sprite)
                     
-                    map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
+                    map_surf.blit(tile_surf, (col_idx*chunk_size[0]*self.scale, row_idx*chunk_size[1]*self.scale))
                 # TODO
                 # elif value == TileEnum.SPAWN.value:
                 #     draw.rect(map_surf, (255,0,0), Rect(col_idx*size_per_tile[0], row_idx*size_per_tile[1],size_per_tile[1],size_per_tile[0])) 
                 elif value == TileEnum.OBJECTIVE.value:
-                    draw.rect(map_surf, (0,255,255), Rect(col_idx*size_per_tile[0], row_idx*size_per_tile[1],size_per_tile[1],size_per_tile[0])) 
+                    draw.rect(map_surf, (0,255,255), Rect(col_idx*chunk_size[0]*self.scale, row_idx*chunk_size[1]*self.scale,chunk_size[1]*self.scale,chunk_size[0]*self.scale)) 
                 elif value == TileEnum.POI.value:
-                    draw.rect(map_surf, (0,0,255), Rect(col_idx*size_per_tile[0], row_idx*size_per_tile[1],size_per_tile[1],size_per_tile[0])) 
+                    draw.rect(map_surf, (0,0,255), Rect(col_idx*chunk_size[0]*self.scale, row_idx*chunk_size[1]*self.scale,chunk_size[1]*self.scale,chunk_size[0]*self.scale)) 
                     
         return map_surf, collision_borders
 
@@ -295,11 +303,16 @@ class Level1Surface(SurfaceMapper):
         '''
         self.scale = scale
         self.map_matrix = map_matrix
-        grnd_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level1/ground.png'))
-        self.ground_sprite_pool = grnd_spritesheet.load_tiled_style((16,16))
+        
+        sprite_size = (16,16)
+    
 
-        obst_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level1/water.png'))
-        obst_sprites = obst_spritesheet.load_tiled_style((16,16))
+        grnd_spritesheet = SpriteSheet(pg.image.load('../sprites/environment_tileset/level1/ground.png'))
+        self.ground_sprite_pool = grnd_spritesheet.load_tiled_style(sprite_size)
+
+        obst_spritesheet = SpriteSheet(pg.image.load('../sprites/environment_tileset/level1/water.png'))
+        obst_sprites = obst_spritesheet.load_tiled_style((16,16), scale=scale)
+
         
         self.obst1_dict = {
             "center": obst_sprites[12],
@@ -318,7 +331,7 @@ class Level1Surface(SurfaceMapper):
         }
 
         obst2_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level1/obstacles2.png'))
-        obst2_sprites = obst2_spritesheet.load_tiled_style((16,16))
+        obst2_sprites = obst2_spritesheet.load_tiled_style((16,16), scale=scale)
         self.obst2_sprite_pool = obst2_sprites[10]
         
         self.obst2_dict = {

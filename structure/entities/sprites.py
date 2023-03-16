@@ -36,7 +36,7 @@ class SpriteSheet(): #should reimplement this using sprite.Sprite
         return self.images_at(tups, scale, colorkey)
    
     #assumes no spacing between elements 
-    def load_tiled_style(self, sprite_dimensions: tuple[int, int]) -> list[pg.Surface]:
+    def load_tiled_style(self, sprite_dimensions: tuple[int, int], scale=1) -> list[pg.Surface]:
         (s_width, s_height) = sprite_dimensions
         row_elements = self.sheet.get_width() / s_width
         col_elements = self.sheet.get_height() / s_height
@@ -44,7 +44,7 @@ class SpriteSheet(): #should reimplement this using sprite.Sprite
         sprite_list = []
         for i in range(int(col_elements)):
             for j in range(int(row_elements)):
-                sprite_list.append(self.image_at((j*s_width, i*s_height, s_width, s_height)))
+                sprite_list.append(self.image_at((j*s_width, i*s_height, s_width, s_height), scale))
 
         return sprite_list
 
