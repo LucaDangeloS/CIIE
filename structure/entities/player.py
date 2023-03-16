@@ -25,8 +25,8 @@ class Player(Entity):
 
         self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', sprite_scale)
         self.image = self.sprite.get_img(self.state)
-        self.walk_sound = self.director.audio.loadSound('../media/steps.mp3')
-        self.shoe_sound = self.director.audio.loadSound('../media/zapatillazo.mp3')
+        self.walk_sound = self.director.audio.loadSound('../media/steps.ogg')
+        self.shoe_sound = self.director.audio.loadSound('../media/zapatillazo.ogg')
 
         #should we harcode the rect?
         self.rect = pg.Rect(380,50,16.6666*sprite_scale,26.666666*sprite_scale)

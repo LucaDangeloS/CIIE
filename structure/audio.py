@@ -12,7 +12,7 @@ class Audio:
   def __init__(self):
     self.control = True
     pg.mixer.init(48000, -16, 2, 1024)
-    self.p = pg.mixer.Sound('../media/steps.mp3')
+    self.p = pg.mixer.Sound('../media/steps.ogg')
     self.channels = [pg.mixer.Channel(0), pg.mixer.Channel(1)]
     self.currentChannel = self.channels[0]
 
