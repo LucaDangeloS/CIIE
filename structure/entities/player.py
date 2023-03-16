@@ -10,15 +10,17 @@ import time
 
 
 class Player(Entity):
-    action_state = {ControllerInterface.events[0]:False, ControllerInterface.events[1]: False, ControllerInterface.events[2]: False,
-             ControllerInterface.events[3]: False, ControllerInterface.events[4]:False, ControllerInterface.events[5]:False, ControllerInterface.events[6]:False}
+    action_state = {ControllerInterface.events[0]:False, ControllerInterface.events[1]: False, ControllerInterface.events[2]: False, ControllerInterface.events[3]: False,
+        ControllerInterface.events[4]:False, ControllerInterface.events[5]:False, ControllerInterface.events[6]:False, ControllerInterface.events[7]:False}
     # possible actions [idle, walking, running, attack_1, attack_2]
     weapons = []
     director = Director()
 
 
-    def __init__(self, collision_sprites, damagable_sprites, thrown_sprite_group, sprite_scale=1): #if we don't add the player to the collision sprites how is he going to collide with enemies?
+    def __init__(self, collision_sprites, damagable_sprites, thrown_sprite_group, clock, sprite_scale=2):
         super().__init__()
+        self.clock = clock
+
         self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', sprite_scale)
         self.image = self.sprite.get_img(self.state)
         self.walk_sound = self.director.audio.loadSound('../media/steps.mp3')
@@ -55,8 +57,11 @@ class Player(Entity):
         #faster than using ifs (probably)
         self.direction.y = self.dir_dict[ (self.action_state['up'], self.action_state['down']) ]
         self.direction.x = self.dir_dict[ (self.action_state['left'], self.action_state['right']) ]
-       
-        if self.action_state['attack_1']:
+
+        if self.action_state['rewind']:
+            self.clock.go_back_in_time()
+
+        elif self.action_state['attack_1']:
             '''   
             Problem: right now is that the attack has a logical cooldown
              but the animation has not, so you can spam the animation and you may not be hitting as 
@@ -109,7 +114,7 @@ class Player(Entity):
 
     def move(self):
         move = self.direction
-        if self.direction.magnitude() != 0: #buggy: going top left seems faster
+        if self.direction.magnitude() != 0:
             move = self.direction.normalize()
 
         if self.action_state['run']:
@@ -125,10 +130,13 @@ class Player(Entity):
 
 
     def update(self):
-        self.image = self.sprite.get_img(self.state)
-        self.weapons[0].update(self.rect.topright) #cooldown purpose
-        self.weapons[1].update(self.damagable_sprite_group)
-        self.move()
+        if not self.action_state['rewind']:
+            self.image = self.sprite.get_img(self.state)
+            self.weapons[0].update(self.rect.topright) #cooldown purpose
+            self.weapons[1].update(self.damagable_sprite_group)
+            self.move()
+
+            self.clock.take_snapshot(self, self.rect.center)
 
     def draw(self, screen: pg.display):
         if self.weapons[1].launched:

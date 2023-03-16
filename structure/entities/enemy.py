@@ -28,11 +28,14 @@ class Enemy(Entity):
             #we should launch the dying animation here
             self.kill()
 
-    def update(self, player_pos):
+    def update(self, player_pos, clock):
         self.image = self.sprite.get_img(self.state)
         goal = self.behavior.get_goal(player_pos)
         if goal is not None:
             self.move(goal)
+
+        clock.take_snapshot(self, self.rect.center)
+
 
     def move(self, goal):
         self.direction = pg.math.Vector2(goal) - pg.math.Vector2(self.rect.center)
