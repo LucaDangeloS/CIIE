@@ -42,7 +42,10 @@ class WeaponPool:
     '''
     def update(self, damagable_group: pg.sprite.Group):
         for weapon in self.active_weapons:
-            weapon.update(damagable_group)
+            if weapon.sprite not in self.thrown_sprite_group:
+                self.active_weapons.remove(weapon)
+            else:
+                weapon.update(damagable_group)
         
     def draw_hitboxes(self, screen):
         for weapon in self.active_weapons:
