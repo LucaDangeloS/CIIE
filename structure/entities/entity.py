@@ -2,19 +2,18 @@ import pygame as pg
 from entities.sprites import Sprite_handler, ActionEnum
 
 class Entity(pg.sprite.Sprite):
-    health = 5
-    invincible = True
-    alive = True
-    walking_speed = 3
-    running_speed = 6
-    direction = pg.math.Vector2()
     dir_dict = {(True, False): -1, (False, True): 1, (False, False): 0, (True, True): 0}
-    state = (ActionEnum.IDLE, 'down') #(action, orientation)
-    sprite_groups = []
 
-    def __init__(self, sprite_groups=[]):
+    def __init__(self, sprite_groups=[], **kwargs):
         super().__init__(sprite_groups)
-        self.sprite = Sprite_handler()
+        self.sprite_groups = []
+        self.invincible = False
+        self.alive = True
+        self.speed = 3
+        self.health = 5
+        self.state = (ActionEnum.IDLE, 'down') #(action, orientation)
+        self.sprite = Sprite_handler(**kwargs)
+        self.direction = pg.math.Vector2()
 
     def add_to_sprite_group(self, group):
         self.sprite_groups.append(group)
@@ -35,13 +34,16 @@ class Entity(pg.sprite.Sprite):
         return self.rect.center
 
     def move(self):
-        move = self.direction
+        if self.state[0] in [ActionEnum.ATTACK_1, ActionEnum.ATTACK_2]:
+            return
+
+        move_to = self.direction
         if self.direction.magnitude() != 0: #buggy: going top left seems faster
-            move = self.direction.normalize()
-       
-        self.rect.x += move.x * self.walking_speed
+            move_to = self.direction.normalize()
+
+        self.rect.x += move_to.x * self.speed
         self.collision('horizontal')
-        self.rect.y += move.y * self.walking_speed
+        self.rect.y += move_to.y * self.speed
         self.collision('vertical')
 
     def collision(self, direction):
@@ -68,6 +70,8 @@ class Entity(pg.sprite.Sprite):
         pass
 
     def receive_damage(self, damage_amount):
+        if self.invincible:
+            return
         self.health -= damage_amount
         if self.health <= 0: #kill the sprite
             #we should launch the dying animation here

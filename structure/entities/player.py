@@ -14,6 +14,8 @@ class Player(Entity):
         ControllerInterface.events[4]:False, ControllerInterface.events[5]:False, ControllerInterface.events[6]:False, ControllerInterface.events[7]:False}
     # possible actions [idle, walking, running, attack_1, attack_2]
     weapons = []
+    walking_speed = 3
+    running_speed = 6
     director = Director()
 
 
@@ -58,6 +60,9 @@ class Player(Entity):
         self.direction.y = self.dir_dict[ (self.action_state['up'], self.action_state['down']) ]
         self.direction.x = self.dir_dict[ (self.action_state['left'], self.action_state['right']) ]
 
+        if self.state[0] is not ActionEnum.WALK:
+            self.director.audio.stopSound(self.walk_sound)
+
         if self.action_state['rewind']:
             self.clock.go_back_in_time()
 
@@ -67,25 +72,28 @@ class Player(Entity):
              but the animation has not, so you can spam the animation and you may not be hitting as 
              fast as the animation shows if it isn't well coordinated.
             '''
- 
+
             self.weapons[0].attack(self.rect, self.state[1], self.damagable_sprite_group)
-            self.update_player_state(ActionEnum.ATTACK_1)
+            self.update_state(ActionEnum.ATTACK_1)
+
         elif self.action_state['attack_2']:
             self.weapons[1].attack(self.rect, self.state[1])
-            self.update_player_state(ActionEnum.ATTACK_2)
+            self.update_state(ActionEnum.ATTACK_2)
             self.director.audio.playAttackSound(self.shoe_sound)
             # self.director.audio.setChannel(0)
 
+        elif self.direction.magnitude() == 0:
+            self.update_state(ActionEnum.IDLE)
+
+        elif self.action_state['run']: 
+            self.speed = self.running_speed
+            self.update_state(ActionEnum.RUN)
+            self.director.audio.playSound(self.walk_sound)
+
         else:
-            if self.direction.magnitude() == 0:
-                self.update_player_state(ActionEnum.IDLE)
-                self.director.audio.stopSound(self.walk_sound)
-            else: #must be either walking or running (missing attacks also)
-                if self.action_state['run']: 
-                    self.update_player_state(ActionEnum.RUN)
-                else:
-                    self.update_player_state(ActionEnum.WALK)
-                    self.director.audio.playSound(self.walk_sound)
+            self.speed = self.walking_speed
+            self.update_state(ActionEnum.WALK)
+            self.director.audio.playSound(self.walk_sound)
 
     # this may alone determine the change of state of the player (using the previous state)
     # because the orientation or the action only change with a different input. No input -> Same state
@@ -95,7 +103,7 @@ class Player(Entity):
 
         self.apply_input()
 
-    def update_player_state(self, action):
+    def update_state(self, action):
         #get what action we are on and orientation
         orientations = ['right', 'left', 'up', 'down']
   
@@ -111,23 +119,6 @@ class Player(Entity):
             for orientation in orientations: #it only changes when there is movement
                 if self.action_state[orientation]:
                     self.state = (ActionEnum.WALK, orientation)
-
-    def move(self):
-        move = self.direction
-        if self.direction.magnitude() != 0:
-            move = self.direction.normalize()
-
-        if self.action_state['run']:
-            self.rect.x += move.x * self.running_speed
-            self.collision('horizontal')
-            self.rect.y += move.y * self.running_speed
-            self.collision('vertical')
-        else:
-            self.rect.x += move.x * self.walking_speed
-            self.collision('horizontal')
-            self.rect.y += move.y * self.walking_speed
-            self.collision('vertical')
-
 
     def update(self):
         if not self.action_state['rewind']:

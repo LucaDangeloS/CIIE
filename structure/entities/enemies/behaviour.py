@@ -36,18 +36,20 @@ class ChaseBehavior(Behavior):
 
         if distance < self.attack_range:
             # Update enemy state
-            # self.enemy.state = (ActionEnum.ATTACK, "right" if x_dist > 0 else "left")
-            return None
+            self.enemy.state = (ActionEnum.ATTACK_1, "right" if x_dist > 0 else "left")
+            self.enemy.set_goal(player_pos)
+            return
+            # direction is a pygame Vector2
 
         # If the player is within range, move towards it
         if distance <= self.follow_range:
             # Update enemy state
-            # self.enemy.state = (ActionEnum.WALK, "right" if x_dist > 0 else "left")
-            return player_pos
-        
+            self.enemy.state = (ActionEnum.WALK, "right" if x_dist > 0 else "left")
+            self.enemy.set_goal(player_pos)
+            return
         # If the player is out of range, stay in place
         # Update enemy state so that he idles in the direction he was facing
-        # facing_dir = self.enemy.get_orientation()
-        # self.enemy.state = (ActionEnum.IDLE, facing_dir)
-        return None
+        facing_dir = self.enemy.get_orientation()
+        self.enemy.state = (ActionEnum.IDLE, facing_dir)
+        self.enemy.set_goal(None)
 

@@ -77,14 +77,15 @@ def load_csv_into_surface(csv_reader, sprite_list, tile_size):
 
 #use this class to store the sprites, the animations and iterate through them
 class Sprite_handler():
-    def __init__(self): #spritesheet_path: name of the spritesheet without extensions
+    def __init__(self, facing_sprites = 'right'): #spritesheet_path: name of the spritesheet without extensions
         self.dict = {} #list of dictionary of dictionaries, and animation time per step
         
 
         #use these to track the animation we are on
         self.state = (ActionEnum.IDLE, 'right')
+        self.sprite_facing_right = facing_sprites == 'right'
         self.animation_idx = 0
-       
+
         self.animation_step = 500
         self.last_step = 0
 
@@ -96,7 +97,7 @@ class Sprite_handler():
         #get the dimensions of the sprites
         header = next(csv_reader, -1)
         sprite_width, sprite_height = int(header[1]), int(header[3])
-      
+
         header = next(csv_reader, -1)
         while not(header == -1):
             action = header[0]
@@ -127,83 +128,36 @@ class Sprite_handler():
     def get_img(self, state):
         action, orientation = state
         (orientation_dict, self.animation_step) = self.dict[self.state[0].value]
-        
-        if self.state[0] == action and self.state[1] == orientation:
+
+        if self.state == (action, orientation):
             if pg.time.get_ticks() - self.last_step >= self.animation_step:
                 self.last_step = pg.time.get_ticks()
                 self.animation_idx = (self.animation_idx + 1) % len(orientation_dict[orientation])
-        
-        elif self.state[0] == ActionEnum.ATTACK_1 or self.state[0] == ActionEnum.ATTACK_2: #attack_1
+
+        elif self.state[0] in [ActionEnum.ATTACK_1, ActionEnum.ATTACK_2]: #attack_1
             if pg.time.get_ticks() - self.last_step >= self.animation_step:
-            
+
                 if (self.animation_idx == len(orientation_dict[orientation])-1):
                     orient, idx = self.state[1], self.animation_idx
-                    
+
                     self.animation_idx, self.state = 0, (action, orientation)
                     self.last_step = pg.time.get_ticks()
-                   
+
                     return orientation_dict[orient][idx]
 
                 #if we are attacking complete the animation before switching 
                 self.last_step = pg.time.get_ticks()
                 self.animation_idx = (self.animation_idx + 1) % len(orientation_dict[self.state[1]])
- 
+
         else: #no need to distinguish which one is not equal (still need to reset)
             self.last_step = pg.time.get_ticks()
             self.state = (action, orientation)
             self.animation_idx = 0
             orientation_dict, self.animation_speed = self.dict[action.value]
-           
- 
-        return orientation_dict[self.state[1]][self.animation_idx]
 
-"""
-#testing code for the sprites 
-pg.init()
+        animation_sprite = orientation_dict[self.state[1]][self.animation_idx]
 
-screen = pg.display.set_mode((1000, 700))
-clock = pg.time.Clock()
-run = True
+        if orientation == 'right' and not self.sprite_facing_right:
+            animation_sprite = pg.transform.flip(animation_sprite, True, False)
 
-granny_sprite = Sprites('../sprites/granny_movement')
-granny_sprite.load_sprites(3)
-#print(granny_sprite.dict)
-
-counter = 0
-action = 'walk'
-orientation = 'left'
-while run:
-    clock.tick(60)
-    counter += 1
-    action_dict = granny_sprite.dict[action]
-    for event in pg.event.get():
-        if event.type == QUIT:
-            run = False
-            break
-        if event.type == KEYDOWN:
-            if event.key == K_UP:
-                orientation = 'up'
-            elif event.key == K_DOWN:
-                orientation = 'down' 
-            elif event.key == K_RIGHT:
-                orientation = 'right'
-            elif event.key == K_LEFT:
-                orientation = 'left'
-            if event.key == K_SPACE: #switch to see both actions
-                if action == 'walk':
-                    action = 'idle'
-                    print("going for idle")
-                else:
-                    action = 'walk'
-
-    screen.fill('white')
-    #srf = action_dict[orientation][counter % 3]
-    srf = granny_sprite.get_img(action, orientation) 
-    screen.blit(srf, (132,132))
-    pg.display.update() 
-
-
-pg.quit()
-"""
-
-
+        return animation_sprite
