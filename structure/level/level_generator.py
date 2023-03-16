@@ -74,9 +74,7 @@ class LevelGenerator():
         # and *maybe* the map grid for path calculations or something
         return spawn, map_surface, map_collisions
 
-    def generate_map_level1(self, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None) -> tuple[tuple[int, int], Surface, list[list[tuple[int, int]]]]:
-        self.surface_mapper = Level1Surface
-        # Try 10 times, highly unlikely to fail if the parameters are not tweaked too much
+    def generate_map(self, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None):
         attempts = 10
         for _ in range(attempts):
             try:
@@ -85,16 +83,14 @@ class LevelGenerator():
                 continue
         raise GenerationException(f"Failed to generate map after {attempts} attemps")
 
-    def generate_map_level2(self):
+
+    def generate_map_level1(self, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None) -> tuple[tuple[int, int], Surface, list[list[tuple[int, int]]]]:
+        self.surface_mapper = Level1Surface
+        return self.generate_map(n_poi, clear_radius_from_poi, noise_resolution, lower_threshold, upper_threshold, seed)
+
+    def generate_map_level2(self, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None):
         self.surface_mapper = Level2Surface
-        # Try 10 times, highly unlikely to fail if the parameters are not tweaked too much
-        attempts = 10
-        for _ in range(attempts):
-            try:
-                return self.__generate_map(self.size, self.chunk_size, n_poi, clear_radius_from_poi, noise_resolution, lower_threshold, upper_threshold, seed)
-            except GenerationException as e:
-                continue
-        raise GenerationException(f"Failed to generate map after {attempts} attemps")
+        return self.generate_map(n_poi, clear_radius_from_poi, noise_resolution, lower_threshold, upper_threshold, seed)
 
 
 
@@ -248,6 +244,8 @@ class SurfaceMapper():
         return transform.scale(surf, (surf_size[0]*self.scale, surf_size[1]*self.scale))
 
 
+    # def populate_enemies(self, ):
+
     def generate_map_surface(self, size_per_tile: tuple[int,int]):
         sprite_size = (16,16)
         map_surf = Surface( (len(self.map_matrix[1]) * size_per_tile[0], len(self.map_matrix[0]) * size_per_tile[1]), SRCALPHA, 32) 
@@ -256,7 +254,7 @@ class SurfaceMapper():
 
         for row_idx, row in enumerate(self.map_matrix):
             for col_idx, value in enumerate(row):
-                if value == TileEnum.GROUND.value:
+                if value == TileEnum.GROUND.value or value == TileEnum.SPAWN.value:
                     tile_surf = self.generate_random_surf(self.ground_sprite_pool, sprite_size, size_per_tile)
                     map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
                 elif value == TileEnum.OBSTACLE.value:
@@ -276,10 +274,10 @@ class SurfaceMapper():
                         temp_sprite.rect = rect
                         collision_borders.add(temp_sprite)
                     
-                # TODO
                     map_surf.blit(tile_surf, (col_idx*size_per_tile[0], row_idx*size_per_tile[1]))
-                elif value == TileEnum.SPAWN.value:
-                    draw.rect(map_surf, (255,0,0), Rect(col_idx*size_per_tile[0], row_idx*size_per_tile[1],size_per_tile[1],size_per_tile[0])) 
+                # TODO
+                # elif value == TileEnum.SPAWN.value:
+                #     draw.rect(map_surf, (255,0,0), Rect(col_idx*size_per_tile[0], row_idx*size_per_tile[1],size_per_tile[1],size_per_tile[0])) 
                 elif value == TileEnum.OBJECTIVE.value:
                     draw.rect(map_surf, (0,255,255), Rect(col_idx*size_per_tile[0], row_idx*size_per_tile[1],size_per_tile[1],size_per_tile[0])) 
                 elif value == TileEnum.POI.value:
@@ -343,7 +341,7 @@ class Level1Surface(SurfaceMapper):
 class Level2Surface(SurfaceMapper):
     def __init__(self, map_matrix):
         self.map_matrix = map_matrix
-        grnd_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level1/ground.png'))
+        grnd_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level2/ground.png'))
         self.ground_sprite_pool = grnd_spritesheet.load_tiled_style((16,16))
 
         obst_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level1/water.png'))
@@ -365,7 +363,7 @@ class Level2Surface(SurfaceMapper):
             "bottomright_outer": obst_sprites[16]
         }
 
-        obst2_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/desert_house.png'))
+        obst2_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level2/desert_house.png'))
         obst2_sprites = obst2_spritesheet.load_tiled_style((16,16))
         
         self.obst2_dict = {
