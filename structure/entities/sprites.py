@@ -76,9 +76,9 @@ def load_csv_into_surface(csv_reader, sprite_list, tile_size):
 
 #use this class to store the sprites, the animations and iterate through them
 class Sprite_handler():
+    
     def __init__(self, facing_sprites = 'right'): #spritesheet_path: name of the spritesheet without extensions
         self.dict = {} #list of dictionary of dictionaries, and animation time per step
-        
 
         #use these to track the animation we are on
         self.state = (ActionEnum.IDLE, 'right')
@@ -128,11 +128,11 @@ class Sprite_handler():
         action, orientation = state
         (orientation_dict, self.animation_step) = self.dict[self.state[0].value]
 
-        if self.state[0] in [ActionEnum.ATTACK_1, ActionEnum.ATTACK_2]:
-            # Insert this in the end of the attack animation
-            print("IN ATTACK")
-            if attack_animation_callback != None:
-                attack_animation_callback()
+        if (
+            self.state[0] in [ActionEnum.ATTACK_1, ActionEnum.ATTACK_2]
+            and attack_animation_callback != None
+        ):
+            attack_animation_callback()
 
         if self.state == (action, orientation):
             if pg.time.get_ticks() - self.last_step >= self.animation_step:
@@ -167,3 +167,5 @@ class Sprite_handler():
             animation_sprite = pg.transform.flip(animation_sprite, True, False).convert_alpha()
 
         return animation_sprite
+
+

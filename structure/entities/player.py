@@ -19,11 +19,12 @@ class Player(Entity):
     director = Director()
 
 
-    def __init__(self, collision_sprites, damagable_sprites, thrown_sprite_group, clock, sprite_scale=2):
-        super().__init__()
+    def __init__(self, collision_sprites, damageable_sprites, thrown_sprite_group, clock, sprite_scale=2, **kwargs):
+        super().__init__(damageable_sprites=damageable_sprites, **kwargs)
         self.clock = clock
 
         self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', sprite_scale)
+        # self.blood_animation = self.sprite.load_regular_sprites('sprites/hits/blood-sheet.png', sprite_scale)
         self.image = self.sprite.get_img(self.state)
         self.walk_sound = self.director.audio.loadSound('../media/steps.ogg')
         self.shoe_sound = self.director.audio.loadSound('../media/zapatillazo.ogg')
@@ -37,9 +38,6 @@ class Player(Entity):
         self.weapons.append(Stick(self.rect.topright))
         self.weapons.append(WeaponPool(Slipper, 30, 300, thrown_sprite_group, 4))
         #self.weapons.append(Slipper(5))
-
-        #self.damagable_sprite_group = director.get_damagable_sprites()
-        self.damagable_sprite_group = damagable_sprites
 
     def set_drawing_sprite_group(self, sprite_group):
         sprite_group.add(self)
@@ -73,7 +71,7 @@ class Player(Entity):
              fast as the animation shows if it isn't well coordinated.
             '''
 
-            self.weapons[0].attack(self.rect, self.state[1], self.damagable_sprite_group)
+            self.weapons[0].attack(self.rect, self.state[1], self.damageable_sprite_group)
             self.update_state(ActionEnum.ATTACK_1)
 
         elif self.action_state['attack_2']:
@@ -123,7 +121,7 @@ class Player(Entity):
     def update(self):
         if not self.action_state['rewind']:
             self.weapons[0].update(self.rect.topright) #cooldown purpose
-            self.weapons[1].update(self.damagable_sprite_group)
+            self.weapons[1].update(self.damageable_sprite_group)
             super().update()
             self.clock.take_snapshot(self, self.rect.center)
 

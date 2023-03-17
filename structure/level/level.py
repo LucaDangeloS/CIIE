@@ -29,22 +29,25 @@ class Level(SceneInterface):
         self.back_sprite.rect = self.back_sprite.image.get_rect(topleft=(0,0))
 
         self.visible_sprites = CameraSpriteGroup(screen_res)
-
+        self.player_sprite_group = pg.sprite.Group()
+        self.enemy_sprite_group = CameraSpriteGroup(screen_res)
+        
         self.visible_sprites.add(self.back_sprite)
 
         self.controller = controller
         self.collision_sprites = pg.sprite.Group()
         self.collision_sprites.add(self.borders_group)
 
-        self.enemy_sprite_group = CameraSpriteGroup(screen_res)
 
-        wasp = Wasp(self.collision_sprites, [], '../sprites/enemies/wasp', (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level), scale_level)
+        # Enemies need to be first instantiated
+        wasp = Wasp(self.collision_sprites, self.player_sprite_group, '../sprites/enemies/wasp', (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level), scale_level)
         self.enemy_sprite_group.add(wasp)
 
         #player needs to be instantiated after the damagable_sprites
         self.thrown_sprites = CameraSpriteGroup(screen_res)
         self.player = Player(self.collision_sprites, self.enemy_sprite_group, self.thrown_sprites, self.clock,3)
         self.player.rect.center = (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level)
+        self.player_sprite_group.add(self.player)
         self.player.set_drawing_sprite_group(self.visible_sprites)
         
 

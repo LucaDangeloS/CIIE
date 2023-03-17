@@ -4,7 +4,7 @@ from entities.sprites import Sprite_handler, ActionEnum
 class Entity(pg.sprite.Sprite):
     dir_dict = {(True, False): -1, (False, True): 1, (False, False): 0, (True, True): 0}
 
-    def __init__(self, sprite_groups=[], **kwargs):
+    def __init__(self, damageable_sprites=[], sprite_groups=[], **kwargs):
         super().__init__(sprite_groups)
         self.sprite_groups = []
         self.is_attacking = False
@@ -14,7 +14,11 @@ class Entity(pg.sprite.Sprite):
         self.health = 5
         self.state = (ActionEnum.IDLE, 'down') #(action, orientation)
         self.sprite = Sprite_handler(**kwargs)
+        self.damageable_sprite_group = damageable_sprites
         self.direction = pg.math.Vector2()
+
+    def set_damagable_sprite_group(self, group):
+        self.damageable_sprite_group = group
 
     def add_to_sprite_group(self, group):
         self.sprite_groups.append(group)
@@ -85,6 +89,8 @@ class Entity(pg.sprite.Sprite):
         if self.invincible:
             return
         self.health -= damage_amount
+        # Add to sprite group maybe? And remove it after the animation is done
+        # self.sprite_groups.append(self.sprite.damage_animation(self.rect.center))
         if self.health <= 0: #kill the sprite
             #we should launch the dying animation here
             self.kill()
