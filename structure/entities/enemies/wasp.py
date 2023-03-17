@@ -2,6 +2,7 @@ from typing import List
 from entities.enemy import Enemy
 from entities.enemies.behaviour import ChaseBehavior
 from pygame import Rect
+from weapons.monster import MonsterWeapon
 
 class Wasp(Enemy):
 
@@ -11,3 +12,11 @@ class Wasp(Enemy):
         self.health = 2
         self.behavior = ChaseBehavior(self, 300, 40)
 
+        # Wasp specific "weapon"
+        half_size = (self.rect.size[0] / 2, self.rect.size[1] / 2)
+        self.weapon = MonsterWeapon(self.rect.center, half_size, 7 * 120, 1)
+        self.sprite.set_attack_effective_idx(3)
+
+    def draw(self, screen):
+        self.weapon.draw_hitbox(screen)
+        super().draw(screen)

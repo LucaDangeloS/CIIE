@@ -13,9 +13,18 @@ class Entity(pg.sprite.Sprite):
         self.speed = 3
         self.health = 5
         self.state = (ActionEnum.IDLE, 'down') #(action, orientation)
-        self.sprite = Sprite_handler(**kwargs)
         self.damageable_sprite_group = damageable_sprites
+
+        # Sprite handler
+        self.sprite = Sprite_handler(**kwargs)
+        self.sprite.set_attack_damage_callback(self.set_attack_damageable)
+        self.sprite.set_attack_animation_callback(self.attack_animation_callback)
+
         self.direction = pg.math.Vector2()
+        self.can_cause_damage = False
+
+    def set_attack_damageable(self):
+        self.can_cause_damage = True
 
     def set_damagable_sprite_group(self, group):
         self.damageable_sprite_group = group
@@ -25,9 +34,6 @@ class Entity(pg.sprite.Sprite):
 
     def remove_from_sprite_group(self, group):
         self.sprite_groups.remove(group)
-
-    def attack(self, attack: str): #call the attack of the correspondent weapon
-        pass
 
     def attack_animation_callback(self):
         self.is_attacking = True
@@ -42,7 +48,8 @@ class Entity(pg.sprite.Sprite):
     #this is called in every frame
     def update(self):
         self.is_attacking = False
-        self.image = self.sprite.get_img(self.state, attack_animation_callback=self.attack_animation_callback)
+        self.can_cause_damage = False
+        self.image = self.sprite.get_img(self.state)
         self.move()
 
     def get_pos(self):
@@ -78,12 +85,8 @@ class Entity(pg.sprite.Sprite):
                     if self.direction.y < 0:
                         self.rect.top = sprite.rect.bottom
         
-    def draw(self, screen: pg.display):
-        #need to connect this with a Sprite object ->
-        # how can we assure that Sprite.dict will have animations for all the events that the player has?
-        #pg.draw.rect(screen, (255,0,0), self.rect)
-        #this really should be drawn as part of a sprite group -> for easy offsetting
-        pass
+    # def draw(self, screen: pg.display):
+    #     pass
 
     def receive_damage(self, damage_amount):
         if self.invincible:

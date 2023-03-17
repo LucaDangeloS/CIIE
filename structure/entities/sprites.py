@@ -88,6 +88,20 @@ class Sprite_handler():
         self.animation_step = 500
         self.last_step = 0
 
+        # THIS CAN FAIL IF THE ATTACK HAS LESS THAN THIS NUMBER OF FRAMES
+        self.attack_effective_idx = 1
+        self.attack_damage_callback = None
+        self.attack_animation_callback = None
+
+    def set_attack_damage_callback(self, callback):
+        self.attack_damage_callback = callback
+
+    def set_attack_animation_callback(self, callback):
+        self.attack_animation_callback = callback
+
+    def set_attack_effective_idx(self, idx):
+        self.attack_effective_idx = idx
+
     def load_regular_sprites(self, spritesheet_path, scale=1):
         spritesheet = SpriteSheet(pg.image.load(spritesheet_path + '.png'))
         csv_file = open(spritesheet_path + '.csv')
@@ -124,15 +138,19 @@ class Sprite_handler():
             header = next(csv_reader,-1) 
 
     #this function requires for the states used to be already loaded
-    def get_img(self, state, attack_animation_callback=None):
+    def get_img(self, state):
         action, orientation = state
         (orientation_dict, self.animation_step) = self.dict[self.state[0].value]
 
         if (
             self.state[0] in [ActionEnum.ATTACK_1, ActionEnum.ATTACK_2]
-            and attack_animation_callback != None
+            and self.attack_animation_callback != None
         ):
-            attack_animation_callback()
+            self.attack_animation_callback()
+
+        # Call the attack damage callback when the attack is effective in the animation
+        if (self.animation_idx == self.attack_effective_idx) and self.attack_damage_callback != None:
+            self.attack_damage_callback()
 
         if self.state == (action, orientation):
             if pg.time.get_ticks() - self.last_step >= self.animation_step:

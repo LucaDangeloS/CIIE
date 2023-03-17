@@ -3,31 +3,30 @@ from pygame.locals import *
 from weapons.weapons import Weapon
 
 
-class Stick(Weapon):
-    cooldown = 300 # Same as animation duration
-    damage = 1
-    rect_dim = (38, 60)
+class MonsterWeapon(Weapon):
     
-    def __init__(self, player_pos: tuple[int, int]):
-        self.rect = pg.Rect(player_pos[0], player_pos[1], self.rect_dim[0], self.rect_dim[1]) 
+    def __init__(self, pos: tuple[int, int], size: tuple[int, int], cooldown: int, damage: int):
+        self.cooldown = cooldown
+        self.damage = damage
+        self.rect_dim = size
+        self.rect = pg.Rect(pos[0], pos[1], self.rect_dim[0], self.rect_dim[1]) 
         self.last_step = pg.time.get_ticks()
         self.sprite = pg.sprite.Sprite()
         self.sprite.rect = self.rect
 
 
-
     #if it can attack checks if it hits something in the sprite_group and if it does updates it's health
     # the player_pos should be right_center of it's rect
-    def attack(self, player_rect: pg.Rect, orientation: str, damagable_group: pg.sprite.Group):
+    def attack(self, monster_rect: pg.Rect, orientation: str, damagable_group: pg.sprite.Group):
         if self.attack_ready:
             if orientation == 'down':
-                x, y = player_rect.midbottom[0] - (self.rect_dim[0]/2), player_rect.midbottom[1]
+                x, y = monster_rect.midbottom[0] - (self.rect_dim[0]/2), monster_rect.midbottom[1]
             elif orientation == 'up':
-                x, y = player_rect.midtop[0] - (self.rect_dim[0]/2), player_rect.midtop[1] - self.rect_dim[1]
+                x, y = monster_rect.midtop[0] - (self.rect_dim[0]/2), monster_rect.midtop[1] - self.rect_dim[1]
             elif orientation == 'left':
-                x, y = player_rect.midleft[0] - self.rect_dim[0], player_rect.midleft[1]- (self.rect_dim[1]/2)
+                x, y = monster_rect.midleft[0] - self.rect_dim[0], monster_rect.midleft[1]- (self.rect_dim[1]/2)
             elif orientation == 'right':
-                x, y = player_rect.midright[0] , player_rect.midright[1]- (self.rect_dim[1]/2)
+                x, y = monster_rect.midright[0] , monster_rect.midright[1]- (self.rect_dim[1]/2)
 
             self.rect.x, self.rect.y = x, y
             self.attack_ready = False

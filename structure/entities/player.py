@@ -21,6 +21,7 @@ class Player(Entity):
 
     def __init__(self, collision_sprites, damageable_sprites, thrown_sprite_group, clock, sprite_scale=2, **kwargs):
         super().__init__(damageable_sprites=damageable_sprites, **kwargs)
+        self.health = 5
         self.clock = clock
 
         self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', sprite_scale)
@@ -120,9 +121,10 @@ class Player(Entity):
 
     def update(self):
         if not self.action_state['rewind']:
-            self.weapons[0].update(self.rect.topright) #cooldown purpose
-            self.weapons[1].update(self.damageable_sprite_group)
             super().update()
+            if self.can_cause_damage:
+                self.weapons[0].update(self.rect.topright) #cooldown purpose
+            self.weapons[1].update(self.damageable_sprite_group)
             self.clock.take_snapshot(self, self.rect.center)
 
     def draw(self, screen: pg.display):
@@ -133,3 +135,6 @@ class Player(Entity):
             #weapon.draw_hitbox(screen)
 
 
+    def receive_damage(self, damage_amount):
+        super().receive_damage(damage_amount)
+        print("damage received")
