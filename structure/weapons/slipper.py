@@ -108,11 +108,8 @@ class Slipper(Weapon):
             damaged = pg.sprite.spritecollide(self.sprite, damagable_group, False)
             for entity in damaged:
                 entity.receive_damage(self.damage)
-            
-            #check for collisions against collidable objects -> kill sprite
-            max_x, max_y = DEFAULT_SCREEN_SIZE
-            #check if we have gone out of screen bounds
-            # should we do this creating a method in the director???
+            if damaged != []:
+                self.sprite.kill()
             '''
             To do this have a unique sprite group for the slippers and check there if a slipper that
             is being drawn is out of bounds, reimplement the kill method inside the slipper (from sprite)

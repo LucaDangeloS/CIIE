@@ -40,7 +40,7 @@ class Level(SceneInterface):
 
 
         # Enemies need to be instantiated before the player
-        wasp = Wasp(self.collision_sprites, self.player_sprite_group, '../sprites/enemies/wasp', (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level), scale_level)
+        wasp = Wasp(self.collision_sprites, self.player_sprite_group, (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level), scale_level)
         self.enemy_sprite_group.add(wasp)
 
         #player needs to be instantiated after the damagable_sprites
