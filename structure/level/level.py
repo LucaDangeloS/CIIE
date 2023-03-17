@@ -9,6 +9,7 @@ from director import Director
 from level.level_generator import LevelGenerator, SurfaceMapper
 from level.camera import CameraSpriteGroup
 from entities.enemies.wasp import Wasp
+from entities.enemies.minotaur import Minotaur
 from weapons.clock import Clock
 
 class Level(SceneInterface):
@@ -40,12 +41,13 @@ class Level(SceneInterface):
 
 
         # Enemies need to be instantiated before the player
-        wasp = Wasp(self.collision_sprites, self.player_sprite_group, (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level), scale_level)
-        self.enemy_sprite_group.add(wasp)
+        enemy = Minotaur(self.collision_sprites, self.player_sprite_group, (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level), scale_level)
+        self.enemy_sprite_group.add(enemy)
+        enemy.set_drawing_sprite_group(self.visible_sprites)
 
         #player needs to be instantiated after the damagable_sprites
         self.thrown_sprites = CameraSpriteGroup(screen_res)
-        self.player = Player(self.collision_sprites, self.enemy_sprite_group, self.thrown_sprites, self.clock,3)
+        self.player = Player(self.collision_sprites, self.enemy_sprite_group, self.thrown_sprites, self.clock, 3)
         self.player.rect.center = (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level)
         self.player_sprite_group.add(self.player)
         self.player.set_drawing_sprite_group(self.visible_sprites)
@@ -70,7 +72,7 @@ class Level(SceneInterface):
         screen.fill('white') #to refresh the whole screen
         
         self.visible_sprites.draw_offsetted(self.player, screen)
-        self.enemy_sprite_group.draw_offsetted(self.player, screen)
+        # self.enemy_sprite_group.draw_offsetted(self.player, screen)
         self.thrown_sprites.draw_offsetted_throwables(self.player, screen)
     
     def get_damagable_sprites(self):

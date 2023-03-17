@@ -11,7 +11,7 @@ class Minotaur(Enemy):
         sprite_path = '../sprites/enemies/minotaur'
         super().__init__(collision_sprites, damageable_sprites, sprite_path, entity_rect, sprite_scale, facing_sprites='right')
         self.health = 5
-        self.behavior = ChaseBehavior(self, 300, 60)
+        self.behavior = ChaseBehavior(self, 300, 10)
 
         # Wasp specific "weapon"
         half_size = (self.rect.size[0] / 2, self.rect.size[1] / 2)

@@ -45,6 +45,9 @@ class Entity(pg.sprite.Sprite):
             self.state[0] = state
 
 
+    def set_drawing_sprite_group(self, sprite_group):
+        sprite_group.add(self)
+
     #this is called in every frame
     def update(self):
         self.is_attacking = False

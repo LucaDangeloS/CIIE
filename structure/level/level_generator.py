@@ -255,6 +255,10 @@ class SurfaceMapper():
 
     # def populate_enemies(self, ):
 
+    # def put_main_objects(self, ):
+
+    # def put_secondary_objects(self, ):
+
     def generate_map_surface(self, chunk_size: tuple[int,int], sprite_size: tuple[int, int]):
         map_surf = Surface( (len(self.map_matrix[1]) * chunk_size[0] * self.scale, len(self.map_matrix[0]) * chunk_size[1] * self.scale), SRCALPHA, 32) 
 
@@ -279,7 +283,7 @@ class SurfaceMapper():
 
         for row_idx, row in enumerate(self.map_matrix):
             for col_idx, value in enumerate(row):
-                if value == TileEnum.GROUND.value:
+                if value in [TileEnum.GROUND.value, TileEnum.SPAWN.value]:
                     tile_surf = self.generate_random_surf(self.ground_sprite_pool, sprite_size, chunk_size)
                     map_surf.blit(tile_surf, (col_idx*chunk_size[0]*self.scale, row_idx*chunk_size[1]*self.scale))
                 elif value == TileEnum.OBSTACLE.value:
@@ -301,8 +305,6 @@ class SurfaceMapper():
                     
                     map_surf.blit(tile_surf, (col_idx*chunk_size[0]*self.scale, row_idx*chunk_size[1]*self.scale))
                 # TODO
-                elif value == TileEnum.SPAWN.value:
-                    draw.rect(map_surf, (255,0,0), Rect(col_idx*chunk_size[0]*self.scale, row_idx*chunk_size[1]*self.scale,chunk_size[1]*self.scale,chunk_size[0]*self.scale))
                 elif value == TileEnum.OBJECTIVE.value:
                     draw.rect(map_surf, (0,255,255), Rect(col_idx*chunk_size[0]*self.scale, row_idx*chunk_size[1]*self.scale,chunk_size[1]*self.scale,chunk_size[0]*self.scale)) 
                 elif value == TileEnum.POI.value:

@@ -20,7 +20,7 @@ class Player(Entity):
 
 
     def __init__(self, collision_sprites, damageable_sprites, thrown_sprite_group, clock, sprite_scale=2, **kwargs):
-        super().__init__(damageable_sprites=damageable_sprites, **kwargs)
+        super().__init__(damageable_sprites=damageable_sprites, disable_flipping=True, **kwargs)
         self.health = 5
         self.clock = clock
 
@@ -40,8 +40,8 @@ class Player(Entity):
         self.weapons.append(WeaponPool(Slipper, 30, 300, thrown_sprite_group, 4))
         #self.weapons.append(Slipper(5))
 
-    def set_drawing_sprite_group(self, sprite_group):
-        sprite_group.add(self)
+    # def set_drawing_sprite_group(self, sprite_group):
+    #     sprite_group.add(self)
         #self.weapons[1].drawing_spr_group = sprite_group
 
     def kill(self):
