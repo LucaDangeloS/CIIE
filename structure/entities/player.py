@@ -137,4 +137,4 @@ class Player(Entity):
 
     def receive_damage(self, damage_amount):
         super().receive_damage(damage_amount)
-        print("damage received")
+        # Logic to lose game
