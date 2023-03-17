@@ -124,9 +124,15 @@ class Sprite_handler():
             header = next(csv_reader,-1) 
 
     #this function requires for the states used to be already loaded
-    def get_img(self, state, ended_attack_callback=None):
+    def get_img(self, state, attack_animation_callback=None):
         action, orientation = state
         (orientation_dict, self.animation_step) = self.dict[self.state[0].value]
+
+        if self.state[0] in [ActionEnum.ATTACK_1, ActionEnum.ATTACK_2]:
+            # Insert this in the end of the attack animation
+            print("IN ATTACK")
+            if attack_animation_callback != None:
+                attack_animation_callback()
 
         if self.state == (action, orientation):
             if pg.time.get_ticks() - self.last_step >= self.animation_step:
@@ -134,6 +140,7 @@ class Sprite_handler():
                 self.animation_idx = (self.animation_idx + 1) % len(orientation_dict[orientation])
 
         elif self.state[0] in [ActionEnum.ATTACK_1, ActionEnum.ATTACK_2]:
+
             if pg.time.get_ticks() - self.last_step >= self.animation_step:
 
                 if (self.animation_idx == len(orientation_dict[orientation])-1):
@@ -141,10 +148,6 @@ class Sprite_handler():
 
                     self.animation_idx, self.state = 0, (action, orientation)
                     self.last_step = pg.time.get_ticks()
-
-                    # Insert this in the end of the attack animation
-                    if ended_attack_callback != None:
-                        ended_attack_callback()
 
                     return orientation_dict[orient][idx]
 

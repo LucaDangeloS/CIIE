@@ -104,8 +104,6 @@ class Player(Entity):
         self.apply_input()
 
     def update_state(self, action):
-        if self.is_attacking:
-            return
         #get what action we are on and orientation
         orientations = ['right', 'left', 'up', 'down']
   
@@ -124,11 +122,9 @@ class Player(Entity):
 
     def update(self):
         if not self.action_state['rewind']:
-            self.image = self.sprite.get_img(self.state)
             self.weapons[0].update(self.rect.topright) #cooldown purpose
             self.weapons[1].update(self.damagable_sprite_group)
-            self.move()
-
+            super().update()
             self.clock.take_snapshot(self, self.rect.center)
 
     def draw(self, screen: pg.display):
