@@ -23,7 +23,7 @@ controller = KeyboardController()
 # joysticks = controller.get_joy()
 
 #Buttons for settings menu:
-back = Button(lambda: director.pop_scene(), pg.image.load('../sprites/menu/back_sett.png'), 0, 0,50,50, Rect(690,490,200,100))
+back = Button(lambda: director.pop_scene(), pg.image.load('../sprites/menu/back_sett.png'), 0, 0,50,50, Rect(660,465,200,100))
 menuSettings = Settings(controller, pg.image.load('../sprites/menu/background.png'), [back])
 
 level = Level(controller, director.screen.get_size(), scale_level=3)
