@@ -38,7 +38,7 @@ class Level(SceneInterface):
 
         self.enemy_sprite_group = CameraSpriteGroup(screen_res)
 
-        wasp = Wasp(self.collision_sprites, [], '../sprites/players/enemies/wasp', pg.Rect(800, 200, 40, 40), 3)
+        wasp = Wasp(self.collision_sprites, [], '../sprites/enemies/wasp', (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level), scale_level)
         self.enemy_sprite_group.add(wasp)
 
         #player needs to be instantiated after the damagable_sprites
