@@ -52,7 +52,8 @@ class Level(SceneInterface):
         self.player_sprite_group.add(self.player)
         self.player.set_drawing_sprite_group(self.visible_sprites)
         
-
+    def update_screen_res(self, screen:pg.Surface):
+        pass
 
     #if the controller changes, the director will go through every scene updating the controller.
     def update_controller(self, controller):
