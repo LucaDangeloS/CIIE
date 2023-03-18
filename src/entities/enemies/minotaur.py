@@ -22,7 +22,5 @@ class Minotaur(Enemy):
         super().update(player_pos, clock)
         # Fix for it's sprite image being too large
         self.image_offset = self.image_offset * 2
-        print(self.image_offset)
         if self.get_orientation() in ['right', 'down', 'up']:
             self.image_offset.x -= 80
-        print(self.image_offset)
