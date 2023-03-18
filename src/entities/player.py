@@ -17,7 +17,7 @@ class Player(Entity):
     # possible actions [idle, walking, running, attack_1, attack_2]
     weapons = []
     walking_speed = 3
-    running_speed = 16
+    running_speed = 6
     director = Director()
 
 

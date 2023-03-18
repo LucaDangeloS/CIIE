@@ -42,39 +42,16 @@ class KeyboardController(ControllerInterface):
                     action = self.key_dict[event.key]
                     action_list.append((event.type == KEYDOWN, action))
 
-                    #print('action ', action_list)
                 except KeyError: #not functional key (any other error will crash the program)
                     pass
                     
         return action_list 
-
-#code testing
-"""
-pg.init()
-screen = pg.display.set_mode((200,200))
-keyboard = KeyboardController()
-
-run = True
-print(keyboard.key_dict[K_LEFT])
-
-
-while run:
-    event_list = pg.event.get()
-    for event in event_list:
-        if event.type == QUIT:
-            run = False
-            break
-        print(keyboard.get_input(event_list))
-
-pg.quit()
-"""
 
 class JoystickController(ControllerInterface):
     def __init__(self):
         #looks like doing the init here doesn't work, seems a problem of scope.
         pg.joystick.init()
         self.joysticks = [pg.joystick.Joystick(i) for i in range(pg.joystick.get_count())]
-        #print("joys: ", joysticks)
         self.hor_dict = {0: [(False, self._get_val(0)), (False, self._get_val(1))], 
                 1: [(False, self._get_val(0)), (True, self._get_val(1))],
                 -1: [(True, self._get_val(0)), (False, self._get_val(1))] }
@@ -116,18 +93,6 @@ class JoystickController(ControllerInterface):
             elif event.type == JOYBUTTONDOWN or event.type == JOYBUTTONUP:
                 if event.button == 5:
                     action_list.append((event.type == JOYBUTTONDOWN, self._get_val(4)))
-            """ 
-            if event.type == JOYBUTTONDOWN:
-                print(event)
-                if event.button == 0:
-                    print("You have pressed a")
-                if event.button == 1:
-                    print("You have pressed b")
-                if event.button == 2:
-                    print("You have pressed x")
-                if event.button == 3:
-                    print("You have pressed y")
-            """ 
         return action_list 
 
 

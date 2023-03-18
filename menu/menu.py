@@ -81,13 +81,11 @@ class VideoMenu(Menu):
         if not (self.res_idx == len(self.resolutions)-1):
             self.res_idx += 1
         pg.display.set_mode(self.resolutions[self.res_idx])
-        print(self.res_idx)
 
     def downscale_window_size(self):
         if not (self.res_idx == 0):
             self.res_idx -= 1
         pg.display.set_mode(self.resolutions[self.res_idx])
-        print(self.res_idx)
 
     def full_screen(self):
         pg.display.set_mode((0,0), FULLSCREEN)        
