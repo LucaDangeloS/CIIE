@@ -79,7 +79,6 @@ class Director(object):
 
         if not self.director_stack:
             self.close()
-        print(player_data)
         self.director_stack[-1][0].set_player_data(player_data)
 
     def close(self):

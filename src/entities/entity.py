@@ -53,14 +53,11 @@ class Entity(pg.sprite.Sprite):
         self.is_attacking = False
         self.can_cause_damage = False
         self.image = self.sprite.get_img(self.state)
+        
         img_width, img_height = self.image.get_size()
         # Offset image to center it with the self.rect
         self.image_offset = pg.math.Vector2((img_width / 4, img_height / 4))
-        
-        # img_rect = self.image.get_rect()
-        # self.image = img_rect.move((30, 30))
-        # print(self.image.get_rect().center)
-        
+
         self.move()
 
     def get_pos(self):

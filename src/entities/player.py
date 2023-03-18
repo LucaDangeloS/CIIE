@@ -50,6 +50,8 @@ class Player(Entity):
 
     def kill(self):
         super().kill()
+        # push end game screen scene
+        Director().close()
         # more implementation
 
     def apply_input(self):
@@ -64,12 +66,6 @@ class Player(Entity):
             self.clock.go_back_in_time()
 
         elif self.action_state['attack_1']:
-            '''   
-            Problem: right now is that the attack has a logical cooldown
-             but the animation has not, so you can spam the animation and you may not be hitting as 
-             fast as the animation shows if it isn't well coordinated.
-            '''
-
             self.weapons[0].attack(self.rect, self.state[1], self.damageable_sprite_group)
             self.update_state(ActionEnum.ATTACK_1)
 
