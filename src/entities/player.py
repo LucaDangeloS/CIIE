@@ -17,7 +17,7 @@ class Player(Entity):
     # possible actions [idle, walking, running, attack_1, attack_2]
     weapons = []
     walking_speed = 3
-    running_speed = 6
+    running_speed = 16
     director = Director()
 
 
@@ -34,10 +34,10 @@ class Player(Entity):
         self.shoe_sound = self.director.audio.loadSound('../media/zapatillazo.ogg')
 
         #should we harcode the rect?
-        self.rect = pg.Rect(380,50,16.6666*sprite_scale,26.666666*sprite_scale)
+        self.rect = pg.Rect(380, 50, 16.6666*sprite_scale, 26.666666*sprite_scale)
         self.collision_sprites = collision_sprites
-        
-        self.hitbox_offset = (7*sprite_scale, 10*sprite_scale)
+
+        # Center self.rect to the self.image center
 
         self.weapons.append(Stick(self.rect.topright))
         self.weapons.append(WeaponPool(Slipper, 30, 300, thrown_sprite_group, 4))
@@ -51,12 +51,6 @@ class Player(Entity):
     def kill(self):
         super().kill()
         # more implementation
-
-    def set_hitbox(self):
-        self.hitbox_offset = (22, 30)
-        offsetted_rect = self.rect.move(22,30)
-        
-        return offsetted_rect
 
     def apply_input(self):
         #faster than using ifs (probably)
