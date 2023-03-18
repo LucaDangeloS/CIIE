@@ -3,19 +3,17 @@ import numpy as np
 from pygame.locals import *
 from scene import SceneInterface
 from entities.player import Player
-from entities.enemy import Enemy
-from entities.sprites import SpriteSheet
-from director import Director
-from level.level_generator import LevelGenerator, SurfaceMapper
+from level.level_generator import LevelGenerator
 from level.camera import CameraSpriteGroup
-from entities.enemies.wasp import Wasp
 from entities.enemies.minotaur import Minotaur
+from level.level_generator import Level_1_surface, Level_2_surface
 from weapons.clock import Clock
 
 class Level(SceneInterface):
     rewind = False
+
     def _generate(self, levelGenerator):
-        return levelGenerator.generate_map_level1(3, lower_threshold=-0.75, upper_threshold=0.75)
+        raise NotImplementedError
 
     def __init__(self, controller, screen_res, scale_level=1):
         self.clock = Clock(3)
@@ -74,52 +72,39 @@ class Level(SceneInterface):
         actions = self.controller.get_input(event_list) 
         self.player.handle_input(actions)
 
-
     def draw(self, screen):
         screen.fill('white') #to refresh the whole screen
         
         self.visible_sprites.draw_offsetted(self.player, screen)
         # self.enemy_sprite_group.draw_offsetted(self.player, screen)
         self.thrown_sprites.draw_offsetted_throwables(self.player, screen)
-        # Draw a red rectangle where the enemy rect is
-        self.visible_sprites.debug_draw(self.player, screen, self.enemy.rect)
-        self.visible_sprites.debug_draw(self.player, screen, self.enemy.weapon.rect)
-        self.visible_sprites.debug_draw(self.player, screen, self.player.rect, color='green')
+        
+        # self.visible_sprites.debug_draw(self.player, screen, self.enemy.rect)
+        # self.visible_sprites.debug_draw(self.player, screen, self.enemy.weapon.rect)
+        # self.visible_sprites.debug_draw(self.player, screen, self.player.rect, color='green')
         
         self.user_interface_group.draw(screen)
     
     def get_damagable_sprites(self):
         return self.enemy_sprite_group
     
+    def get_player_data(self):
+        return self.player
 
-    def next_level(self, level):
-        director = Director()
-        self.clearLevel()
-        player_data = self.getPlayerData()
-        level.setPlayerData(player_data)
-        director.push_scene(level)
-
-
-class Level1(Level):
-
-    def next_level(self):
-        super().next_level(Level2)
+    def set_player_data(self, player_data):
+        if not player_data:
+            return
+        self.player = player_data
 
 
-class Level2(Level):
+class Level_1(Level):
+        def _generate(self, levelGenerator):
+            return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=Level_1_surface)
 
+class Level_2(Level):
     def _generate(self, levelGenerator):
-        return levelGenerator.generate_map_level2(3, lower_threshold=-0.75, upper_threshold=0.75)
+        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=Level_2_surface)
 
-    def next_level(self):
-        super().next_level(Level3)
-
-
-class Level3(Level):
-
+class Level_3(Level):
     def _generate(self, levelGenerator):
-        return levelGenerator.generate_map_level3(3, lower_threshold=-0.75, upper_threshold=0.75)
-
-    def next_level(self):
-        director = Director()
-        director.fade_out(20)
+        return levelGenerator.generate_map_level3(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=Level_2_surface)

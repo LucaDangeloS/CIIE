@@ -5,7 +5,7 @@ from menu import Menu, Button
 from settings import *
 from director import Director
 from controller import KeyboardController, JoystickController
-from level.level import Level
+from level.level import Level_1, Level_2, Level_3
 from level.level_generator import LevelGenerator
 from audio import Audio
 
@@ -20,7 +20,7 @@ controller = KeyboardController()
 #Buttons for settings menu:
 menuSettings = Settings(controller, pg.image.load('../sprites/menu/background.png'), director.screen)
 
-level = Level(controller, director.screen.get_size(), scale_level=3)
+level = Level_1(controller, director.screen.get_size(), scale_level=3)
 
 
 screen_res = director.screen.get_size()

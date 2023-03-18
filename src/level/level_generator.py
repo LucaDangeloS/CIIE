@@ -74,7 +74,10 @@ class LevelGenerator():
         # and *maybe* the map grid for path calculations or something
         return spawn, map_surface, map_collisions
 
-    def generate_map(self, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None):
+    def generate_map(self, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None, surface_mapper_cls=None) -> tuple[tuple[int, int], Surface, list[list[tuple[int, int]]]]:
+        if surface_mapper_cls:
+            self.surface_mapper = surface_mapper_cls
+
         attempts = 10
         for _ in range(attempts):
             try:
@@ -82,15 +85,6 @@ class LevelGenerator():
             except GenerationException as e:
                 continue
         raise GenerationException(f"Failed to generate map after {attempts} attemps")
-
-
-    def generate_map_level1(self, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None) -> tuple[tuple[int, int], Surface, list[list[tuple[int, int]]]]:
-        self.surface_mapper = Level1Surface
-        return self.generate_map(n_poi, clear_radius_from_poi, noise_resolution, lower_threshold, upper_threshold, seed)
-
-    def generate_map_level2(self, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None):
-        self.surface_mapper = Level2Surface
-        return self.generate_map(n_poi, clear_radius_from_poi, noise_resolution, lower_threshold, upper_threshold, seed)
 
 
 
@@ -313,7 +307,7 @@ class SurfaceMapper():
         return map_surf, collision_borders
 
 
-class Level1Surface(SurfaceMapper):
+class Level_1_surface(SurfaceMapper):
 
     def __init__(self, map_matrix, scale):
         '''
@@ -370,7 +364,7 @@ class Level1Surface(SurfaceMapper):
         }
 
 
-class Level2Surface(SurfaceMapper):
+class Level_2_surface(SurfaceMapper):
     def __init__(self, map_matrix):
         self.map_matrix = map_matrix
         grnd_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level2/ground.png'))

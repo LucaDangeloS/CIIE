@@ -1,10 +1,10 @@
+from typing import List
 import pygame as pg
 from pygame.locals import *
 from settings import *
 from scene import SceneInterface
 from controller import KeyboardController
 from audio import Audio
-
 
 #Implemented as a Singlenton object -> it cannot be instantiated more than once (disregarding asynchronous methods)
 class Director(object): 
@@ -76,9 +76,13 @@ class Director(object):
 
     def pop_scene(self):
         #close the current execution
-        
-        #pop from the stack
+        player_data = self.director_stack[-1][0].get_player_data()
         self.director_stack.pop()
+
+        if not self.director_stack:
+            self.close()
+        print(player_data)
+        self.director_stack[-1][0].set_player_data(player_data)
 
     def close(self):
         self.run = False

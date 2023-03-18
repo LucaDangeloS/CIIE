@@ -12,24 +12,21 @@ class SceneInterface(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def update_screen_res(self):
-        """Description"""
         raise NotImplementedError
 
     @abc.abstractmethod
     def update(self):
-        """Description"""
         raise NotImplementedError
 
     @abc.abstractmethod
     def handle_events(self, event_list: list[pg.event.Event]):
-        """Description"""
         raise NotImplementedError
 
     @abc.abstractmethod
     def draw(self, screen: pg.display):
-        """Description"""
         raise NotImplementedError
 
-
+    def get_player_data(self):
+        pass
 
 
