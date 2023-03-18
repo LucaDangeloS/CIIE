@@ -19,14 +19,18 @@ class MonsterWeapon(Weapon):
     # the player_pos should be right_center of it's rect
     def attack(self, monster_rect: pg.Rect, orientation: str, damagable_group: pg.sprite.Group):
         if self.attack_ready:
+            # 1/4 of the monster rect
+            width_quarter = (monster_rect.center[0] - monster_rect.midleft[0])/2
+            height_quarter = (monster_rect.center[1] - monster_rect.midtop[1])/2
+
             if orientation == 'down':
-                x, y = monster_rect.midbottom[0] - (self.rect_dim[0]/2), monster_rect.midbottom[1]
+                x, y = monster_rect.midbottom[0] - (self.rect_dim[0]/2), monster_rect.midbottom[1] - height_quarter
             elif orientation == 'up':
-                x, y = monster_rect.midtop[0] - (self.rect_dim[0]/2), monster_rect.midtop[1] - self.rect_dim[1]
+                x, y = monster_rect.midtop[0] - (self.rect_dim[0]/2), monster_rect.midtop[1] - self.rect_dim[1] + height_quarter
             elif orientation == 'left':
-                x, y = monster_rect.midleft[0] - self.rect_dim[0], monster_rect.midleft[1]- (self.rect_dim[1]/2)
+                x, y = monster_rect.midleft[0] + width_quarter - self.rect_dim[0], monster_rect.midleft[1] - (self.rect_dim[1]/2)
             elif orientation == 'right':
-                x, y = monster_rect.midright[0] , monster_rect.midright[1]- (self.rect_dim[1]/2)
+                x, y = monster_rect.midright[0] - width_quarter , monster_rect.midright[1] - (self.rect_dim[1]/2)
 
             self.rect.x, self.rect.y = x, y
             self.attack_ready = False

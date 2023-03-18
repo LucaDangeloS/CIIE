@@ -7,7 +7,7 @@ from weapons.monster import MonsterWeapon
 class Wasp(Enemy):
 
     def __init__(self, collision_sprites, damageable_sprites: List, pos, sprite_scale=1):
-        entity_rect = Rect(pos[0], pos[1], 16, 16)
+        entity_rect = Rect(pos[0], pos[1], 64, 64)
         sprite_path = '../sprites/enemies/wasp'
         super().__init__(collision_sprites, damageable_sprites, sprite_path, entity_rect, sprite_scale, facing_sprites='left')
         self.health = 2

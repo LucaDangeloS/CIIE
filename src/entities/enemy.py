@@ -2,6 +2,7 @@ import pygame as pg
 from entities.entity import Entity
 from entities.enemies.behaviour import IdleBehavior
 from entities.sprites import ActionEnum
+from director import Director
 from weapons.monster import MonsterWeapon
 
 
@@ -47,7 +48,4 @@ class Enemy(Entity):
             return
         self.direction = pg.math.Vector2(goal[0] - self.rect.x, goal[1] - self.rect.y)
 
-
-    def draw(self, screen):
-        pg.draw.rect(screen, (0,0,255), self.rect)
 
