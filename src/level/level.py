@@ -41,9 +41,9 @@ class Level(SceneInterface):
 
 
         # Enemies need to be instantiated before the player
-        enemy = Minotaur(self.collision_sprites, self.player_sprite_group, (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level), scale_level)
-        self.enemy_sprite_group.add(enemy)
-        enemy.set_drawing_sprite_group(self.visible_sprites)
+        self.enemy = Minotaur(self.collision_sprites, self.player_sprite_group, (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level), scale_level)
+        self.enemy_sprite_group.add(self.enemy)
+        self.enemy.set_drawing_sprite_group(self.visible_sprites)
 
         #player needs to be instantiated after the damagable_sprites
         self.thrown_sprites = CameraSpriteGroup(screen_res)
@@ -81,6 +81,11 @@ class Level(SceneInterface):
         self.visible_sprites.draw_offsetted(self.player, screen)
         # self.enemy_sprite_group.draw_offsetted(self.player, screen)
         self.thrown_sprites.draw_offsetted_throwables(self.player, screen)
+        # Draw a red rectangle where the enemy rect is
+        self.visible_sprites.debug_draw(self.player, screen, self.enemy.rect)
+        self.visible_sprites.debug_draw(self.player, screen, self.enemy.weapon.rect)
+        self.visible_sprites.debug_draw(self.player, screen, self.player.rect, color='green')
+        
         self.user_interface_group.draw(screen)
     
     def get_damagable_sprites(self):
