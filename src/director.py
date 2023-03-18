@@ -1,8 +1,6 @@
-from typing import List
 import pygame as pg
 from pygame.locals import *
 from settings import *
-from scene import SceneInterface
 from controller import KeyboardController
 from audio import Audio
 
@@ -67,7 +65,7 @@ class Director(object):
             scene.update()
             pg.display.update()
 
-    def push_scene(self, stack_element: tuple[SceneInterface, str]):
+    def push_scene(self, stack_element):
         self.audio.stopMusic()
         self.audio.change_track(stack_element[1])
         self.audio.startSound()
@@ -89,7 +87,7 @@ class Director(object):
 
     def modify_screen_res(self, increment):
         self.res_idx = (self.res_idx + increment) % len(self.resolutions)
-        self.res_idx = 0 if self.res_idx < 0 else self.res_idx 
+        self.res_idx = max(self.res_idx, 0)
 
         self.screen = pg.display.set_mode( self.resolutions[self.res_idx], flags=RESIZABLE)
         for scene, _ in self.director_stack:

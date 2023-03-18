@@ -9,7 +9,8 @@ from director import Director
 
 
 class Settings(SceneInterface):
-    def __init__(self, controller, background_img: pg.Surface, screen:pg.Surface):
+    def __init__(self, controller, background_img: pg.Surface, screen:pg.Surface, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.controller = controller
         self.screen_res =  screen.get_size()
         self.background_img = pg.transform.scale(background_img, self.screen_res)
