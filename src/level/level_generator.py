@@ -238,7 +238,7 @@ class SurfaceMapper():
             w = chunk_size[0] * self.scale
             h = chunk_size[1] * self.scale
             #hardcoded values to make the game look better
-            rect = pg.Rect(x-10, y-26, w-22, h-64)
+            rect = pg.Rect(x, y, w, h)
 
         return surf, rect
 
@@ -269,16 +269,16 @@ class SurfaceMapper():
 
         #add world borders
         top = pg.sprite.Sprite() 
-        top.rect = pg.Rect(-chunk_size[0]*self.scale,-chunk_size[0]*self.scale, total_w+chunk_size[0]*self.scale, chunk_size[1]*self.scale-26)
+        top.rect = pg.Rect(-chunk_size[0]*self.scale,-chunk_size[0]*self.scale, total_w+chunk_size[0]*self.scale, chunk_size[1]*self.scale)
         collision_borders.add(top)
         left = pg.sprite.Sprite()
-        left.rect = pg.Rect(-chunk_size[0]*self.scale,-chunk_size[0]*self.scale, chunk_size[0]*self.scale-24, total_h*chunk_size[1]*self.scale)
+        left.rect = pg.Rect(-chunk_size[0]*self.scale,-chunk_size[0]*self.scale, chunk_size[0]*self.scale, total_h*chunk_size[1]*self.scale)
         collision_borders.add(left)
         bottom = pg.sprite.Sprite() #don't know if I should add one more
-        bottom.rect = pg.Rect(-chunk_size[0]*self.scale, total_h-36, total_w+chunk_size[0]*self.scale, chunk_size[1]*self.scale)
+        bottom.rect = pg.Rect(-chunk_size[0]*self.scale, total_h, total_w+chunk_size[0]*self.scale, chunk_size[1]*self.scale)
         collision_borders.add(bottom)
         right = pg.sprite.Sprite() #don't know if I should add one more
-        right.rect = pg.Rect(total_w-26, -chunk_size[1]*self.scale, chunk_size[0]*self.scale, total_h+chunk_size[1]*self.scale)
+        right.rect = pg.Rect(total_w, -chunk_size[1]*self.scale, chunk_size[0]*self.scale, total_h+chunk_size[1]*self.scale)
         collision_borders.add(right)
 
         for row_idx, row in enumerate(self.map_matrix):
