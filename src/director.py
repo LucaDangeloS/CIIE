@@ -70,7 +70,7 @@ class Director(object):
     def push_scene(self, stack_element: tuple[SceneInterface, str]):
         self.audio.stopMusic()
         self.audio.change_track(stack_element[1])
-        self.audio.startSound()
+        self.audio.startMusic()
         #self.scene_stack.append(scene)
         self.director_stack.append(stack_element)
 
@@ -78,6 +78,9 @@ class Director(object):
         #close the current execution
         player_data = self.director_stack[-1][0].get_player_data()
         self.director_stack.pop()
+        self.audio.stopMusic()
+        self.audio.change_track(self.director_stack[-1][1])
+        self.audio.startMusic()
 
         if not self.director_stack:
             self.close()

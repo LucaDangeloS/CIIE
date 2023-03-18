@@ -22,9 +22,11 @@ class Clock(pg.sprite.Sprite):
         used_percentage = self.time_manager.amount_of_snapshots / self.time_manager.snapshot_len if self.time_manager.amount_of_snapshots >= 0 else 0
         self.clock_ui.update(used_percentage)
         if pg.time.get_ticks() - self.last_rewind > self.cooldown:
+            self.director.audio.end_rewinded()
             self.time_manager.take_snapshot(entity, pos)
 
     def go_back_in_time(self):
+        self.director.audio.start_rewinded()
         used_percentage = self.time_manager.amount_of_snapshots / self.time_manager.snapshot_len if self.time_manager.amount_of_snapshots >= 0 else 0
         self.clock_ui.update(used_percentage)
         
@@ -35,7 +37,7 @@ class Clock(pg.sprite.Sprite):
 
         self.draw_blur(self.screen)
         for entity, pos in snapshot:
-            entity.rect.center = pos            
+            entity.rect.center = pos          
 
     def draw_blur(self, screen):
         cover = pg.Surface(screen.get_size())

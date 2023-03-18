@@ -1,4 +1,5 @@
 import pygame as pg
+from pydub import AudioSegment
 
 
 class SoundPathEnum:
@@ -8,6 +9,13 @@ class SoundPathEnum:
 
 
 class Audio:
+
+  currentSong = ''
+  positionOriginal = 0
+  invertPath = "../media/invert/"
+  normalPath = "../media/"
+  controlRewind = True
+
 
   def __init__(self):
     self.control = True
@@ -22,8 +30,15 @@ class Audio:
       pg.mixer.Channel(i).set_volume(0.3)
 
 
+    menuMusic = AudioSegment.from_file('../media/music.ogg', format='ogg').duration_seconds
+    level1Music = AudioSegment.from_file('../media/level1Music.ogg', format='ogg').duration_seconds
+   
+    self.songsDurations = [menuMusic,level1Music]
+    self.positionOriginal = 0
+    # self.positionOriginal = 0
+
   # The following methods are in charge of managing the music
-  def startSound(self):
+  def startMusic(self):
     pg.mixer.music.play(-1)
 
   def stopMusic(self):
@@ -32,7 +47,13 @@ class Audio:
   def change_track(self, track):
     pg.mixer.music.stop()
     pg.mixer.music.unload()
-    pg.mixer.music.load(track)
+    pg.mixer.music.load('../media/'+track)
+    self.currentSong = track
+
+  # def load_track(self):
+  #   pg.mixer.music.stop()
+  #   pg.mixer.music.unload()
+  #   pg.mixer.music.load(self.sonsPaths[-1])
 
   def play_track(self):
     pg.mixer.music.play(-1)
@@ -87,7 +108,27 @@ class Audio:
     self.channels[1].play(sound, 0)
 
   def start_rewinded(self):  # start playing the music backwards (when you use the clock)
-    pass
+    
+    if self.controlRewind:
+      self.positionOriginal = (self.positionOriginal + pg.mixer.music.get_pos()/1000.0)%self.songsDurations[1]
+      pg.mixer.music.stop()
+      pg.mixer.music.unload()
+      pg.mixer.music.load(f"{self.invertPath}{self.currentSong}")
+
+      start = self.songsDurations[1]- self.positionOriginal
+      pg.mixer.music.play(-1, start)
+      self.controlRewind = False
 
   def end_rewinded(self):  # stop playing music backwards and play it normally
-    pass
+    if not self.controlRewind:
+      self.controlRewind = True  
+      currentPos = pg.mixer.music.get_pos()/1000.0
+      pg.mixer.music.stop()
+      pg.mixer.music.unload()
+      pg.mixer.music.load(f"{self.normalPath}{self.currentSong}")
+
+      start = self.positionOriginal-currentPos
+      self.positionOriginal = (self.positionOriginal - currentPos)%self.songsDurations[1]
+
+      pg.mixer.music.play(-1, start)
+    
