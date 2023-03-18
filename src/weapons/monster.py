@@ -24,13 +24,13 @@ class MonsterWeapon(Weapon):
             height_quarter = (monster_rect.center[1] - monster_rect.midtop[1])/2
 
             if orientation == 'down':
-                x, y = monster_rect.midbottom[0] - (self.rect_dim[0]/2), monster_rect.midbottom[1] - height_quarter
+                x, y = monster_rect.midbottom[0] - (self.rect_dim[0]/2), monster_rect.midtop[1] + height_quarter
             elif orientation == 'up':
-                x, y = monster_rect.midtop[0] - (self.rect_dim[0]/2), monster_rect.midtop[1] - self.rect_dim[1] + height_quarter
+                x, y = monster_rect.midtop[0] - (self.rect_dim[0]/2), monster_rect.midbottom[1] - self.rect_dim[1] - height_quarter
             elif orientation == 'left':
-                x, y = monster_rect.midleft[0] + width_quarter - self.rect_dim[0], monster_rect.midleft[1] - (self.rect_dim[1]/2)
+                x, y = monster_rect.midright[0] - width_quarter - self.rect_dim[0], monster_rect.midleft[1] - (self.rect_dim[1]/2)
             elif orientation == 'right':
-                x, y = monster_rect.midright[0] - width_quarter , monster_rect.midright[1] - (self.rect_dim[1]/2)
+                x, y = monster_rect.midleft[0] + width_quarter , monster_rect.midright[1] - (self.rect_dim[1]/2)
 
             self.rect.x, self.rect.y = x, y
             self.attack_ready = False

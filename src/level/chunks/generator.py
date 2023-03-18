@@ -70,7 +70,6 @@ class ChunkGenerator():
     def position_objectives(self) -> list[tuple[int, int]]:
         try:
             self.chunk_info = position_main_structures(self.map, self.spawn_point, self.chunks, self.chunk_info, ChunkEnum.EMPTY, ChunkEnum.OBJECTIVE)
-            # print(self.__search_chunks(ChunkEnum.OBJECTIVE))
         except Exception as e:
             raise GenerationException("Could not position objectives")
 

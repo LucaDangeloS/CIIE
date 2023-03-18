@@ -14,7 +14,7 @@ class Minotaur(Enemy):
         self.behavior = ChaseBehavior(self, 300, 120)
 
         # Minotaur specific weapon
-        weapon_hitbox = (self.rect.size[0] * 1.2, self.rect.size[1] * 1.2)
+        weapon_hitbox = (self.rect.size[0] * 1.6, self.rect.size[1] * 1.2)
         self.weapon = MonsterWeapon(self.rect.center, weapon_hitbox, 16 * 50, 1)
         self.sprite.set_attack_effective_idx(9)
 
