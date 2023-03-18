@@ -68,7 +68,7 @@ class Director(object):
     def push_scene(self, stack_element):
         self.audio.stopMusic()
         self.audio.change_track(stack_element[1])
-        self.audio.startSound()
+        self.audio.startMusic()
 
         self.director_stack.append(stack_element)
 
