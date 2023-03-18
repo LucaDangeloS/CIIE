@@ -9,7 +9,11 @@ from audio import Audio
 #Implemented as a Singlenton object -> it cannot be instantiated more than once (disregarding asynchronous methods)
 class Director(object): 
     # don't know if we could use the flags=SCALED instead of rescaling ourselves 
-    screen = pg.display.set_mode( (1280,720), flags=RESIZABLE)
+
+    resolutions = [(1280,720), (1366,768), (1600,900), (1920,1080)]
+    res_idx = 1
+    screen = pg.display.set_mode( resolutions[res_idx], flags=RESIZABLE)
+
     clock = pg.time.Clock()
     controller = KeyboardController()
     scene_stack = []
@@ -78,5 +82,18 @@ class Director(object):
 
     def close(self):
         self.run = False
+
+    def modify_screen_res(self, increment):
+        self.res_idx = (self.res_idx + increment) % len(self.resolutions)
+        self.res_idx = 0 if self.res_idx < 0 else self.res_idx 
+
+        self.screen = pg.display.set_mode( self.resolutions[self.res_idx], flags=RESIZABLE)
+        for scene, _ in self.director_stack:
+            scene.update_screen_res(self.screen)
+
+
+
+
+
 
 

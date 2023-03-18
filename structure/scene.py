@@ -9,7 +9,12 @@ class SceneInterface(metaclass=abc.ABCMeta):
                 hasattr(subclass, 'events' and callable(subclass.events)) and \
                 hasattr(subclass, 'draw' and callable(subclass.draw)) \
              or NotImplemented)
-    
+
+    @abc.abstractmethod
+    def update_screen_res(self):
+        """Description"""
+        raise NotImplementedError
+
     @abc.abstractmethod
     def update(self):
         """Description"""
