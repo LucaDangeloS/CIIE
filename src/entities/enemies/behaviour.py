@@ -40,7 +40,6 @@ class ChaseBehavior(Behavior):
             orientation = "right" if x_dist > 0 else "left"
         elif abs(y_dist) > abs(x_dist):
             orientation = "down" if y_dist > 0 else "up"
-        print(distance, orientation)
 
         if distance < self.attack_range:
             # Update enemy state
