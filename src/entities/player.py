@@ -121,16 +121,6 @@ class Player(Entity):
             self.weapons[1].update(self.damageable_sprite_group)
             self.clock.take_snapshot(self, self.rect.center)
 
-    def draw(self, screen: pg.display):
-        #if self.weapons[1].launched:
-            #self.weapons[1].draw_hitbox(screen)
-        pg.draw.rect(screen, (0,255,0), self.rect)
-        #self.health_ui.draw(screen) 
-
-        #for weapon in self.weapons:
-            #weapon.draw_hitbox(screen)
-
-
     def receive_damage(self, damage_amount):
         super().receive_damage(damage_amount)
         # Logic to lose game

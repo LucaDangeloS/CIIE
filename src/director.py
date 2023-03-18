@@ -18,6 +18,7 @@ class Director(object):
     director_stack = []
     audio = Audio()
     run = True
+    current_scene_stack_item = None
 
     def __new__(cls):
         if not hasattr(cls, 'instance'):
@@ -59,7 +60,7 @@ class Director(object):
                 #if event.key == pg.K_ESCAPE:
 
             #access the scene on top
-            scene, track_path = self.director_stack[-1]
+            scene, track_path = self.current_scene_stack_item
             scene.draw(self.screen)
             scene.handle_events(event_list)
             scene.update()
@@ -74,19 +75,21 @@ class Director(object):
 
     def pop_scene(self):
         #close the current execution
-        player_data = self.director_stack[-1][0].get_player_data()
-        self.director_stack.pop()
-        self.audio.stopMusic()
-        self.audio.change_track(self.director_stack[-1][1])
-        self.audio.startMusic()
-
         if not self.director_stack:
             self.close()
             exit()
-        
-        curr_scene = self.director_stack[-1][0]
-        curr_scene.set_player_data(player_data)
-        curr_scene.load_scene()
+
+        player_data = self.current_scene_stack_item[0].get_player_data() if self.current_scene_stack_item else None
+
+        self.current_scene_stack_item = self.director_stack.pop()
+        scene, scene_track = self.current_scene_stack_item
+
+        self.audio.stopMusic()
+        self.audio.change_track(scene_track)
+        self.audio.startMusic()
+
+        scene.set_player_data(player_data)
+        scene.load_scene()
 
     def close(self):
         self.run = False

@@ -30,6 +30,9 @@ class SceneInterface(metaclass=abc.ABCMeta):
     def get_player_data(self):
         pass
 
+    def set_player_data(self, data):
+        pass
+
     def close_scene(self):
         director = Director()
         director.pop_scene()

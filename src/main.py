@@ -41,10 +41,8 @@ mainMenu = Menu(pg.image.load('../sprites/menu/background.png'), [btt_play, btt_
 
 #the directors handles the loop
 director.push_scene((mainMenu, "music.ogg"))
-director.running_loop()
 
-# TODO
-# Reformat TileMapper/LevelGenerator
-# Pathfinding for enemies
+director.pop_scene()
+director.running_loop()
 
 pg.quit()

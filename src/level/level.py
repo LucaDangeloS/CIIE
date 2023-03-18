@@ -21,7 +21,8 @@ class Level(SceneInterface):
         self.controller = controller
         self.screen_res = screen_res
         self.scale_level = scale_level
-    
+        self.player = None
+
     def load_scene(self):
         self.clock = Clock(3)
         
@@ -50,9 +51,15 @@ class Level(SceneInterface):
 
         #player needs to be instantiated after the damagable_sprites
         self.thrown_sprites = CameraSpriteGroup(self.screen_res)
-        self.player = Player(self.collision_sprites, self.enemy_sprite_group, self.thrown_sprites, self.clock, 3)
-        self.player.rect.center = spawn
-        self.player_sprite_group.add(self.player)
+        if not self.player:
+            self.player = Player(self.collision_sprites, self.enemy_sprite_group, self.thrown_sprites, self.clock, 3)
+            self.player.rect.center = spawn
+            self.player_sprite_group.add(self.player)
+        else:
+            self.player_sprite_group.add(self.player)
+            self.player.rect.center = spawn
+            self.player.set_damagable_sprite_group(self.enemy_sprite_group)
+            self.player.set_collision_sprites(self.collision_sprites)
 
         #here we need to also add the clock ui
         self.user_interface_group = pg.sprite.Group()

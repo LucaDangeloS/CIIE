@@ -93,8 +93,8 @@ class Entity(pg.sprite.Sprite):
                     if self.direction.y < 0:
                         self.rect.top = sprite.rect.bottom
         
-    # def draw(self, screen: pg.display):
-    #     pass
+    def set_collision_sprites(self, sprite_group):
+        self.collision_sprites = sprite_group
 
     def receive_damage(self, damage_amount):
         if self.invincible:
