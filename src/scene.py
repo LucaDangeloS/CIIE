@@ -34,3 +34,5 @@ class SceneInterface(metaclass=abc.ABCMeta):
         director = Director()
         director.pop_scene()
 
+    def load_scene(self):
+        pass

@@ -18,10 +18,14 @@ class Level(SceneInterface):
 
     def __init__(self, controller, screen_res, scale_level=1, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.clock = Clock(3)
-
-        #create the level surface
+        self.controller = controller
+        self.screen_res = screen_res
         self.scale_level = scale_level
+    
+    def load_scene(self):
+        self.clock = Clock(3)
+        
+        #create the level surface
         levelGenerator = LevelGenerator((6, 6), 5, scale=self.scale_level)
 
         self.back_sprite = pg.sprite.Sprite()
@@ -29,26 +33,25 @@ class Level(SceneInterface):
 
         self.back_sprite.rect = self.back_sprite.image.get_rect(topleft=(0,0))
 
-        self.visible_sprites = CameraSpriteGroup(screen_res)
+        self.visible_sprites = CameraSpriteGroup(self.screen_res)
         self.visible_sprites.add(self.back_sprite)
 
         self.player_sprite_group = pg.sprite.Group()
-        self.enemy_sprite_group = CameraSpriteGroup(screen_res)
+        self.enemy_sprite_group = CameraSpriteGroup(self.screen_res)
 
-        self.controller = controller
         self.collision_sprites = pg.sprite.Group()
         self.collision_sprites.add(self.borders_group)
 
 
         # Enemies need to be instantiated before the player
-        self.enemy = Minotaur(self.collision_sprites, self.player_sprite_group, (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level), scale_level)
+        self.enemy = Minotaur(self.collision_sprites, self.player_sprite_group, spawn, self.scale_level)
         self.enemy_sprite_group.add(self.enemy)
         self.enemy.set_drawing_sprite_group(self.visible_sprites)
 
         #player needs to be instantiated after the damagable_sprites
-        self.thrown_sprites = CameraSpriteGroup(screen_res)
+        self.thrown_sprites = CameraSpriteGroup(self.screen_res)
         self.player = Player(self.collision_sprites, self.enemy_sprite_group, self.thrown_sprites, self.clock, 3)
-        self.player.rect.center = (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level)
+        self.player.rect.center = spawn
         self.player_sprite_group.add(self.player)
 
         #here we need to also add the clock ui
@@ -57,7 +60,8 @@ class Level(SceneInterface):
         self.user_interface_group.add(self.clock.clock_ui)
         
         self.player.set_drawing_sprite_group(self.visible_sprites, self.user_interface_group)
-        
+
+
     def update_screen_res(self, screen:pg.Surface):
         pass
 
@@ -68,6 +72,9 @@ class Level(SceneInterface):
     def update(self):
         self.enemy_sprite_group.update(self.player.get_pos(), self.clock)
         self.player.update()
+        
+        if len(self.enemy_sprite_group) == 0:
+            self.close_scene()
 
     def handle_events(self, event_list):
         #here we could alter between player_control and scene animations
@@ -100,8 +107,8 @@ class Level(SceneInterface):
 
 
 class Level_1(Level):
-        def _generate(self, levelGenerator):
-            return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=Level_1_surface)
+    def _generate(self, levelGenerator):
+        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=Level_1_surface)
 
 class Level_2(Level):
     def _generate(self, levelGenerator):

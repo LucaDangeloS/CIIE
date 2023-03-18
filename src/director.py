@@ -68,8 +68,8 @@ class Director(object):
     def push_scene(self, stack_element):
         self.audio.stopMusic()
         self.audio.change_track(stack_element[1])
-        self.audio.startMusic()
-        #self.scene_stack.append(scene)
+        self.audio.startSound()
+
         self.director_stack.append(stack_element)
 
     def pop_scene(self):
@@ -82,10 +82,15 @@ class Director(object):
 
         if not self.director_stack:
             self.close()
-        self.director_stack[-1][0].set_player_data(player_data)
+            exit()
+        
+        curr_scene = self.director_stack[-1][0]
+        curr_scene.set_player_data(player_data)
+        curr_scene.load_scene()
 
     def close(self):
         self.run = False
+        pg.quit()
 
     def modify_screen_res(self, increment):
         self.res_idx = (self.res_idx + increment) % len(self.resolutions)
