@@ -15,9 +15,14 @@ class Minotaur(Enemy):
 
         # Minotaur specific weapon
         weapon_hitbox = (self.rect.size[0] * 1.2, self.rect.size[1] * 1.2)
-        self.weapon = MonsterWeapon(self.rect.center, weapon_hitbox, 16 * 50, 5)
+        self.weapon = MonsterWeapon(self.rect.center, weapon_hitbox, 16 * 50, 1)
         self.sprite.set_attack_effective_idx(9)
 
     def update(self, player_pos, clock):
         super().update(player_pos, clock)
+        # Fix for it's sprite image being too large
         self.image_offset = self.image_offset * 2
+        print(self.image_offset)
+        if self.get_orientation() in ['right', 'down', 'up']:
+            self.image_offset.x -= 80
+        print(self.image_offset)
