@@ -7,6 +7,8 @@ from entities.entity import Entity
 from weapons.stick import Stick
 from weapons.slipper import Slipper, WeaponPool
 import time
+from entities.ui import PlayerHealthUI
+
 
 
 class Player(Entity):
@@ -22,6 +24,7 @@ class Player(Entity):
     def __init__(self, collision_sprites, damageable_sprites, thrown_sprite_group, clock, sprite_scale=2, **kwargs):
         super().__init__(damageable_sprites=damageable_sprites, disable_flipping=True, **kwargs)
         self.health = 5
+        self.health_ui = PlayerHealthUI(self.health, scale=4)
         self.clock = clock
 
         self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', sprite_scale)
@@ -40,8 +43,9 @@ class Player(Entity):
         self.weapons.append(WeaponPool(Slipper, 30, 300, thrown_sprite_group, 4))
         #self.weapons.append(Slipper(5))
 
-    # def set_drawing_sprite_group(self, sprite_group):
-    #     sprite_group.add(self)
+    def set_drawing_sprite_group(self, sprite_group, ui_group):
+        super().set_drawing_sprite_group(sprite_group)
+        ui_group.add(self.health_ui)  #we need an absolute position
         #self.weapons[1].drawing_spr_group = sprite_group
 
     def kill(self):
@@ -128,9 +132,11 @@ class Player(Entity):
             self.clock.take_snapshot(self, self.rect.center)
 
     def draw(self, screen: pg.display):
-        if self.weapons[1].launched:
-            self.weapons[1].draw_hitbox(screen)
+        #if self.weapons[1].launched:
+            #self.weapons[1].draw_hitbox(screen)
         pg.draw.rect(screen, (0,255,0), self.rect)
+        #self.health_ui.draw(screen) 
+
         #for weapon in self.weapons:
             #weapon.draw_hitbox(screen)
 
@@ -138,3 +144,6 @@ class Player(Entity):
     def receive_damage(self, damage_amount):
         super().receive_damage(damage_amount)
         # Logic to lose game
+
+        #update ui
+        self.health_ui.update(self.health)

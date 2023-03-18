@@ -62,9 +62,9 @@ class Director(object):
 
             #access the scene on top
             scene, track_path = self.director_stack[-1]
+            scene.draw(self.screen)
             scene.handle_events(event_list)
             scene.update()
-            scene.draw(self.screen)
             pg.display.update()
 
     def push_scene(self, stack_element: tuple[SceneInterface, str]):

@@ -28,7 +28,8 @@ screen_res = director.screen.get_size()
 
 #Buttons for initial menu:
 x, y = (screen_res[0] // 2) - 48*3, screen_res[1] // 3 
-btt_play = Button(lambda: director.push_scene((level, "../media/levelMusic.ogg")), pg.image.load('../sprites/menu/buttons.png'), (0, 0,97,41), Rect(x,y,200,100), 3)
+director.push_scene((level, "../media/levelMusic.ogg"))
+btt_play = Button(director.pop_scene, pg.image.load('../sprites/menu/buttons.png'), (0, 0,97,41), Rect(x,y,200,100), 3)
 
 y += screen_res[1] // 6 
 btt_settings = Button(lambda: director.push_scene((menuSettings, "../media/music.ogg")),  pg.image.load('../sprites/menu/buttons.png'), (0, 41,97,41), Rect(x,y,200,100),3)

@@ -13,12 +13,12 @@ from entities.enemies.minotaur import Minotaur
 from weapons.clock import Clock
 
 class Level(SceneInterface):
-
+    rewind = False
     def _generate(self, levelGenerator):
         return levelGenerator.generate_map_level1(3, lower_threshold=-0.75, upper_threshold=0.75)
 
     def __init__(self, controller, screen_res, scale_level=1):
-        self.clock = Clock(None, None)
+        self.clock = Clock(3)
 
         #create the level surface
         self.scale_level = scale_level
@@ -30,10 +30,10 @@ class Level(SceneInterface):
         self.back_sprite.rect = self.back_sprite.image.get_rect(topleft=(0,0))
 
         self.visible_sprites = CameraSpriteGroup(screen_res)
+        self.visible_sprites.add(self.back_sprite)
+
         self.player_sprite_group = pg.sprite.Group()
         self.enemy_sprite_group = CameraSpriteGroup(screen_res)
-        
-        self.visible_sprites.add(self.back_sprite)
 
         self.controller = controller
         self.collision_sprites = pg.sprite.Group()
@@ -50,7 +50,13 @@ class Level(SceneInterface):
         self.player = Player(self.collision_sprites, self.enemy_sprite_group, self.thrown_sprites, self.clock, 3)
         self.player.rect.center = (spawn[1] * 64 * self.scale_level, spawn[0] * 64 * self.scale_level)
         self.player_sprite_group.add(self.player)
-        self.player.set_drawing_sprite_group(self.visible_sprites)
+
+        #here we need to also add the clock ui
+        self.user_interface_group = pg.sprite.Group()
+        
+        self.user_interface_group.add(self.clock.clock_ui)
+        
+        self.player.set_drawing_sprite_group(self.visible_sprites, self.user_interface_group)
         
     def update_screen_res(self, screen:pg.Surface):
         pass
@@ -75,6 +81,7 @@ class Level(SceneInterface):
         self.visible_sprites.draw_offsetted(self.player, screen)
         # self.enemy_sprite_group.draw_offsetted(self.player, screen)
         self.thrown_sprites.draw_offsetted_throwables(self.player, screen)
+        self.user_interface_group.draw(screen)
     
     def get_damagable_sprites(self):
         return self.enemy_sprite_group
