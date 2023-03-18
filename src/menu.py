@@ -24,14 +24,15 @@ class Button():
 
     def draw_idle(self, screen):
         screen.blit(self.image[0], self.rect) 
-      
- 
+
+
 #we may want to store a reference to the director so we can call to exit the scene
 #or we can do that by returning an specific signal from events.
 class Menu(SceneInterface): 
     clicked_button = None
     director = Director()
-    def __init__(self, background_img: pg.Surface, buttons: list[Button], screen: pg.Surface):
+    def __init__(self, background_img: pg.Surface, buttons: list[Button], screen: pg.Surface, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.current_res = screen.get_size()
         self.background_img = pg.transform.scale(background_img, self.current_res)
         self.background_rect = self.background_img.get_rect(topleft = (0,0))

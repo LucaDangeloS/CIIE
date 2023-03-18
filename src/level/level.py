@@ -8,6 +8,7 @@ from level.camera import CameraSpriteGroup
 from entities.enemies.minotaur import Minotaur
 from level.level_generator import Level_1_surface, Level_2_surface
 from weapons.clock import Clock
+from director import Director
 
 class Level(SceneInterface):
     rewind = False
@@ -15,7 +16,8 @@ class Level(SceneInterface):
     def _generate(self, levelGenerator):
         raise NotImplementedError
 
-    def __init__(self, controller, screen_res, scale_level=1):
+    def __init__(self, controller, screen_res, scale_level=1, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.clock = Clock(3)
 
         #create the level surface
@@ -79,9 +81,9 @@ class Level(SceneInterface):
         # self.enemy_sprite_group.draw_offsetted(self.player, screen)
         self.thrown_sprites.draw_offsetted_throwables(self.player, screen)
         
-        # self.visible_sprites.debug_draw(self.player, screen, self.enemy.rect)
-        # self.visible_sprites.debug_draw(self.player, screen, self.enemy.weapon.rect)
-        # self.visible_sprites.debug_draw(self.player, screen, self.player.rect, color='green')
+        self.visible_sprites.debug_draw(self.player, screen, self.enemy.rect)
+        self.visible_sprites.debug_draw(self.player, screen, self.enemy.weapon.rect)
+        self.visible_sprites.debug_draw(self.player, screen, self.player.rect, color='green')
         
         self.user_interface_group.draw(screen)
     
