@@ -15,8 +15,8 @@ class Minotaur(Enemy):
 
         # Wasp specific "weapon"
         half_size = (self.rect.size[0] / 2, self.rect.size[1] / 2)
-        self.weapon = MonsterWeapon(self.rect.center, half_size, 7 * 120, 1)
-        self.sprite.set_attack_effective_idx(3)
+        self.weapon = MonsterWeapon(self.rect.center, half_size, 16 * 50, 2)
+        self.sprite.set_attack_effective_idx(9)
 
     def draw(self, screen):
         self.weapon.draw_hitbox(screen)
