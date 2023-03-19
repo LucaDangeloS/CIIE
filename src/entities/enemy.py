@@ -38,7 +38,7 @@ class Enemy(Entity):
             self.behavior.get_goal(player_pos)
         self.weapon.update(self.rect.center)
         super().update()
-        if self.weapon and self.state == (ActionEnum.ATTACK_1, self.state[1]) and self.can_cause_damage:
+        if self.weapon and self.is_attacking and self.can_cause_damage:
             self.weapon.attack(self.rect, self.state[1], self.damageable_sprite_group)
         clock.take_snapshot(self, self.rect.center)
 
