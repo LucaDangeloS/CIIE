@@ -31,22 +31,6 @@ class Director(object):
     def draw_until_not_translucid(self):
         pass
 
-    def fade_in(self, screen, fade_speed):
-        fade_surf = pg.Surface(screen.get_size()).convert_alpha()
-        for alpha in range(255, 0, -fade_speed):
-            fade_surf.fill((0, 0, 0, alpha))
-            screen.blit(fade_surf, (0, 0))
-            pg.display.update()
-            pg.time.wait(10)
-
-    def fade_out(self, screen, fade_speed):
-        fade_surf = pg.Surface(screen.get_size()).convert_alpha()
-        for alpha in range(0, 255, fade_speed):
-            fade_surf.fill((0, 0, 0, alpha))
-            screen.blit(fade_surf, (0, 0))
-            pg.display.update()
-            pg.time.wait(10)
-
     def running_loop(self):
         pg.event.clear()
 
@@ -59,12 +43,13 @@ class Director(object):
                     return
                 #if event.key == pg.K_ESCAPE:
 
-            #access the scene on top
             scene, track_path = self.current_scene_stack_item
             scene.draw(self.screen)
             scene.handle_events(event_list)
             scene.update()
             pg.display.update()
+        
+        pg.quit()
 
     def push_scene(self, stack_element):
         self.audio.stopMusic()
@@ -77,23 +62,20 @@ class Director(object):
         #close the current execution
         if not self.director_stack:
             self.close()
-            exit()
+            return
 
         player_data = self.current_scene_stack_item[0].get_player_data() if self.current_scene_stack_item else None
-
         self.current_scene_stack_item = self.director_stack.pop()
         scene, scene_track = self.current_scene_stack_item
 
         self.audio.stopMusic()
         self.audio.change_track(scene_track)
         self.audio.startMusic()
-
         scene.set_player_data(player_data)
         scene.load_scene()
 
     def close(self):
         self.run = False
-        pg.quit()
 
     def modify_screen_res(self, increment):
         self.res_idx = (self.res_idx + increment) % len(self.resolutions)

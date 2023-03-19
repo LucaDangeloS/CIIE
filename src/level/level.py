@@ -3,10 +3,9 @@ import numpy as np
 from pygame.locals import *
 from scene import SceneInterface
 from entities.player import Player
-from level.level_generator import LevelGenerator
 from level.camera import CameraSpriteGroup
 from entities.enemies.minotaur import Minotaur
-from level.level_generator import Level_1_surface, Level_2_surface
+from level.level_generator import LevelGenerator, Level_1_surface, Level_2_surface, Level_3_surface
 from weapons.clock import Clock
 from director import Director
 
@@ -123,4 +122,4 @@ class Level_2(Level):
 
 class Level_3(Level):
     def _generate(self, levelGenerator):
-        return levelGenerator.generate_map_level3(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=Level_2_surface)
+        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=Level_3_surface)

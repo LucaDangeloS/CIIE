@@ -373,8 +373,55 @@ class Level_2_surface(SurfaceMapper):
 
         grnd_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level2/ground.png'))
         self.ground_sprite_pool = grnd_spritesheet.load_tiled_style((16,16), scale=scale)
+        print(len(self.ground_sprite_pool))
 
-        obst_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level2/water.png'))
+        obst_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level2/desert_house.png'))
+        obst_sprites = obst_spritesheet.load_tiled_style((16,16), scale=scale)
+        self.obst1_dict = {
+            "center": obst_sprites[4], 
+            "left":obst_sprites[3], 
+            "right":obst_sprites[5],
+            "top":obst_sprites[1], 
+            "topleft_inner": obst_sprites[0], 
+            "topleft_outer": obst_sprites[3], 
+            "topright_inner": obst_sprites[2], 
+            "topright_outer": obst_sprites[5],
+            "bottom": obst_sprites[7], 
+            "bottomleft_inner": obst_sprites[6], 
+            "bottomleft_outer": obst_sprites[3], 
+            "bottomright_inner": obst_sprites[8], 
+            "bottomright_outer": obst_sprites[5]
+        }
+
+        obst2_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level2/desert_house.png'))
+        obst2_sprites = obst2_spritesheet.load_tiled_style((16,16), scale=scale)
+        
+        self.obst2_dict = {
+            "center": obst2_sprites[4], 
+            "left":obst2_sprites[3], 
+            "right":obst2_sprites[5],
+            "top":obst2_sprites[1], 
+            "topleft_inner": obst2_sprites[0], 
+            "topleft_outer": obst2_sprites[3], 
+            "topright_inner": obst2_sprites[2], 
+            "topright_outer": obst2_sprites[5],
+            "bottom": obst2_sprites[7], 
+            "bottomleft_inner": obst2_sprites[6], 
+            "bottomleft_outer": obst2_sprites[3], 
+            "bottomright_inner": obst2_sprites[8], 
+            "bottomright_outer": obst2_sprites[5]
+        }
+
+
+class Level_3_surface(SurfaceMapper):
+    def __init__(self, map_matrix, scale):
+        self.scale = scale
+        self.map_matrix = map_matrix
+
+        grnd_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level3/ground.png'))
+        self.ground_sprite_pool = grnd_spritesheet.load_tiled_style((16,16), scale=scale)
+
+        obst_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level3/water.png'))
         obst_sprites = obst_spritesheet.load_tiled_style((16,16), scale=scale)
         
         self.obst1_dict = {
@@ -393,7 +440,7 @@ class Level_2_surface(SurfaceMapper):
             "bottomright_outer": obst_sprites[16]
         }
 
-        obst2_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level2/house.png'))
+        obst2_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level3/house.png'))
         obst2_sprites = obst2_spritesheet.load_tiled_style((16,16), scale=scale)
         
         self.obst2_dict = {
