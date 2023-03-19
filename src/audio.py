@@ -1,5 +1,5 @@
 import pygame as pg
-# from pydub import AudioSegment
+from pydub import AudioSegment
 
 
 class SoundPathEnum:
@@ -30,13 +30,11 @@ class Audio:
       pg.mixer.Channel(i).set_volume(0.3)
 
 
-    # menuMusic = AudioSegment.from_file('../media/music.ogg', format='ogg').duration_seconds
-    # level1Music = AudioSegment.from_file('../media/level1Music.ogg', format='ogg').duration_seconds
+    menuMusic = AudioSegment.from_file('../media/music.ogg', format='ogg').duration_seconds
+    level1Music = AudioSegment.from_file('../media/music.ogg', format='ogg').duration_seconds
 
-    self.songsDurations = [pg.mixer.Sound('../media/music.ogg').get_length(), pg.mixer.Sound('../media/music.ogg').get_length()]
-    # self.songsDurations = [menuMusic,level1Music]
+    self.songsDurations = [menuMusic,level1Music]
     self.positionOriginal = 0
-    # self.positionOriginal = 0
 
   # The following methods are in charge of managing the music
   def startMusic(self):
