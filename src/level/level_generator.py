@@ -373,7 +373,6 @@ class Level_2_surface(SurfaceMapper):
 
         grnd_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level2/ground.png'))
         self.ground_sprite_pool = grnd_spritesheet.load_tiled_style((16,16), scale=scale)
-        print(len(self.ground_sprite_pool))
 
         obst_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level2/desert_house.png'))
         obst_sprites = obst_spritesheet.load_tiled_style((16,16), scale=scale)
