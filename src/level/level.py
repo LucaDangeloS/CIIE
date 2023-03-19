@@ -4,7 +4,7 @@ from pygame.locals import *
 from scene import SceneInterface
 from entities.player import Player
 from level.camera import CameraSpriteGroup
-from entities.enemies.minotaur import Minotaur
+from entities.enemies.enemies import Minotaur, Wasp
 from level.level_generator import LevelGenerator, Level_1_surface, Level_2_surface, Level_3_surface
 from weapons.clock import Clock
 from director import Director
@@ -15,21 +15,23 @@ class Level(SceneInterface):
     def _generate(self, levelGenerator):
         raise NotImplementedError
 
-    def __init__(self, controller, screen_res, scale_level=1, *args, **kwargs):
+    def __init__(self, controller, screen_res, scale_level=1, level_size=(6, 6), *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.controller = controller
         self.screen_res = screen_res
         self.scale_level = scale_level
+        self.level_size = level_size
+        self.enemy_pool = None
         self.player = None
 
     def load_scene(self):
         self.clock = Clock(3)
         
         #create the level surface
-        levelGenerator = LevelGenerator((6, 6), 5, scale=self.scale_level)
+        levelGenerator = LevelGenerator(self.level_size, 4, scale=self.scale_level)
 
         self.back_sprite = pg.sprite.Sprite()
-        spawn, self.back_sprite.image, self.borders_group = self._generate(levelGenerator)
+        spawn, self.back_sprite.image, self.borders_group, self.enemies = self._generate(levelGenerator)
 
         self.back_sprite.rect = self.back_sprite.image.get_rect(topleft=(0,0))
 
@@ -44,9 +46,11 @@ class Level(SceneInterface):
 
 
         # Enemies need to be instantiated before the player
-        self.enemy = Minotaur(self.collision_sprites, self.player_sprite_group, spawn, self.scale_level)
-        self.enemy_sprite_group.add(self.enemy)
-        self.enemy.set_drawing_sprite_group(self.visible_sprites)
+        for enemy in self.enemies:
+            enemy.set_collision_sprites(self.collision_sprites)
+            enemy.set_damageable_sprite_group(self.player_sprite_group)
+            enemy.set_drawing_sprite_group(self.visible_sprites)
+            self.enemy_sprite_group.add(enemy)
 
         #player needs to be instantiated after the damagable_sprites
         self.thrown_sprites = CameraSpriteGroup(self.screen_res)
@@ -57,7 +61,7 @@ class Level(SceneInterface):
         else:
             self.player_sprite_group.add(self.player)
             self.player.rect.center = spawn
-            self.player.set_damagable_sprite_group(self.enemy_sprite_group)
+            self.player.set_damageable_sprite_group(self.enemy_sprite_group)
             self.player.set_collision_sprites(self.collision_sprites)
 
         #here we need to also add the clock ui
@@ -79,8 +83,8 @@ class Level(SceneInterface):
         self.enemy_sprite_group.update(self.player.get_pos(), self.clock)
         self.player.update()
         
-        if len(self.enemy_sprite_group) == 0:
-            self.close_scene()
+        # if len(self.enemy_sprite_group) == 0:
+        #     self.close_scene()
 
     def handle_events(self, event_list):
         #here we could alter between player_control and scene animations
@@ -94,9 +98,9 @@ class Level(SceneInterface):
         # self.enemy_sprite_group.draw_offsetted(self.player, screen)
         self.thrown_sprites.draw_offsetted_throwables(self.player, screen)
         
-        self.visible_sprites.debug_draw(self.player, screen, self.enemy.rect)
-        self.visible_sprites.debug_draw(self.player, screen, self.enemy.weapon.rect)
-        self.visible_sprites.debug_draw(self.player, screen, self.player.rect, color='green')
+        # self.visible_sprites.debug_draw(self.player, screen, self.enemy.rect)
+        # self.visible_sprites.debug_draw(self.player, screen, self.enemy.weapon.rect)
+        # self.visible_sprites.debug_draw(self.player, screen, self.player.rect, color='green')
         
         self.user_interface_group.draw(screen)
     
@@ -114,12 +118,18 @@ class Level(SceneInterface):
 
 class Level_1(Level):
     def _generate(self, levelGenerator):
-        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=Level_1_surface)
+        self.enemy_pool = [Wasp]
+        surface = Level_1_surface
+        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=surface, enemy_pool=self.enemy_pool)
 
 class Level_2(Level):
     def _generate(self, levelGenerator):
-        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=Level_2_surface)
+        self.enemy_pool = [Minotaur]
+        surface = Level_2_surface
+        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=surface, enemy_pool=self.enemy_pool)
 
 class Level_3(Level):
     def _generate(self, levelGenerator):
-        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=Level_3_surface)
+        self.enemy_pool = []
+        surface = Level_3_surface
+        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=surface, enemy_pool=self.enemy_pool)

@@ -27,7 +27,7 @@ class Entity(pg.sprite.Sprite):
     def set_attack_damageable(self):
         self.can_cause_damage = True
 
-    def set_damagable_sprite_group(self, group):
+    def set_damageable_sprite_group(self, group):
         self.damageable_sprite_group = group
 
     def add_to_sprite_group(self, group):

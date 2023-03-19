@@ -25,24 +25,37 @@ class LevelGenerator():
         self.size = size
         self.chunk_size = chunk_size
         self.scale = scale
+        self.sprite_size = (16, 16)
 
-    def __generate_map(self, size: tuple[int, int], chunk_size, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None):
+    def __generate_map(self, 
+            size: tuple[int, int], 
+            chunk_size, 
+            n_poi, 
+            clear_radius_from_poi=1, 
+            noise_resolution=0.05, 
+            lower_threshold=-1, 
+            upper_threshold=1, 
+            enemy_pool=None, 
+            *args, 
+            **kwargs
+        ):
         '''
         the noise map generated values in the range [-1, 1] \n
-        lower_threshold: lower bound for the noise map to be considered other tile -> mapped to -1 in the TileMapper \n
-        upper_threshold: upper bound for the noise map to be considered other tile -> mapped to 1 in the TileMapper \n
+        lower_threshold: lower bound for the noise map to be considered other tile -> mapped to -1 in the TileEnum \n
+        upper_threshold: upper bound for the noise map to be considered other tile -> mapped to 1 in the TileEnum \n
 
-        spawn_chunk -> mapped to 2 in the TileMapper \n
-        objective_chunks -> mapped to 3 in the TileMapper \n
-        poi_chunks -> mapped to 4 in the TileMapper \n
-        The rest is mapped to 0 in the TileMapper \n
-
-        Returns (spawn_chunk, spawn_point), objective_chunks: list[list[tuple[int, int]], poi_chunks: list[list[tuple[int, int]]
+        spawn_chunk -> mapped to 2 in the TileEnum \n
+        objective_chunks -> mapped to 3 in the TileEnum \n
+        poi_chunks -> mapped to 4 in the TileEnum \n
+        The rest is mapped to 0 in the TileEnum \n
         '''
 
         self.size_x = size[0] * chunk_size
         self.size_y = size[1] * chunk_size
-        self.map = generate_pnoise(size[0]*chunk_size, size[1]*chunk_size, noise_resolution, seed=seed)
+        self.enemy_pool = enemy_pool
+
+        # Perlin noise map for scenery
+        self.map = generate_pnoise(size[0]*chunk_size, size[1]*chunk_size, noise_resolution, **kwargs)
         self.chunk_generator = ChunkGenerator(chunk_size)
         self.chunk_generator.generate_chunk_map(self.map, [lower_threshold, upper_threshold])
         spawn_chunk, spawn = self.chunk_generator.place_spawn()
@@ -54,13 +67,19 @@ class LevelGenerator():
         self.map[lower_threshold_values] = TileEnum.OBSTACLE.value
         self.map[upper_threshold_values] = TileEnum.OBSTACLE_2.value
 
+        enemies = []
+        # Code each tile in the map matrix with the it's corresponding chunk type
         spawn_tiles = self.chunk_generator.map_chunk_index_to_tiles(spawn_chunk)
         for x, y in spawn_tiles:
             self.map[x][y] = TileEnum.SPAWN.value
 
         objective_chunks = self.chunk_generator.position_objectives()
         for chunk in objective_chunks:
-            for x, y in self.chunk_generator.map_chunk_index_to_tiles(chunk):
+            chunk_tiles = self.chunk_generator.map_chunk_index_to_tiles(chunk)
+            # populate the designed areas with entities now as it's independent of the tile set surface
+            enemies += self.populate_area(self.scale, chunk_size, chunk_tiles, self.enemy_pool, random.randint(4, 8))
+
+            for x, y in chunk_tiles:
                 self.map[x][y] = TileEnum.OBJECTIVE.value
         
         poi_chunks = self.chunk_generator.position_poi(n_poi, clear_radius_from_poi)
@@ -68,21 +87,38 @@ class LevelGenerator():
             for x, y in self.chunk_generator.map_chunk_index_to_tiles(chunk):
                 self.map[x][y] = TileEnum.POI.value
 
-        map_surface, map_collisions = self.surface_mapper(self.map, scale=self.scale).generate_map_surface(chunk_size=(64, 64), sprite_size=(16,16))
+        # generate the map tileset surface
+        map_surface, map_collisions = self.surface_mapper(self.map, scale=self.scale).generate_map_surface(chunk_size=chunk_size, sprite_size=self.sprite_size)
 
-        # Ideally it should now only return the player spawn position, the global map surface (or whatever should be drawn) 
-        # and *maybe* the map grid for path calculations or something
+        # scale the player spawn point
         spawn = (spawn[1] * self.scale * 64, spawn[0] * self.scale * 64)
-        return spawn, map_surface, map_collisions
 
-    def generate_map(self, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, seed=None, surface_mapper_cls=None) -> tuple[tuple[int, int], Surface, list[list[tuple[int, int]]]]:
+        return spawn, map_surface, map_collisions, enemies
+
+
+    def populate_area(self, scale, chunk_size, tiles, enemy_pool, n_enemies):
+        if not enemy_pool:
+            return []
+        enemies = []
+        map_pos_scale = (chunk_size * self.sprite_size[0] * scale, chunk_size * self.sprite_size[1] * scale)
+
+        for _ in range(n_enemies):
+            enemy = random.choice(enemy_pool)
+            pos = random.choice(tiles)
+            pos = (pos[1] * map_pos_scale[0], pos[0] * map_pos_scale[1])
+            enemy = enemy([], [], pos, sprite_scale=scale)
+            enemies.append(enemy)
+
+        return enemies
+
+    def generate_map(self, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, surface_mapper_cls=None, *args, **kwargs) -> tuple[tuple[int, int], Surface, list[list[tuple[int, int]]]]:
         if surface_mapper_cls:
             self.surface_mapper = surface_mapper_cls
 
         attempts = 10
         for _ in range(attempts):
             try:
-                return self.__generate_map(self.size, self.chunk_size, n_poi, clear_radius_from_poi, noise_resolution, lower_threshold, upper_threshold, seed)
+                return self.__generate_map(self.size, self.chunk_size, n_poi, clear_radius_from_poi, noise_resolution, lower_threshold, upper_threshold, *args, **kwargs)
             except GenerationException as e:
                 continue
         raise GenerationException(f"Failed to generate map after {attempts} attemps")
@@ -248,13 +284,8 @@ class SurfaceMapper():
         return transform.scale(surf, (surf_size[0]*self.scale, surf_size[1]*self.scale))
 
 
-    # def populate_enemies(self, ):
-
-    # def put_main_objects(self, ):
-
-    # def put_secondary_objects(self, ):
-
-    def generate_map_surface(self, chunk_size: tuple[int,int], sprite_size: tuple[int, int]):
+    def generate_map_surface(self, chunk_size: int, sprite_size: tuple[int, int]):
+        chunk_size = (chunk_size * sprite_size[0], chunk_size * sprite_size[1])
         map_surf = Surface( (len(self.map_matrix[1]) * chunk_size[0] * self.scale, len(self.map_matrix[0]) * chunk_size[1] * self.scale), SRCALPHA, 32) 
 
         collision_borders = pg.sprite.Group()
