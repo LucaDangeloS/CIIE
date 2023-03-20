@@ -35,7 +35,7 @@ class Level(SceneInterface):
         spawn, self.back_sprite.image, borders_group, enemies, objective_items, optional_items = self._generate(levelGenerator)
 
         self.back_sprite.rect = self.back_sprite.image.get_rect(topleft=(0,0))
-
+        CameraSpriteGroup.set_map_limit(self.back_sprite.rect.size)
         self.visible_sprites = CameraSpriteGroup(self.screen_res)
         self.visible_sprites.add(self.back_sprite)
 
@@ -70,10 +70,6 @@ class Level(SceneInterface):
             self.player.set_damageable_sprite_group(self.enemy_sprite_group)
             self.player.set_collision_sprites(self.collision_sprites)
 
-        # Test item
-        item_spawn = (spawn[0] + 40, spawn[1] + 40)
-        self.item = Heart(item_spawn, self.optional_items, self.player_sprite_group, scale=self.scale_level)
-        
         # Settings items target group to the player
         for item in self.optional_items:
             item.set_target_sprite_group(self.player_sprite_group)
@@ -102,7 +98,6 @@ class Level(SceneInterface):
     def update(self):
         self.enemy_sprite_group.update(self.player.get_pos(), self.clock)
         self.player.update()
-        self.item.update()
         self.optional_items.update()
         self.objective_items.update()
         # Completion logic and level ending
