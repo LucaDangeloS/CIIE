@@ -6,7 +6,7 @@ class Entity(pg.sprite.Sprite):
 
     def __init__(self, damageable_sprites=[], sprite_groups=[], **kwargs):
         super().__init__(sprite_groups)
-        self.sprite_groups = []
+        self.sprite_groups = sprite_groups
         self.is_attacking = False
         self.invincible = False
         self.alive = True
@@ -45,7 +45,7 @@ class Entity(pg.sprite.Sprite):
         else:
             self.state = (state, self.state[1])
 
-    def set_drawing_sprite_group(self, sprite_group):
+    def add_drawing_sprite_group(self, sprite_group):
         sprite_group.add(self)
 
     #this is called in every frame
@@ -63,6 +63,9 @@ class Entity(pg.sprite.Sprite):
     def get_pos(self):
         # Returns centered rect position
         return self.rect.center
+
+    def set_pos(self, pos):
+        self.rect.center = pos
 
     def move(self):
         if self.is_attacking:
@@ -96,14 +99,17 @@ class Entity(pg.sprite.Sprite):
     def set_collision_sprites(self, sprite_group):
         self.collision_sprites = sprite_group
 
+    def heal(self, amount):
+        self.health += amount
+
     def receive_damage(self, damage_amount):
         if self.invincible:
             return
         self.health -= damage_amount
         # Add to sprite group maybe? And remove it after the animation is done
         # self.sprite_groups.append(self.sprite.damage_animation(self.rect.center))
+
         if self.health <= 0: #kill the sprite
-            #we should launch the dying animation here
             self.kill()
 
     def get_orientation(self):
