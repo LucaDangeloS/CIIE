@@ -333,7 +333,7 @@ class SurfaceMapper():
 
         for row_idx, row in enumerate(self.map_matrix):
             for col_idx, value in enumerate(row):
-                if value in [TileEnum.GROUND.value, TileEnum.SPAWN.value]:
+                if value in [TileEnum.GROUND.value, TileEnum.SPAWN.value, TileEnum.OBJECTIVE.value, TileEnum.POI.value]:
                     tile_surf = self.generate_random_surf(self.ground_sprite_pool, sprite_size, chunk_size)
                     map_surf.blit(tile_surf, (col_idx*chunk_size[0]*self.scale, row_idx*chunk_size[1]*self.scale))
                 elif value == TileEnum.OBSTACLE.value:
@@ -354,11 +354,6 @@ class SurfaceMapper():
                         collision_borders.add(temp_sprite)
                     
                     map_surf.blit(tile_surf, (col_idx*chunk_size[0]*self.scale, row_idx*chunk_size[1]*self.scale))
-                # TODO
-                elif value == TileEnum.OBJECTIVE.value:
-                    draw.rect(map_surf, (0,255,255), Rect(col_idx*chunk_size[0]*self.scale, row_idx*chunk_size[1]*self.scale,chunk_size[1]*self.scale,chunk_size[0]*self.scale)) 
-                elif value == TileEnum.POI.value:
-                    draw.rect(map_surf, (0,0,255), Rect(col_idx*chunk_size[0]*self.scale, row_idx*chunk_size[1]*self.scale,chunk_size[1]*self.scale,chunk_size[0]*self.scale)) 
                     
         return map_surf, collision_borders
 
