@@ -30,9 +30,9 @@ screen_res = director.screen.get_size()
 #Buttons for initial menu:
 x, y = (screen_res[0] // 2) - 48*3, screen_res[1] // 3
 
-director.push_scene((level_3, "level1Music.ogg")) # TODO: change music
-director.push_scene((level_2, "level1Music.ogg")) # TODO: change music
-director.push_scene((level, "level1Music.ogg"))
+director.push_scene((level_3, "level3Music.mp3")) # TODO: change music
+director.push_scene((level_2, "level2Music.mp3")) # TODO: change music
+director.push_scene((level, "level1Music.mp3"))
 
 # Menu buttons
 btt_play = Button(director.pop_scene, pg.image.load('../sprites/menu/buttons.png'), (0, 0,97,41), Rect(x,y,200,100), 3)
