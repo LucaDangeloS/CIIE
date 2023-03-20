@@ -1,6 +1,7 @@
 import pygame as pg
 from enum import Enum
 import random
+from items.player_items import Heart
 from level.noise.pnoise import generate_pnoise
 from level.chunks.generator import ChunkGenerator
 import numpy as np
@@ -53,7 +54,8 @@ class LevelGenerator():
         self.size_x = size[0] * chunk_size
         self.size_y = size[1] * chunk_size
         self.enemy_pool = enemy_pool
-
+        self.objective_items_pool = [Heart]
+        self.poi_items_pool = [Heart]
         # Perlin noise map for scenery
         self.map = generate_pnoise(size[0]*chunk_size, size[1]*chunk_size, noise_resolution, **kwargs)
         self.chunk_generator = ChunkGenerator(chunk_size)
@@ -68,6 +70,8 @@ class LevelGenerator():
         self.map[upper_threshold_values] = TileEnum.OBSTACLE_2.value
 
         enemies = []
+        objective_items = []
+        optional_items = []
         # Code each tile in the map matrix with the it's corresponding chunk type
         spawn_tiles = self.chunk_generator.map_chunk_index_to_tiles(spawn_chunk)
         for x, y in spawn_tiles:
@@ -78,12 +82,15 @@ class LevelGenerator():
             chunk_tiles = self.chunk_generator.map_chunk_index_to_tiles(chunk)
             # populate the designed areas with entities now as it's independent of the tile set surface
             enemies += self.populate_area(self.scale, chunk_size, chunk_tiles, self.enemy_pool, random.randint(4, 8))
-
+            objective_items += self.place_items(self.scale, chunk_size, chunk_tiles, self.objective_items_pool, 1)
             for x, y in chunk_tiles:
                 self.map[x][y] = TileEnum.OBJECTIVE.value
         
         poi_chunks = self.chunk_generator.position_poi(n_poi, clear_radius_from_poi)
         for chunk in poi_chunks:
+            chunk_tiles = self.chunk_generator.map_chunk_index_to_tiles(chunk)
+            enemies += self.populate_area(self.scale, chunk_size, chunk_tiles, self.enemy_pool, random.randint(4, 8))
+            optional_items += self.place_items(self.scale, chunk_size, chunk_tiles, self.poi_items_pool, random.randint(1, 2))
             for x, y in self.chunk_generator.map_chunk_index_to_tiles(chunk):
                 self.map[x][y] = TileEnum.POI.value
 
@@ -93,7 +100,8 @@ class LevelGenerator():
         # scale the player spawn point
         spawn = (spawn[1] * self.scale * 64, spawn[0] * self.scale * 64)
 
-        return spawn, map_surface, map_collisions, enemies
+        return spawn, map_surface, map_collisions, enemies, objective_items, optional_items
+
 
     def place_items(self, scale, chunk_size, tiles, items_pool, n_items):
         if not items_pool or n_items <= 0:
@@ -109,6 +117,7 @@ class LevelGenerator():
             items.append(item)
 
         return items
+
 
     def populate_area(self, scale, chunk_size, tiles, enemy_pool, n_enemies):
         if not enemy_pool or n_enemies <= 0:

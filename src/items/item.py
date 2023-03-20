@@ -5,8 +5,11 @@ class Item(pg.sprite.Sprite):
 
     def __init__(self, rect, sprite_groups=[], target_sprite_group=[], scale=1, **kwargs):
         super().__init__(sprite_groups)
-        self.sprite_groups = sprite_groups
-        self.sprite_groups.add(self)
+        if sprite_groups:
+            self.sprite_groups = sprite_groups
+            self.sprite_groups.add(self)
+        else:
+            self.sprite_groups = pg.sprite.Group()
         self.image_offset = pg.math.Vector2((0, 0))
         self.state = (ActionEnum.IDLE, 'down')
         self.sprite = Sprite_handler()
@@ -19,6 +22,9 @@ class Item(pg.sprite.Sprite):
 
     def add_drawing_sprite_group(self, sprite_group):
         sprite_group.add(self)
+
+    def set_target_sprite_group(self, target_sprite_group):
+        self.target_sprite_group = target_sprite_group
 
     def update(self):
         self.image = self.sprite.get_img(self.state)

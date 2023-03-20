@@ -32,7 +32,7 @@ class Level(SceneInterface):
         levelGenerator = LevelGenerator(self.level_size, 4, scale=self.scale_level)
 
         self.back_sprite = pg.sprite.Sprite()
-        spawn, self.back_sprite.image, self.borders_group, self.enemies = self._generate(levelGenerator)
+        spawn, self.back_sprite.image, borders_group, enemies, objective_items, optional_items = self._generate(levelGenerator)
 
         self.back_sprite.rect = self.back_sprite.image.get_rect(topleft=(0,0))
 
@@ -43,10 +43,16 @@ class Level(SceneInterface):
         self.enemy_sprite_group = CameraSpriteGroup(self.screen_res)
 
         self.collision_sprites = pg.sprite.Group()
-        self.collision_sprites.add(self.borders_group)
+        self.collision_sprites.add(borders_group)
+
+        # items sprite groups
+        self.optional_items = pg.sprite.Group()
+        self.optional_items.add(optional_items)
+        self.objective_items = pg.sprite.Group()
+        self.objective_items.add(objective_items)
 
         # Enemies need to be instantiated before the player
-        for enemy in self.enemies:
+        for enemy in enemies:
             enemy.set_collision_sprites(self.collision_sprites)
             enemy.set_damageable_sprite_group(self.player_sprite_group)
             enemy.add_drawing_sprite_group(self.visible_sprites)
@@ -64,8 +70,19 @@ class Level(SceneInterface):
             self.player.set_damageable_sprite_group(self.enemy_sprite_group)
             self.player.set_collision_sprites(self.collision_sprites)
 
+        # Test item
         item_spawn = (spawn[0] + 40, spawn[1] + 40)
-        self.item = Heart(item_spawn, self.visible_sprites, self.player_sprite_group, scale=self.scale_level)
+        self.item = Heart(item_spawn, self.optional_items, self.player_sprite_group, scale=self.scale_level)
+        
+        # Settings items target group to the player
+        for item in self.optional_items:
+            item.set_target_sprite_group(self.player_sprite_group)
+        for item in self.objective_items:
+            item.set_target_sprite_group(self.player_sprite_group)
+
+        # Making items visible
+        self.visible_sprites.add(self.optional_items)
+        self.visible_sprites.add(self.objective_items)
 
         #here we need to also add the clock ui
         self.user_interface_group = pg.sprite.Group()
@@ -86,8 +103,9 @@ class Level(SceneInterface):
         self.enemy_sprite_group.update(self.player.get_pos(), self.clock)
         self.player.update()
         self.item.update()
-        # if len(self.enemy_sprite_group) == 0:
-        #     self.close_scene()
+        self.optional_items.update()
+        self.objective_items.update()
+        # Completion logic and level ending
 
     def handle_events(self, event_list):
         #here we could alter between player_control and scene animations
