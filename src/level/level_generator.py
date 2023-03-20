@@ -95,9 +95,23 @@ class LevelGenerator():
 
         return spawn, map_surface, map_collisions, enemies
 
+    def place_items(self, scale, chunk_size, tiles, items_pool, n_items):
+        if not items_pool or n_items <= 0:
+            return []
+        items = []
+        map_pos_scale = (chunk_size * self.sprite_size[0] * scale, chunk_size * self.sprite_size[1] * scale)
+
+        for _ in range(n_items):
+            item = random.choice(items_pool)
+            pos = random.choice(tiles)
+            pos = (pos[1] * map_pos_scale[0], pos[0] * map_pos_scale[1])
+            item = item(pos, [], [], scale=scale)
+            items.append(item)
+
+        return items
 
     def populate_area(self, scale, chunk_size, tiles, enemy_pool, n_enemies):
-        if not enemy_pool:
+        if not enemy_pool or n_enemies <= 0:
             return []
         enemies = []
         map_pos_scale = (chunk_size * self.sprite_size[0] * scale, chunk_size * self.sprite_size[1] * scale)
@@ -106,10 +120,11 @@ class LevelGenerator():
             enemy = random.choice(enemy_pool)
             pos = random.choice(tiles)
             pos = (pos[1] * map_pos_scale[0], pos[0] * map_pos_scale[1])
-            enemy = enemy([], [], pos, sprite_scale=scale)
+            enemy = enemy([], [], pos, scale=scale)
             enemies.append(enemy)
 
         return enemies
+
 
     def generate_map(self, n_poi, clear_radius_from_poi=1, noise_resolution=0.05, lower_threshold=-1, upper_threshold=1, surface_mapper_cls=None, *args, **kwargs) -> tuple[tuple[int, int], Surface, list[list[tuple[int, int]]]]:
         if surface_mapper_cls:
