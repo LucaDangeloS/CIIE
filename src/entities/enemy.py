@@ -49,3 +49,9 @@ class Enemy(Entity):
         self.direction = pg.math.Vector2(goal[0] - self.rect.x, goal[1] - self.rect.y)
 
 
+    def move(self):
+        # don't overshoot
+        if self.direction.length() < self.walking_speed:
+            self.rect.center += self.direction
+            return
+        super().move()
