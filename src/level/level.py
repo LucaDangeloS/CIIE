@@ -1,6 +1,7 @@
 import pygame as pg
 import numpy as np
 from pygame.locals import *
+from items.player_items import Heart
 from scene import SceneInterface
 from entities.player import Player
 from level.camera import CameraSpriteGroup
@@ -44,32 +45,34 @@ class Level(SceneInterface):
         self.collision_sprites = pg.sprite.Group()
         self.collision_sprites.add(self.borders_group)
 
-
         # Enemies need to be instantiated before the player
         for enemy in self.enemies:
             enemy.set_collision_sprites(self.collision_sprites)
             enemy.set_damageable_sprite_group(self.player_sprite_group)
-            enemy.set_drawing_sprite_group(self.visible_sprites)
+            enemy.add_drawing_sprite_group(self.visible_sprites)
             self.enemy_sprite_group.add(enemy)
 
         #player needs to be instantiated after the damagable_sprites
         self.thrown_sprites = CameraSpriteGroup(self.screen_res)
         if not self.player:
             self.player = Player(self.collision_sprites, self.enemy_sprite_group, self.thrown_sprites, self.clock, 3)
-            self.player.rect.center = spawn
+            self.player.set_pos(spawn)
             self.player_sprite_group.add(self.player)
         else:
             self.player_sprite_group.add(self.player)
-            self.player.rect.center = spawn
+            self.player.set_pos(spawn)
             self.player.set_damageable_sprite_group(self.enemy_sprite_group)
             self.player.set_collision_sprites(self.collision_sprites)
+
+        item_spawn = (spawn[0] + 40, spawn[1] + 40)
+        self.item = Heart(item_spawn, self.visible_sprites, self.player_sprite_group, scale=self.scale_level)
 
         #here we need to also add the clock ui
         self.user_interface_group = pg.sprite.Group()
         
         self.user_interface_group.add(self.clock.clock_ui)
         
-        self.player.set_drawing_sprite_group(self.visible_sprites, self.user_interface_group)
+        self.player.add_drawing_sprite_group(self.visible_sprites, self.user_interface_group)
 
 
     def update_screen_res(self, screen:pg.Surface):
@@ -82,7 +85,7 @@ class Level(SceneInterface):
     def update(self):
         self.enemy_sprite_group.update(self.player.get_pos(), self.clock)
         self.player.update()
-        
+        self.item.update()
         # if len(self.enemy_sprite_group) == 0:
         #     self.close_scene()
 
@@ -97,8 +100,8 @@ class Level(SceneInterface):
         self.visible_sprites.draw_offsetted(self.player, screen)
         # self.enemy_sprite_group.draw_offsetted(self.player, screen)
         self.thrown_sprites.draw_offsetted_throwables(self.player, screen)
-        
-        # self.visible_sprites.debug_draw(self.player, screen, self.enemy.rect)
+
+        # self.visible_sprites.debug_draw(self.player, screen, self.item.rect)
         # self.visible_sprites.debug_draw(self.player, screen, self.enemy.weapon.rect)
         # self.visible_sprites.debug_draw(self.player, screen, self.player.rect, color='green')
         

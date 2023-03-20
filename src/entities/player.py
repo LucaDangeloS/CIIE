@@ -43,8 +43,8 @@ class Player(Entity):
         self.weapons.append(WeaponPool(Slipper, 30, 300, thrown_sprite_group, 4))
         #self.weapons.append(Slipper(5))
 
-    def set_drawing_sprite_group(self, sprite_group, ui_group):
-        super().set_drawing_sprite_group(sprite_group)
+    def add_drawing_sprite_group(self, sprite_group, ui_group):
+        super().add_drawing_sprite_group(sprite_group)
         ui_group.add(self.health_ui)  #we need an absolute position
         #self.weapons[1].drawing_spr_group = sprite_group
 
@@ -121,9 +121,11 @@ class Player(Entity):
             self.weapons[1].update(self.damageable_sprite_group)
             self.clock.take_snapshot(self, self.rect.center)
 
+    def heal(self, amount):
+        super().heal(amount)
+        self.health_ui.update(self.health)
+
     def receive_damage(self, damage_amount):
         super().receive_damage(damage_amount)
-        # Logic to lose game
-
-        #update ui
         self.health_ui.update(self.health)
+        # Lose game
