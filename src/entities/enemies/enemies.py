@@ -23,11 +23,6 @@ class Wasp(Enemy):
         self.weapon = MonsterWeapon(self.rect.center, half_size, 7 * 120, 1)
         self.sprite.set_attack_effective_idx(3)
 
-    def draw(self, screen):
-        self.weapon.draw_hitbox(screen)
-        super().draw(screen)
-
-
 
 class Minotaur(Enemy):
 
