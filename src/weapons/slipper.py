@@ -10,6 +10,8 @@ class WeaponPool:
     the use of slipper throws 
     '''
     active_weapons = []
+    ammo = 2
+
     def __init__(self, WeaponClass, poolSize: int, cooldown, thrown_sprite_group, sprite_scale=1):
         self.weapon_pool = []
         #this sprite group is just to kill if it is out of screen, it will be composed of the slippers that are in the air
@@ -23,9 +25,16 @@ class WeaponPool:
             self.weapon_pool.append(Slipper(sprite_scale))
             self.weapon_pool[i].thrown_group = self.thrown_sprite_group
 
-   
+    def increase_weapon(self, amount):
+        self.ammo += amount
+
+    def get_ammo(self):
+        return self.ammo
 
     def attack(self, player_rect:pg.Rect, orientation:tuple[int,int]):
+        # not really needed
+        # if self.ammo <= 0:
+        #     return
         if pg.time.get_ticks() - self.last_step > self.cooldown:
             if self.weapon_pool[self.weapon_idx].sprite.groups() == []: #it is not in thrown_group
                 self.weapon_pool[self.weapon_idx].attack(player_rect, orientation)
@@ -33,6 +42,7 @@ class WeaponPool:
                 self.thrown_sprite_group.add(self.weapon_pool[self.weapon_idx].sprite)
                 self.weapon_idx = (self.weapon_idx + 1) % (len(self.weapon_pool)-1)
                 self.last_step = pg.time.get_ticks()
+                self.ammo -= 1
             else:
                 print("the weapon pool might be to small")
 

@@ -21,20 +21,20 @@ class Player(Entity):
     director = Director()
 
 
-    def __init__(self, collision_sprites, damageable_sprites, thrown_sprite_group, clock, sprite_scale=2, **kwargs):
+    def __init__(self, collision_sprites, damageable_sprites, thrown_sprite_group, clock, scale=2, **kwargs):
         super().__init__(damageable_sprites=damageable_sprites, disable_flipping=True, **kwargs)
         self.health = 5
         self.health_ui = PlayerHealthUI(self.health, scale=4)
         self.clock = clock
 
-        self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', sprite_scale)
+        self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', scale)
         # self.blood_animation = self.sprite.load_regular_sprites('sprites/hits/blood-sheet.png', sprite_scale)
         self.image = self.sprite.get_img(self.state)
         self.walk_sound = self.director.audio.loadSound('../media/steps.ogg')
         self.shoe_sound = self.director.audio.loadSound('../media/zapatillazo.ogg')
 
         #should we harcode the rect?
-        self.rect = pg.Rect(380, 50, 16.6666*sprite_scale, 26.666666*sprite_scale)
+        self.rect = pg.Rect(380, 50, 16.6666*scale, 26.666666*scale)
         self.collision_sprites = collision_sprites
 
         # Center self.rect to the self.image center
@@ -47,6 +47,9 @@ class Player(Entity):
         super().add_drawing_sprite_group(sprite_group)
         ui_group.add(self.health_ui)  #we need an absolute position
         #self.weapons[1].drawing_spr_group = sprite_group
+
+    def add_slipper(self, amount):
+        self.weapons[1].increase_pool(amount)
 
     def kill(self):
         super().kill()
@@ -70,6 +73,8 @@ class Player(Entity):
             self.update_state(ActionEnum.ATTACK_1)
 
         elif self.action_state['attack_2']:
+            if self.weapons[1].get_ammo() <= 0:
+                return
             self.weapons[1].attack(self.rect, self.state[1])
             self.update_state(ActionEnum.ATTACK_2)
             self.director.audio.playAttackSound(self.shoe_sound)
