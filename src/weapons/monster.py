@@ -17,20 +17,24 @@ class MonsterWeapon(Weapon):
 
     #if it can attack checks if it hits something in the sprite_group and if it does updates it's health
     # the player_pos should be right_center of it's rect
-    def attack(self, monster_rect: pg.Rect, orientation: str, damagable_group: pg.sprite.Group):
+    def attack(self, monster_rect: pg.Rect, orientation: str, damagable_group: pg.sprite.Group, width_displ=None, height_displ=None):
         if self.attack_ready:
-            # 1/4 of the monster rect
-            width_quarter = (monster_rect.center[0] - monster_rect.midleft[0])/2
-            height_quarter = (monster_rect.center[1] - monster_rect.midtop[1])/2
+            # 3/4 of the monster rect by default
+            if not width_displ:
+                width_quarter = (self.rect.center[0] - self.rect.midleft[0])/2
+                width_displ = (self.rect.midright[0] - self.rect.midleft[0]) - width_quarter
+            if not height_displ:
+                height_quarter = (self.rect.center[1] - self.rect.midtop[1])/2
+                height_displ = (self.rect.midbottom[1] - self.rect.midtop[1]) - height_quarter
 
             if orientation == 'down':
-                x, y = monster_rect.midbottom[0] - (self.rect_dim[0]/2), monster_rect.midtop[1] + height_quarter
+                x, y = monster_rect.midbottom[0] - (self.rect_dim[0]/2), monster_rect.midtop[1] + height_displ
             elif orientation == 'up':
-                x, y = monster_rect.midtop[0] - (self.rect_dim[0]/2), monster_rect.midbottom[1] - self.rect_dim[1] - height_quarter
+                x, y = monster_rect.midtop[0] - (self.rect_dim[0]/2), monster_rect.midbottom[1] - self.rect_dim[1] - height_displ
             elif orientation == 'left':
-                x, y = monster_rect.midright[0] - width_quarter - self.rect_dim[0], monster_rect.midleft[1] - (self.rect_dim[1]/2)
+                x, y = monster_rect.midright[0] - width_displ - self.rect_dim[0], monster_rect.midleft[1] - (self.rect_dim[1]/2)
             elif orientation == 'right':
-                x, y = monster_rect.midleft[0] + width_quarter , monster_rect.midright[1] - (self.rect_dim[1]/2)
+                x, y = monster_rect.midleft[0] + width_displ , monster_rect.midright[1] - (self.rect_dim[1]/2)
 
             self.rect.x, self.rect.y = x, y
             self.attack_ready = False
