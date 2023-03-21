@@ -10,12 +10,14 @@ from weapons.monster import MonsterWeapon
 class Enemy(Entity):
     goal_tick_rate = 60
 
-    def __init__(self, collision_sprites, damageable_sprites, sprite_path, entity_rect, scale=1, **kwargs):
+    def __init__(self, collision_sprites, damageable_sprites, sprite_path, entity_rect, map, scale=1, **kwargs):
         super().__init__(damageable_sprites=damageable_sprites, **kwargs)
         self.spawn_pos = entity_rect.center
         self.last_tick = 0
         self.health = 2
         self.goal = None
+        if map:
+            self.map = map
         self.walking_speed = 2
         self.sprite.load_regular_sprites(sprite_path, scale)
         # self.blood_animation = self.sprite.load_regular_sprites('sprites/hits/blood-sheet.png', sprite_scale)

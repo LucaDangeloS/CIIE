@@ -11,7 +11,7 @@ from pygame import transform, image, Surface, SRCALPHA, draw, Rect
 from entities.sprites import SpriteSheet
 from level.chunks.generator import GenerationException
 from level.camera import CameraSpriteGroup
-
+from level.astar import astar
 
 class TileEnum(Enum):
     OBSTACLE = -1
@@ -29,6 +29,7 @@ class LevelGenerator():
         self.chunk_size = chunk_size
         self.scale = scale
         self.sprite_size = sprite_size
+        self.scaling_factors = (self.sprite_size[0] * self.scale * self.chunk_size, self.sprite_size[1] * self.scale * self.chunk_size)
 
     def __generate_map(self, 
             size: tuple[int, int], 
@@ -82,8 +83,6 @@ class LevelGenerator():
         objective_chunks = self.chunk_generator.position_objectives()
         for chunk in objective_chunks:
             chunk_tiles = self.chunk_generator.map_chunk_index_to_tiles(chunk)
-            # populate the designed areas with entities now as it's independent of the tile set surface
-            enemies += self.populate_area(self.scale, chunk_size, chunk_tiles, self.enemy_pool, random.randint(4, 8))
             objective_items += self.place_items(self.scale, chunk_size, chunk_tiles, self.objective_items_pool, 1)
             for x, y in chunk_tiles:
                 self.map[x][y] = TileEnum.OBJECTIVE.value
@@ -91,8 +90,6 @@ class LevelGenerator():
         poi_chunks = self.chunk_generator.position_poi(n_poi, clear_radius_from_poi)
         for chunk in poi_chunks:
             chunk_tiles = self.chunk_generator.map_chunk_index_to_tiles(chunk)
-            # populate the designed areas with entities now as it's independent of the tile set surface
-            enemies += self.populate_area(self.scale, chunk_size, chunk_tiles, self.enemy_pool, random.randint(4, 8))
             optional_items += self.place_items(self.scale, chunk_size, chunk_tiles, self.poi_items_pool, random.randint(1, 2))
             for x, y in chunk_tiles:
                 self.map[x][y] = TileEnum.POI.value
@@ -100,12 +97,28 @@ class LevelGenerator():
         # generate the map tileset surface
         map_surface, map_collisions = self.surface_mapper(self.map, scale=self.scale).generate_map_surface(chunk_size=chunk_size, sprite_size=self.sprite_size)
 
-        # scale the player spawn point
-        spawn = (spawn[1] * self.scale * 64, spawn[0] * self.scale * 64)
+        
 
         # Discretized chunk map so there are only 0 (traversable) and 1 (non traversable) values
         self.map = self.map.astype(int)
-        self.map[self.map != TileEnum.GROUND.value] = 1
+        self.map[self.map == -1] = 1
+        self.map[self.map == 1] = 1
+        self.map[self.map != 1] = 0
+
+        # Enemy creation goes here because it depends on the discretized map matrix
+        # Also guarantee the objectives are reachable
+        for chunk in objective_chunks:
+            chunk_tiles = self.chunk_generator.map_chunk_index_to_tiles(chunk)
+            middle_tile = chunk_tiles[len(chunk_tiles) // 2]
+            if not astar(self.map, spawn, middle_tile):
+                raise GenerationException("The objective point is not reachable from the spawn")
+            enemies += self.populate_area(self.scale, chunk_size, chunk_tiles, self.enemy_pool, random.randint(4, 8))
+        for chunk in poi_chunks:
+            chunk_tiles = self.chunk_generator.map_chunk_index_to_tiles(chunk)
+            enemies += self.populate_area(self.scale, chunk_size, chunk_tiles, self.enemy_pool, random.randint(3, 5))
+
+        # scale the player spawn point
+        spawn = (spawn[1] * self.scaling_factors[1], spawn[0] * self.scaling_factors[0])
 
         return self.map, spawn, map_surface, map_collisions, enemies, objective_items, optional_items
 
@@ -136,7 +149,7 @@ class LevelGenerator():
             enemy = random.choice(enemy_pool)
             pos = random.choice(tiles)
             pos = (pos[1] * map_pos_scale[0], pos[0] * map_pos_scale[1])
-            enemy = enemy([], [], pos, scale=scale)
+            enemy = enemy([], [], pos, map, scale=scale)
             enemies.append(enemy)
 
         return enemies

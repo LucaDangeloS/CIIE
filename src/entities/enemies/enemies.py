@@ -11,10 +11,10 @@ from pygame import Rect, math
 
 class Wasp(Enemy):
 
-    def __init__(self, collision_sprites, damageable_sprites: List, pos, scale=1):
+    def __init__(self, collision_sprites, damageable_sprites: List, pos, map=None, scale=1):
         entity_rect = Rect(pos[0], pos[1], 54, 54)
         sprite_path = '../sprites/enemies/wasp'
-        super().__init__(collision_sprites, damageable_sprites, sprite_path, entity_rect, scale, facing_sprites='left')
+        super().__init__(collision_sprites, damageable_sprites, sprite_path, entity_rect, map, scale, facing_sprites='left')
         self.health = 2
         self.behavior = ChaseBehavior(self, 60, 450)
         self.speed = 4
@@ -35,10 +35,10 @@ class Wasp(Enemy):
 
 class Minotaur(Enemy):
 
-    def __init__(self, collision_sprites, damageable_sprites: List, pos, scale=1):
+    def __init__(self, collision_sprites, damageable_sprites: List, pos, map=None, scale=1):
         entity_rect = Rect(pos[0], pos[1], 128, 120)
         sprite_path = '../sprites/enemies/minotaur'
-        super().__init__(collision_sprites, damageable_sprites, sprite_path, entity_rect, scale, facing_sprites='right')
+        super().__init__(collision_sprites, damageable_sprites, sprite_path, entity_rect, map, scale, facing_sprites='right')
         self.health = 5
         self.speed = 2
         self.behavior = ChaseBehavior(self, 120, 300)
@@ -61,3 +61,4 @@ class Minotaur(Enemy):
         width_displ = (self.rect.center[0] - self.rect.midleft[0])/2
         height_displ = (self.rect.center[1] - self.rect.midtop[1])/2
         self.weapon.attack(self.rect, self.state[1], self.damageable_sprite_group, width_displ, height_displ)
+
