@@ -1,7 +1,7 @@
 import pygame as pg
 from enum import Enum
 import random
-from items.player_items import Heart
+from items.player_items import Heart, SlipperAmmo, WatchPiece
 from level.noise.pnoise import generate_pnoise
 from level.chunks.generator import ChunkGenerator
 import numpy as np
@@ -54,8 +54,8 @@ class LevelGenerator():
         self.size_x = size[0] * chunk_size
         self.size_y = size[1] * chunk_size
         self.enemy_pool = enemy_pool
-        self.objective_items_pool = [Heart]
-        self.poi_items_pool = [Heart]
+        self.objective_items_pool = [WatchPiece]
+        self.poi_items_pool = [Heart, SlipperAmmo]
         # Perlin noise map for scenery
         self.map = generate_pnoise(size[0]*chunk_size, size[1]*chunk_size, noise_resolution, **kwargs)
         self.chunk_generator = ChunkGenerator(chunk_size)
@@ -394,25 +394,23 @@ class Level_1_surface(SurfaceMapper):
             "bottomright_outer": obst_sprites[16]
         }
 
-        # TODO: Cambiar esto que es muy feo
-        obst2_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level1/obstacles2.png'))
+        obst2_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level1/water.png'))
         obst2_sprites = obst2_spritesheet.load_tiled_style((16,16), scale=scale)
-        self.obst2_sprite_pool = obst2_sprites[10]
         
         self.obst2_dict = {
-            "center": obst2_sprites[8], 
-            "left":obst2_sprites[8], 
-            "right":obst2_sprites[8],
-            "top":obst2_sprites[2], 
-            "bottom": obst2_sprites[14], 
-            "topleft_inner": obst2_sprites[2], 
-            "topleft_outer": obst2_sprites[2], 
+            "center": obst2_sprites[12],
+            "top": obst2_sprites[1], 
+            "left": obst2_sprites[11], 
+            "right": obst2_sprites[13], 
+            "bottom": obst2_sprites[23],
+            "topleft_inner": obst2_sprites[0], 
+            "topleft_outer": obst2_sprites[28], 
             "topright_inner": obst2_sprites[2], 
-            "topright_outer": obst2_sprites[2],
-            "bottomleft_inner": obst2_sprites[14], 
-            "bottomleft_outer": obst2_sprites[14], 
-            "bottomright_inner": obst2_sprites[14], 
-            "bottomright_outer": obst2_sprites[14]
+            "topright_outer": obst2_sprites[27],
+            "bottomleft_inner": obst2_sprites[22], 
+            "bottomleft_outer": obst2_sprites[17], 
+            "bottomright_inner": obst2_sprites[24], 
+            "bottomright_outer": obst2_sprites[16]
         }
 
 

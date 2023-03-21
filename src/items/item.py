@@ -18,7 +18,6 @@ class Item(pg.sprite.Sprite):
         self.rect = pg.rect.Rect(rect)
         self.rect.width *= scale
         self.rect.height *= scale
-        self.is_active = False
 
     def add_drawing_sprite_group(self, sprite_group):
         sprite_group.add(self)
