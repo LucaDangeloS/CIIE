@@ -26,11 +26,8 @@ class Enemy(Entity):
         # get half the size of the sprite rect
         self.weapon = None
 
-    ''' Observer pattern:
-    Define Subject(weapons/attacks) and Obverser(entities) objects.
-    When a Subject changes state(there is a collision in attack()), all registered observers are notified and 
-    updated automatically (asynchronously if possible)
-    '''
+    def attack(self):
+        self.weapon.attack(self.rect, self.state[1], self.damageable_sprite_group)
 
     def update(self, player_pos, clock):
         if pg.time.get_ticks() - self.last_tick > self.goal_tick_rate:
@@ -39,7 +36,7 @@ class Enemy(Entity):
         self.weapon.update(self.rect.center)
         super().update()
         if self.weapon and self.is_attacking and self.can_cause_damage:
-            self.weapon.attack(self.rect, self.state[1], self.damageable_sprite_group)
+            self.attack()
         clock.take_snapshot(self, self.rect.center)
 
     def set_goal(self, goal):
