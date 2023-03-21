@@ -9,7 +9,6 @@ class Entity(pg.sprite.Sprite):
         self.sprite_groups = sprite_groups
         self.is_attacking = False
         self.invincible = False
-        self.alive = True
         self.speed = 3
         self.health = 5
         self.state = (ActionEnum.IDLE, 'down') #(action, orientation)
