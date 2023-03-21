@@ -1,7 +1,8 @@
 import pygame as pg
 import numpy as np
 from pygame.locals import *
-from items.player_items import Heart
+from items.player_items import Heart, Portal
+from level.utils import discretize, get_free_tile
 from scene import SceneInterface
 from entities.player import Player
 from level.camera import CameraSpriteGroup
@@ -16,39 +17,43 @@ class Level(SceneInterface):
     def _generate(self, levelGenerator):
         raise NotImplementedError
 
-    def __init__(self, controller, screen_res, scale_level=1, level_size=(6, 6), *args, **kwargs):
+    def __init__(self, controller, screen_res, scale=1, level_size=(6, 6), *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.controller = controller
         self.screen_res = screen_res
-        self.scale_level = scale_level
+        self.scale = scale
         self.level_size = level_size
         self.enemy_pool = None
         self.player = None
+        self.completed = False
+        self.sprite_size = (16, 16)
+        self.chunk_size = 4
+        self.scaling_factors = (self.sprite_size[0] * self.scale * self.chunk_size, self.sprite_size[1] * self.scale * self.chunk_size)
 
     def load_scene(self):
         self.clock = Clock(3)
         
         #create the level surface
-        levelGenerator = LevelGenerator(self.level_size, 4, scale=self.scale_level)
+        levelGenerator = LevelGenerator(self.level_size, self.sprite_size, self.chunk_size, scale=self.scale)
 
         self.back_sprite = pg.sprite.Sprite()
-        spawn, self.back_sprite.image, borders_group, enemies, objective_items, optional_items = self._generate(levelGenerator)
+        self.map_grid, spawn, self.back_sprite.image, borders_group, enemies, objective_items, optional_items = self._generate(levelGenerator)
 
         self.back_sprite.rect = self.back_sprite.image.get_rect(topleft=(0,0))
         CameraSpriteGroup.set_map_limit(self.back_sprite.rect.size)
         self.visible_sprites = CameraSpriteGroup(self.screen_res)
         self.visible_sprites.add(self.back_sprite)
 
-        self.player_sprite_group = pg.sprite.Group()
+        self.player_sprite_group = CameraSpriteGroup(self.screen_res)
         self.enemy_sprite_group = CameraSpriteGroup(self.screen_res)
-
         self.collision_sprites = pg.sprite.Group()
+
         self.collision_sprites.add(borders_group)
 
         # items sprite groups
         self.optional_items = pg.sprite.Group()
         self.optional_items.add(optional_items)
-        self.objective_items = pg.sprite.Group()
+        self.objective_items = CameraSpriteGroup(self.screen_res)
         self.objective_items.add(objective_items)
 
         # Enemies need to be instantiated before the player
@@ -100,7 +105,26 @@ class Level(SceneInterface):
         self.player.update()
         self.optional_items.update()
         self.objective_items.update()
-        # Completion logic and level ending
+
+        self.check_pass_condition()
+
+    # Rewrite this as needed for each level
+    def check_pass_condition(self):
+        if len(self.objective_items) == 0:
+
+            if self.completed:
+                self.close_scene()
+                return True
+
+            self.completed = True
+            portal = Portal(
+                    get_free_tile(self.map_grid, self.player.get_pos(), 1, self.scaling_factors), 
+                    self.objective_items, 
+                    self.player_sprite_group, 
+                    scale=self.scale
+                    )
+            self.objective_items.add(portal)
+        return False
 
     def handle_events(self, event_list):
         #here we could alter between player_control and scene animations
@@ -109,14 +133,18 @@ class Level(SceneInterface):
 
     def draw(self, screen):
         screen.fill('white') #to refresh the whole screen
-        
         self.visible_sprites.draw_offsetted(self.player, screen)
-        # self.enemy_sprite_group.draw_offsetted(self.player, screen)
+        self.objective_items.draw_offsetted(self.player, screen)
+        self.player_sprite_group.draw_offsetted(self.player, screen)
+        self.enemy_sprite_group.draw_offsetted(self.player, screen)
         self.thrown_sprites.draw_offsetted_throwables(self.player, screen)
 
-        # self.visible_sprites.debug_draw(self.player, screen, self.item.rect)
-        # self.visible_sprites.debug_draw(self.player, screen, self.enemy.weapon.rect)
-        # self.visible_sprites.debug_draw(self.player, screen, self.player.rect, color='green')
+        # Enemy hitboxes
+        for enemy in self.enemy_sprite_group:
+            self.visible_sprites.debug_draw(self.player, screen, enemy.weapon.rect)
+            self.visible_sprites.debug_draw(self.player, screen, enemy.rect, color='green')
+        for item in self.objective_items:
+            self.visible_sprites.debug_draw(self.player, screen, item.rect, color='green')
         
         self.user_interface_group.draw(screen)
     
@@ -146,6 +174,6 @@ class Level_2(Level):
 
 class Level_3(Level):
     def _generate(self, levelGenerator):
-        self.enemy_pool = []
+        self.enemy_pool = [Wasp, Minotaur]
         surface = Level_3_surface
         return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=surface, enemy_pool=self.enemy_pool)

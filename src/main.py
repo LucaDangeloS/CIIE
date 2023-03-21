@@ -20,9 +20,9 @@ controller = KeyboardController()
 #Buttons for settings menu:
 menuSettings = Settings(controller, pg.image.load('../sprites/menu/background.png'), director.screen)
 
-level = Level_1(controller, director.screen.get_size(), scale_level=3)
-level_2 = Level_2(controller, director.screen.get_size(), scale_level=3)
-level_3 = Level_3(controller, director.screen.get_size(), scale_level=3)
+level = Level_1(controller, director.screen.get_size(), scale=3)
+level_2 = Level_2(controller, director.screen.get_size(), scale=3)
+level_3 = Level_3(controller, director.screen.get_size(), scale=3)
 
 screen_res = director.screen.get_size()
 
