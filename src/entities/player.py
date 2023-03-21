@@ -19,13 +19,14 @@ class Player(Entity):
     walking_speed = 3
     running_speed = 6
     director = Director()
-
+    is_rewinding = False
 
     def __init__(self, collision_sprites, damageable_sprites, thrown_sprite_group, clock, scale=2, **kwargs):
         super().__init__(damageable_sprites=damageable_sprites, disable_flipping=True, **kwargs)
         self.health = 5
         self.health_ui = PlayerHealthUI(self.health, scale=4)
         self.clock = clock
+        # self.invincible = True
 
         self.sprite.load_regular_sprites('../sprites/players/grandmother/all_sprites', scale)
         # self.blood_animation = self.sprite.load_regular_sprites('sprites/hits/blood-sheet.png', sprite_scale)
@@ -33,7 +34,6 @@ class Player(Entity):
         self.walk_sound = self.director.audio.loadSound('../media/steps.ogg')
         self.shoe_sound = self.director.audio.loadSound('../media/zapatillazo.ogg')
 
-        #should we harcode the rect?
         self.rect = pg.Rect(380, 50, 16.6666*scale, 26.666666*scale)
         self.collision_sprites = collision_sprites
 
@@ -61,6 +61,8 @@ class Player(Entity):
         #faster than using ifs (probably)
         self.direction.y = self.dir_dict[ (self.action_state['up'], self.action_state['down']) ]
         self.direction.x = self.dir_dict[ (self.action_state['left'], self.action_state['right']) ]
+
+        self.clock.set_rewinding(self.action_state['rewind'])
 
         if self.state[0] is not ActionEnum.WALK:
             self.director.audio.stopSound(self.walk_sound)
@@ -128,6 +130,7 @@ class Player(Entity):
 
     def heal(self, amount):
         super().heal(amount)
+        print(self.health)
         self.health_ui.update(self.health)
 
     def receive_damage(self, damage_amount):

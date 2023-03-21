@@ -30,6 +30,8 @@ class Enemy(Entity):
         self.weapon.attack(self.rect, self.state[1], self.damageable_sprite_group)
 
     def update(self, player_pos, clock):
+        if clock.get_rewinding():
+            return
         if pg.time.get_ticks() - self.last_tick > self.goal_tick_rate:
             self.last_tick = pg.time.get_ticks()
             self.behavior.get_goal(player_pos)

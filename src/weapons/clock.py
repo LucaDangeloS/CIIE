@@ -9,6 +9,7 @@ class Clock(pg.sprite.Sprite):
     last_rewind = pg.time.get_ticks()
     cooldown = 300
     director = Director()
+    rewinding = False
 
     def __init__(self, scale=1):
         self.screen = self.director.screen
@@ -24,6 +25,12 @@ class Clock(pg.sprite.Sprite):
         if pg.time.get_ticks() - self.last_rewind > self.cooldown:
             self.director.audio.end_rewinded()
             self.time_manager.take_snapshot(entity, pos)
+
+    def set_rewinding(self, value):
+        self.rewinding = value
+
+    def get_rewinding(self):
+        return self.rewinding
 
     def go_back_in_time(self):
         self.director.audio.start_rewinded()
