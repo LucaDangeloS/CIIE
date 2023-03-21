@@ -25,7 +25,7 @@ class WeaponPool:
             self.weapon_pool.append(Slipper(sprite_scale))
             self.weapon_pool[i].thrown_group = self.thrown_sprite_group
 
-    def increase_weapon(self, amount):
+    def increase_pool(self, amount):
         self.ammo += amount
 
     def get_ammo(self):
