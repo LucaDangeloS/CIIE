@@ -16,12 +16,13 @@ class Wasp(Enemy):
         sprite_path = '../sprites/enemies/wasp'
         super().__init__(collision_sprites, damageable_sprites, sprite_path, entity_rect, scale, facing_sprites='left')
         self.health = 2
-        self.behavior = ChaseBehavior(self, 450, 60)
+        self.behavior = ChaseBehavior(self, 60, 450)
         self.speed = 4
 
         # Wasp specific "weapon"
-        half_size = (self.rect.size[0] * 0.9, self.rect.size[1] * 0.6)
-        self.weapon = MonsterWeapon(self.rect.center, half_size, 7 * 120, 1)
+        weapon_hitbox = (self.rect.size[0] * 0.9, self.rect.size[1] * 0.6)
+        weapon_damage = 1
+        self.weapon = MonsterWeapon(self.rect.center, weapon_hitbox, 7 * 120, weapon_damage)
         self.sprite.set_attack_effective_idx(3)
 
     def attack(self):
@@ -39,11 +40,13 @@ class Minotaur(Enemy):
         sprite_path = '../sprites/enemies/minotaur'
         super().__init__(collision_sprites, damageable_sprites, sprite_path, entity_rect, scale, facing_sprites='right')
         self.health = 5
-        self.behavior = ChaseBehavior(self, 300, 120)
+        self.speed = 2
+        self.behavior = ChaseBehavior(self, 120, 300)
 
         # Minotaur specific weapon
         weapon_hitbox = (self.rect.size[0] * 1.6, self.rect.size[1] * 1.2)
-        self.weapon = MonsterWeapon(self.rect.center, weapon_hitbox, 16 * 50, 1)
+        weapon_damage = 3
+        self.weapon = MonsterWeapon(self.rect.center, weapon_hitbox, 16 * 50, weapon_damage)
         self.sprite.set_attack_effective_idx(9)
 
     def update(self, player_pos, clock):
