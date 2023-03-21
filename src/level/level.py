@@ -140,11 +140,11 @@ class Level(SceneInterface):
         self.thrown_sprites.draw_offsetted_throwables(self.player, screen)
 
         # Enemy hitboxes
-        for enemy in self.enemy_sprite_group:
-            self.visible_sprites.debug_draw(self.player, screen, enemy.weapon.rect)
-            self.visible_sprites.debug_draw(self.player, screen, enemy.rect, color='green')
-        for item in self.objective_items:
-            self.visible_sprites.debug_draw(self.player, screen, item.rect, color='green')
+        # for enemy in self.enemy_sprite_group:
+        #     self.visible_sprites.debug_draw(self.player, screen, enemy.weapon.rect)
+        #     self.visible_sprites.debug_draw(self.player, screen, enemy.rect, color='green')
+        # for item in self.objective_items:
+        #     self.visible_sprites.debug_draw(self.player, screen, item.rect, color='green')
         
         self.user_interface_group.draw(screen)
     
