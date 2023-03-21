@@ -1,6 +1,7 @@
+import random
 from typing import List
 from entities.enemy import Enemy
-from entities.enemies.behaviour import ChaseBehavior
+from entities.enemies.behaviour import ChaseBehavior, PatrolBehavior
 from weapons.monster import MonsterWeapon
 from pygame import Rect, math
 
@@ -41,7 +42,11 @@ class Minotaur(Enemy):
         super().__init__(collision_sprites, damageable_sprites, sprite_path, entity_rect, map, scale, facing_sprites='right')
         self.health = 5
         self.speed = 2
-        self.behavior = ChaseBehavior(self, 120, 300)
+        # Random vectors
+        patrol_points = [math.Vector2(pos[0] + random.randint(-600, 600), pos[1] + random.randint(-600, 600)) for _ in range(random.randint(3, 8))]
+        attack_range = 120
+        follow_range = 300
+        self.behavior = PatrolBehavior(self, patrol_points, attack_range, follow_range, patrol_time=1600)
 
         # Minotaur specific weapon
         weapon_hitbox = (self.rect.size[0] * 1.6, self.rect.size[1] * 1.2)

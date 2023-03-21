@@ -61,4 +61,3 @@ class Portal(Item):
 
     def update_targets(self, target):
         self.kill()
-        pass

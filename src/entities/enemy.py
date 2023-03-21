@@ -32,14 +32,12 @@ class Enemy(Entity):
         self.weapon.attack(self.rect, self.state[1], self.damageable_sprite_group)
 
     def update(self, player_pos, clock):
-        if clock.get_rewinding():
-            return
         if pg.time.get_ticks() - self.last_tick > self.goal_tick_rate:
             self.last_tick = pg.time.get_ticks()
             self.behavior.get_goal(player_pos)
         self.weapon.update(self.rect.center)
         super().update()
-        if self.weapon and self.is_attacking and self.can_cause_damage:
+        if self.weapon and self.is_attacking and self.can_cause_damage and not clock.get_rewinding():
             self.attack()
         clock.take_snapshot(self, self.rect.center)
 
