@@ -26,8 +26,7 @@ class CameraSpriteGroup(pg.sprite.Group):
         self.screen_rect = Rect(0,0,self.screen_res[0], self.screen_res[1])
         
     def debug_draw(self, player, screen, rect, color='red'):
-        self.offset.x = player.rect.centerx - self.half_width
-        self.offset.y = player.rect.centery - self.half_height
+        self.get_camera_offset(player)
         offset_pos = rect.topleft - self.offset
         tmp_rect = rect.copy()
         tmp_rect[0] = offset_pos[0]
