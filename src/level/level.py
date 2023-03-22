@@ -133,8 +133,9 @@ class Level(SceneInterface):
     # Rewrite this as needed for each level
     def check_pass_condition(self):
         # Enemies remaining text
-        if self.enemies_amount < self.enemies_goal:
-            self.enemies_goal_text = self.font.render(f"{self.enemies_goal - self.enemies_amount} enemies remaining", True, (255, 255, 255))
+        enemies = self.enemies_goal - self.enemies_amount
+        if enemies > 0:
+            self.enemies_goal_text = self.font.render(f"{self.enemies_goal - self.enemies_amount} enem{'ies' if enemies>1 else 'y'} remaining", True, (255, 255, 255))
 
         # Watch pieces remaining text
         if pieces := len(self.objective_items):
