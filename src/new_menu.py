@@ -67,7 +67,6 @@ class SettingsButton(Button):
                     self.audio.turnDownVolume(self.button_type)
                     self.sprite_idx -=1
         else:
-            print('screen_size')
             for action in actions:
                 if action == "right" and self.sprite_idx < self.numSprites-1: #we need to change the value of image
                     self.sprite_idx += 1

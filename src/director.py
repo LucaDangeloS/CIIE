@@ -52,7 +52,6 @@ class Director(object):
         pg.quit()
 
     def push_scene(self, stack_element):
-        print(self.director_stack)
         self.audio.stopMusic()
         self.audio.change_track(stack_element[1])
         self.audio.startMusic()
