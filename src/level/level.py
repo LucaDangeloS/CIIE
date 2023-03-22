@@ -1,3 +1,4 @@
+import random
 import pygame as pg
 import numpy as np
 from pygame.locals import *
@@ -13,12 +14,15 @@ from director import Director
 
 class Level(SceneInterface):
     rewind = False
+    font = None
 
     def _generate(self, levelGenerator):
         raise NotImplementedError
 
     def __init__(self, controller, screen_res, scale=1, level_size=(6, 6), *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if not self.font:
+            self.font = pg.font.SysFont(None, 48)
         self.controller = controller
         self.screen_res = screen_res
         self.scale = scale
@@ -41,7 +45,7 @@ class Level(SceneInterface):
 
     def load_scene(self):
         self.clock = Clock(3)
-        
+
         #create the level surface
         levelGenerator = LevelGenerator(self.level_size, self.sprite_size, self.chunk_size, scale=self.scale)
 
@@ -64,6 +68,13 @@ class Level(SceneInterface):
         self.optional_items.add(optional_items)
         self.objective_items = CameraSpriteGroup(self.screen_res)
         self.objective_items.add(objective_items)
+
+        # self.enemies_goal = random.randint(1, min(len(enemies), 10))
+        # self.enemies_amount = 0
+        # self.original_enemies_amount = len(enemies)
+        # # text
+        # self.objective_text = self.font.render(f"{len(self.objective_items)} watch pieces remaining", True, (255, 255, 255))
+        # self.enemies_goal_text = self.font.render(f"{self.enemies_goal - self.enemies_amount} enemies remaining", True, (255, 255, 255))
 
         # Enemies need to be instantiated before the player
         for enemy in enemies:
@@ -96,14 +107,15 @@ class Level(SceneInterface):
 
         #here we need to also add the clock ui
         self.user_interface_group = pg.sprite.Group()
-        
+
         self.user_interface_group.add(self.clock.clock_ui)
-        
+
         self.player.add_drawing_sprite_group(self.visible_sprites, self.user_interface_group)
 
 
     def update_screen_res(self, screen:pg.Surface):
         self.screen_res = screen.get_size()
+        CameraSpriteGroup.update_screen_resolution(self.screen_res)
 
     #if the controller changes, the director will go through every scene updating the controller.
     def update_controller(self, controller):
@@ -114,25 +126,38 @@ class Level(SceneInterface):
         self.player.update()
         self.optional_items.update()
         self.objective_items.update()
-
+        self.enemies_amount = self.original_enemies_amount - len(self.enemy_sprite_group)
+        
         self.check_pass_condition()
 
     # Rewrite this as needed for each level
     def check_pass_condition(self):
+        # Enemies remaining text
+        if self.enemies_amount < self.enemies_goal:
+            self.enemies_goal_text = self.font.render(f"{self.enemies_goal - self.enemies_amount} enemies remaining", True, (255, 255, 255))
+
+        # Watch pieces remaining text
+        if pieces := len(self.objective_items):
+            self.objective_text = self.font.render(f"{pieces} watch piece{'s' if pieces>1 else ''} remaining", True, (255, 255, 255))
+        else:
+            self.objective_text = self.font.render(" ", True, (255, 255, 255))
+
         if len(self.objective_items) == 0:
 
             if self.completed:
                 self.close_scene()
                 return True
-
-            self.completed = True
-            portal = Portal(
-                    get_free_tile(self.map_grid, self.player.get_pos(), 1, self.scaling_factors), 
-                    self.objective_items, 
-                    self.player_sprite_group, 
-                    scale=self.scale
-                    )
-            self.objective_items.add(portal)
+    
+            if self.enemies_amount >= self.enemies_goal:
+                self.completed = True
+                portal = Portal(
+                        get_free_tile(self.map_grid, self.player.get_pos(), 1, self.scaling_factors), 
+                        self.objective_items, 
+                        self.player_sprite_group, 
+                        scale=self.scale
+                        )
+                self.objective_text = self.font.render("Portal open!", True, (255, 255, 255))
+                self.objective_items.add(portal)
         return False
 
     def handle_events(self, event_list):
@@ -147,13 +172,17 @@ class Level(SceneInterface):
         self.player_sprite_group.draw_offsetted(self.player, screen)
         self.enemy_sprite_group.draw_offsetted(self.player, screen)
         self.thrown_sprites.draw_offsetted_throwables(self.player, screen)
+        screen.blit(self.objective_text, (self.screen_res[0] - 450, self.screen_res[1] - 80))
+        if self.enemies_amount < self.enemies_goal:
+            screen.blit(self.enemies_goal_text, (self.screen_res[0] - 450, self.screen_res[1] - 140))
+
 
         # Enemy hitboxes
-        # for enemy in self.enemy_sprite_group:
-        #     self.visible_sprites.debug_draw(self.player, screen, enemy.weapon.rect)
-        #     self.visible_sprites.debug_draw(self.player, screen, enemy.rect, color='green')
-        # for item in self.objective_items:
-        #     self.visible_sprites.debug_draw(self.player, screen, item.rect, color='green')
+        for enemy in self.enemy_sprite_group:
+            self.visible_sprites.debug_draw(self.player, screen, enemy.weapon.rect)
+            self.visible_sprites.debug_draw(self.player, screen, enemy.rect, color='green')
+        for item in self.objective_items:
+            self.visible_sprites.debug_draw(self.player, screen, item.rect, color='green')
         
         self.user_interface_group.draw(screen)
     
