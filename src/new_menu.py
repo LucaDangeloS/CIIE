@@ -29,7 +29,7 @@ class Button():
     def draw_selected(self, screen):
         screen.blit(self.images[1], self.rect) 
 
-    def handle_actions(self):
+    def handle_actions(self, actions):
         pass
 
 class SettingsButton(Button):

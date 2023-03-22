@@ -103,7 +103,7 @@ class Level(SceneInterface):
 
 
     def update_screen_res(self, screen:pg.Surface):
-        pass
+        self.screen_res = screen.get_size()
 
     #if the controller changes, the director will go through every scene updating the controller.
     def update_controller(self, controller):
