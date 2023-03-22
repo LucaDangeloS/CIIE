@@ -34,7 +34,7 @@ class Level(SceneInterface):
         self.chunk_size = 4
         self.scaling_factors = (self.sprite_size[0] * self.scale * self.chunk_size, self.sprite_size[1] * self.scale * self.chunk_size)
 
-        ''''
+        '''
         self.visible_sprites =  CameraSpriteGroup(self.screen_res)
         self.objective_items = CameraSpriteGroup(self.screen_res)
         self.player_sprite_group = CameraSpriteGroup(self.screen_res)
@@ -179,11 +179,11 @@ class Level(SceneInterface):
 
 
         # Enemy hitboxes
-        for enemy in self.enemy_sprite_group:
-            self.visible_sprites.debug_draw(self.player, screen, enemy.weapon.rect)
-            self.visible_sprites.debug_draw(self.player, screen, enemy.rect, color='green')
-        for item in self.objective_items:
-            self.visible_sprites.debug_draw(self.player, screen, item.rect, color='green')
+        # for enemy in self.enemy_sprite_group:
+        #     self.visible_sprites.debug_draw(self.player, screen, enemy.weapon.rect)
+        #     self.visible_sprites.debug_draw(self.player, screen, enemy.rect, color='green')
+        # for item in self.objective_items:
+        #     self.visible_sprites.debug_draw(self.player, screen, item.rect, color='green')
         
         self.user_interface_group.draw(screen)
     
