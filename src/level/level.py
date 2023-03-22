@@ -6,7 +6,7 @@ from level.utils import discretize, get_free_tile
 from scene import SceneInterface
 from entities.player import Player
 from level.camera import CameraSpriteGroup
-from entities.enemies.enemies import Minotaur, Wasp
+from entities.enemies.enemies import Ghost, Minotaur, Wasp
 from level.level_generator import LevelGenerator, Level_1_surface, Level_2_surface, Level_3_surface
 from weapons.clock import Clock
 from director import Director
@@ -183,6 +183,6 @@ class Level_2(Level):
 
 class Level_3(Level):
     def _generate(self, levelGenerator):
-        self.enemy_pool = [Wasp, Minotaur]
+        self.enemy_pool = [Ghost]
         surface = Level_3_surface
         return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=surface, enemy_pool=self.enemy_pool)
