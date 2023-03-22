@@ -20,10 +20,10 @@ class MonsterWeapon(Weapon):
     def attack(self, monster_rect: pg.Rect, orientation: str, damagable_group: pg.sprite.Group, width_displ=None, height_displ=None):
         if self.attack_ready:
             # 3/4 of the monster rect by default
-            if not width_displ:
+            if width_displ is None:
                 width_quarter = (self.rect.center[0] - self.rect.midleft[0])/2
                 width_displ = (self.rect.midright[0] - self.rect.midleft[0]) - width_quarter
-            if not height_displ:
+            if height_displ is None:
                 height_quarter = (self.rect.center[1] - self.rect.midtop[1])/2
                 height_displ = (self.rect.midbottom[1] - self.rect.midtop[1]) - height_quarter
 

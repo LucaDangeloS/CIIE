@@ -101,6 +101,9 @@ class Sprite_handler():
     def set_attack_effective_idx(self, idx):
         self.attack_effective_idx = idx
 
+    def get_animation_index(self):
+        return self.animation_idx
+
     def load_regular_sprites(self, spritesheet_path, scale=1):
         spritesheet = SpriteSheet(pg.image.load(spritesheet_path + '.png'))
         csv_file = open(spritesheet_path + '.csv')
