@@ -72,22 +72,22 @@ class Minotaur(Enemy):
 
 class Ghost(Enemy):
     def __init__(self, collision_sprites, damageable_sprites: List, pos, map=None, scale=1):
-        entity_rect = Rect(pos[0], pos[1], 32, 32)
+        entity_rect = Rect(pos[0], pos[1], 46, 46)
         sprite_path = '../sprites/enemies/ghost'
         super().__init__(collision_sprites, damageable_sprites, sprite_path, entity_rect, map, scale, facing_sprites='right')
         self.health = 1
-        self.attack_range = 180
-        self.behavior = ChaseBehavior(self, self.attack_range, 400)
-        self.speed = 3
+        self.attack_range = 120
+        self.behavior = ChaseBehavior(self, self.attack_range, 600)
+        self.speed = 3.4
         self.teleported = False
         self.teleport_index = 7
 
         # Wasp specific "weapon"
         weapon_hitbox = (self.rect.size[0] * 1.3, self.rect.size[1] * 1.3)
         weapon_damage = 1
-        weapon_cooldown = 10 * 50
+        weapon_cooldown = 10 * 40
         self.weapon = MonsterWeapon(self.rect.center, weapon_hitbox, weapon_cooldown, weapon_damage)
-        self.sprite.set_attack_effective_idx(11)
+        self.sprite.set_attack_effective_idx(10)
     
     # Ghosts attack by teleporting to the target
     def attack(self):
@@ -98,9 +98,9 @@ class Ghost(Enemy):
 
     def update(self, player_pos, clock):
         if self.direction and not self.teleported and self.sprite.get_animation_index() == self.teleport_index:
-            tmp_division = 4
-            new_pos = (player_pos[0] + random.randint(-self.attack_range / tmp_division, self.attack_range / tmp_division), 
-                        player_pos[1] + random.randint(-self.attack_range / tmp_division, self.attack_range / tmp_division))
+            tp_offset = 25
+            new_pos = (player_pos[0] + random.randint(-tp_offset, tp_offset), 
+                        player_pos[1] + random.randint(-tp_offset, tp_offset))
             self.rect.center = new_pos
             self.teleported = True
         elif self.sprite.get_animation_index() != self.teleport_index:
