@@ -1,7 +1,7 @@
 import pygame as pg
 from pygame.locals import *
-from settings import *
 from controller import KeyboardController
+#from level.level import Level
 from audio import Audio
 
 #Implemented as a Singlenton object -> it cannot be instantiated more than once (disregarding asynchronous methods)
@@ -43,7 +43,7 @@ class Director(object):
                     return
                 #if event.key == pg.K_ESCAPE:
 
-            scene, track_path = self.current_scene_stack_item
+            scene, track_path = self.director_stack[-1]
             scene.draw(self.screen)
             scene.handle_events(event_list)
             scene.update()
@@ -52,11 +52,13 @@ class Director(object):
         pg.quit()
 
     def push_scene(self, stack_element):
+        print(self.director_stack)
         self.audio.stopMusic()
         self.audio.change_track(stack_element[1])
         self.audio.startMusic()
 
         self.director_stack.append(stack_element)
+        #self.current_scene_stack_item = stack_element
 
     def pop_scene(self):
         #close the current execution
@@ -65,8 +67,11 @@ class Director(object):
             return
 
         player_data = self.current_scene_stack_item[0].get_player_data() if self.current_scene_stack_item else None
-        self.current_scene_stack_item = self.director_stack.pop()
-        scene, scene_track = self.current_scene_stack_item
+        
+        
+        #self.current_scene_stack_item = self.director_stack.pop()
+        self.director_stack.pop()
+        scene, scene_track = self.director_stack[-1]
 
         self.audio.stopMusic()
         self.audio.change_track(scene_track)

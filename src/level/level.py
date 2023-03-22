@@ -30,6 +30,15 @@ class Level(SceneInterface):
         self.chunk_size = 4
         self.scaling_factors = (self.sprite_size[0] * self.scale * self.chunk_size, self.sprite_size[1] * self.scale * self.chunk_size)
 
+        ''''
+        self.visible_sprites =  CameraSpriteGroup(self.screen_res)
+        self.objective_items = CameraSpriteGroup(self.screen_res)
+        self.player_sprite_group = CameraSpriteGroup(self.screen_res)
+        self.enemy_sprite_group = CameraSpriteGroup(self.screen_res)
+        self.thrown_sprites = CameraSpriteGroup(self.screen_res)
+        '''
+
+
     def load_scene(self):
         self.clock = Clock(3)
         
