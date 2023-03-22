@@ -69,12 +69,12 @@ class Level(SceneInterface):
         self.objective_items = CameraSpriteGroup(self.screen_res)
         self.objective_items.add(objective_items)
 
-        # self.enemies_goal = random.randint(1, min(len(enemies), 10))
-        # self.enemies_amount = 0
-        # self.original_enemies_amount = len(enemies)
-        # # text
-        # self.objective_text = self.font.render(f"{len(self.objective_items)} watch pieces remaining", True, (255, 255, 255))
-        # self.enemies_goal_text = self.font.render(f"{self.enemies_goal - self.enemies_amount} enemies remaining", True, (255, 255, 255))
+        self.enemies_goal = random.randint(1, min(len(enemies), 10))
+        self.enemies_amount = 0
+        self.original_enemies_amount = len(enemies)
+        # text
+        self.objective_text = self.font.render(f"{len(self.objective_items)} watch pieces remaining", True, (255, 255, 255))
+        self.enemies_goal_text = self.font.render(f"{self.enemies_goal - self.enemies_amount} enemies remaining", True, (255, 255, 255))
 
         # Enemies need to be instantiated before the player
         for enemy in enemies:
