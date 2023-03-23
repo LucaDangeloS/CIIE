@@ -1,6 +1,6 @@
 import pygame as pg
 from entities.entity import Entity
-from entities.enemies.behaviour import IdleBehavior
+from entities.enemies.behavior import IdleBehavior
 from entities.sprites import ActionEnum
 from director import Director
 from weapons.monster import MonsterWeapon

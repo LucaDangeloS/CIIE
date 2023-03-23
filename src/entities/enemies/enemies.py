@@ -1,7 +1,7 @@
 import random
 from typing import List
 from entities.enemy import Enemy
-from entities.enemies.behaviour import ChaseBehavior, PatrolBehavior
+from entities.enemies.behavior import ChaseBehavior, PatrolBehavior
 from weapons.monster import MonsterWeapon
 from pygame import Rect, math, time
 
