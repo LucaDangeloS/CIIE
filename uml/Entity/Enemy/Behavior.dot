@@ -9,15 +9,10 @@ charset="utf-8"
 "behavior.IdleBehavior" -> "behavior.Behavior" [arrowhead="empty", arrowtail="none"];
 "behavior.PatrolBehavior" -> "behavior.Behavior" [arrowhead="empty", arrowtail="none"];
 
-"enemy.Enemy" [color="black", fontcolor="black", label=<{enemy.Enemy|behavior<br ALIGN="LEFT"/>collision_sprites<br ALIGN="LEFT"/>direction<br ALIGN="LEFT"/>goal : NoneType<br ALIGN="LEFT"/>goal_tick_rate : int<br ALIGN="LEFT"/>health : int<br ALIGN="LEFT"/>image<br ALIGN="LEFT"/>last_tick : int<br ALIGN="LEFT"/>map<br ALIGN="LEFT"/>rect<br ALIGN="LEFT"/>spawn_pos<br ALIGN="LEFT"/>walking_speed : int<br ALIGN="LEFT"/>weapon : NoneType<br ALIGN="LEFT"/>|__init__(collision_sprites, damageable_sprites, sprite_path, entity_rect, map, scale)<br ALIGN="LEFT"/>attack()<br ALIGN="LEFT"/>move()<br ALIGN="LEFT"/>set_goal(goal)<br ALIGN="LEFT"/>update(player_pos, clock)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
-
 "enemies.Ghost" [color="black", fontcolor="black", label=<{Ghost|attack_range : int<br ALIGN="LEFT"/>behavior<br ALIGN="LEFT"/>health : int<br ALIGN="LEFT"/>speed : float<br ALIGN="LEFT"/>teleport_index : int<br ALIGN="LEFT"/>teleported : bool<br ALIGN="LEFT"/>weapon<br ALIGN="LEFT"/>|__init__(collision_sprites, damageable_sprites: List, pos, map, scale)<br ALIGN="LEFT"/>attack()<br ALIGN="LEFT"/>update(player_pos, clock)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
 "enemies.Minotaur" [color="black", fontcolor="black", label=<{Minotaur|attack_range : int<br ALIGN="LEFT"/>behavior<br ALIGN="LEFT"/>health : int<br ALIGN="LEFT"/>image_offset<br ALIGN="LEFT"/>speed : int<br ALIGN="LEFT"/>weapon<br ALIGN="LEFT"/>|__init__(collision_sprites, damageable_sprites: List, pos, map, scale)<br ALIGN="LEFT"/>attack()<br ALIGN="LEFT"/>update(player_pos, clock)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
 "enemies.Wasp" [color="black", fontcolor="black", label=<{Wasp|attack_range : int<br ALIGN="LEFT"/>behavior<br ALIGN="LEFT"/>health : int<br ALIGN="LEFT"/>speed : int<br ALIGN="LEFT"/>weapon<br ALIGN="LEFT"/>|__init__(collision_sprites, damageable_sprites: List, pos, map, scale)<br ALIGN="LEFT"/>attack()<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
-"enemies.Wasp" -> "enemy.Enemy" [arrowhead="empty"]
-"enemies.Minotaur" -> "enemy.Enemy" [arrowhead="empty"]
-"enemies.Ghost" -> "enemy.Enemy" [arrowhead="empty"]
-"behavior.Behavior" -> "enemy.Enemy" [arrowhead="diamond"]
+
 "behavior.ChaseBehavior" -> "enemies.Wasp" [arrowhead="open"]
 "behavior.ChaseBehavior" -> "enemies.Ghost" [arrowhead="open"]
 "behavior.PatrolBehavior" -> "enemies.Minotaur" [arrowhead="open"]
