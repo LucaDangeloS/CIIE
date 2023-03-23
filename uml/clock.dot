@@ -1,0 +1,5 @@
+digraph "classes" {
+rankdir=BT
+charset="utf-8"
+"clock.Clock" [color="black", fontcolor="black", label=<{Clock|clock_ui<br ALIGN="LEFT"/>cooldown : int<br ALIGN="LEFT"/>director<br ALIGN="LEFT"/>last_rewind<br ALIGN="LEFT"/>last_rewind<br ALIGN="LEFT"/>rewinding<br ALIGN="LEFT"/>rewinding : bool<br ALIGN="LEFT"/>screen<br ALIGN="LEFT"/>time_manager<br ALIGN="LEFT"/>|__init__(scale)<br ALIGN="LEFT"/>draw_blur(screen)<br ALIGN="LEFT"/>get_rewinding()<br ALIGN="LEFT"/>go_back_in_time()<br ALIGN="LEFT"/>set_rewinding(value)<br ALIGN="LEFT"/>take_snapshot(entity, pos)<br ALIGN="LEFT"/>update_screen_res(screen_res: tuple[int, int])<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+}
