@@ -50,7 +50,7 @@ class Player(Entity):
         self.weapons[1].increase_pool(amount)
 
     def kill(self):
-        self.health_ui.update(self.health)
+        self.health_ui.update(0)
         super().kill()
         # push end game screen scene
         Director().dead_scene()

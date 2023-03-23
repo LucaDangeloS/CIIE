@@ -97,11 +97,11 @@ pauseMenu = PauseMenu(director, [(intermediate_back, (screen_res[0]//2, screen_r
 Level.pauseMenu = pauseMenu
 
 
-btt_rewind =  Button(lambda: None, pg.image.load('../sprites/menu/buttons.png'), Rect(screen_res[0]//2 - 97,screen_res[1]//2 - 82,280,150), 2, (0, 0,97,41))
+btt_rewind =  Button(lambda: None, pg.image.load('../sprites/menu/rewind.png'), Rect(screen_res[0]//2 - 125,screen_res[1]//2 - 110,280,150), 3, (0, 0,97,41))
 
-btt_program_exit = Button(director.close, pg.image.load('../sprites/menu/buttons.png'),  Rect(screen_res[0]//2 - 97,screen_res[1]//2,280,150), 2, (0, 83, 97, 41))
+btt_program_exit = Button(director.close, pg.image.load('../sprites/menu/buttons.png'),  Rect(screen_res[0]//2 - 125,screen_res[1]//2 + 20,280,150), 3, (0, 83, 97, 41))
 
-deadScene = GeneralMenu([(intermediate_back, (screen_res[0]*3//4, screen_res[1]*3//4), (screen_res[0]//4 - screen_res[0]//8,screen_res[1]//4 - screen_res[1]//8))], [btt_rewind, btt_program_exit], director.screen, controller)
+deadScene = GeneralMenu([(intermediate_back, (screen_res[0]*3//4, screen_res[1]*3//4), (screen_res[0]//4 - 150,screen_res[1]//4 - 100))], [btt_rewind, btt_program_exit], director.screen, controller)
 
 Level.deadScene = deadScene
 

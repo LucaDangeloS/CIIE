@@ -91,7 +91,7 @@ class Director(object):
     def dead_scene(self):
         scene, scene_track = self.director_stack[-1]
 
-        self.push_scene((scene.deadScene, "level1Music.mp3"))
+        self.push_scene((scene.deadScene, "gameOver.mp3"))
 
     def close(self):
         self.run = False

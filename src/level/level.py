@@ -114,6 +114,7 @@ class Level(SceneInterface):
         CameraSpriteGroup.update_screen_resolution(CameraSpriteGroup, self.screen_res)
 
         self.pauseMenu.update_screen_res(screen)
+        self.deadScene.update_screen_res(screen)
 
     #if the controller changes, the director will go through every scene updating the controller.
     def update_controller(self, controller):
@@ -210,3 +211,10 @@ class Level_3(Level):
         self.enemy_pool = [Ghost]
         self.surface: SurfaceMapper = Level_3_surface
         return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=self.surface, enemy_pool=self.enemy_pool)
+
+
+    def close_scene(self):
+        super().close_scene
+        self.director.push_scene((self.deadScene, "gameOver.mp3"))
+
+
