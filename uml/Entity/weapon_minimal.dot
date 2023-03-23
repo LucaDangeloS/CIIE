@@ -1,0 +1,3 @@
+digraph "Weapon" {
+"weapons.Weapon" [color="black", fontcolor="black", label=<{Weapon|attack_ready : bool<br ALIGN="LEFT"/>cooldown : NoneType<br ALIGN="LEFT"/>|__subclasshook__(subclass)<br ALIGN="LEFT"/><I>attack</I>(orientation: tuple[int, int], damagable_group: pg.sprite.Group)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+}
