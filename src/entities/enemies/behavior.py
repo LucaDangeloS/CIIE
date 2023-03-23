@@ -66,7 +66,7 @@ class ChaseBehavior(Behavior):
     def chase(self, player_pos, orientation):
         self.enemy.update_state(ActionEnum.WALK, orientation=orientation)
         # add random range to the player position so that enemies don't clog up
-        new_pos = (player_pos[0] + random.randint(-self.attack_range, self.attack_range), player_pos[1] + random.randint(-self.attack_range, self.attack_range))
+        new_pos = (player_pos[0] + random.randint(-self.attack_range/2, self.attack_range/2), player_pos[1] + random.randint(-self.attack_range/2, self.attack_range/2))
         self.enemy.set_goal(new_pos)
 
 class PatrolBehavior(Behavior):

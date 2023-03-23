@@ -8,7 +8,7 @@ from weapons.monster import MonsterWeapon
 
 #probably create a general enemy class with a default functionalities and then reinstantiate if needed.
 class Enemy(Entity):
-    goal_tick_rate = 1000
+    goal_tick_rate = 800
 
     def __init__(self, collision_sprites, damageable_sprites, sprite_path, entity_rect, map, scale=1, **kwargs):
         super().__init__(damageable_sprites=damageable_sprites, **kwargs)

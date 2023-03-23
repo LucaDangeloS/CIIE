@@ -16,7 +16,7 @@ class Wasp(Enemy):
         entity_rect = Rect(pos[0], pos[1], 54, 54)
         sprite_path = '../sprites/enemies/wasp'
         super().__init__(collision_sprites, damageable_sprites, sprite_path, entity_rect, map, scale, facing_sprites='left')
-        self.health = 2
+        self.health = 1
         self.attack_range = 60
         self.behavior = ChaseBehavior(self, self.attack_range, 450)
         self.speed = 4
@@ -42,7 +42,7 @@ class Minotaur(Enemy):
         entity_rect = Rect(pos[0], pos[1], 128, 120)
         sprite_path = '../sprites/enemies/minotaur'
         super().__init__(collision_sprites, damageable_sprites, sprite_path, entity_rect, map, scale, facing_sprites='right')
-        self.health = 5
+        self.health = 3
         self.speed = 2
         # Random vectors
         patrol_points = [math.Vector2(pos[0] + random.randint(-600, 600), pos[1] + random.randint(-600, 600)) for _ in range(random.randint(3, 8))]
@@ -53,7 +53,7 @@ class Minotaur(Enemy):
         # Minotaur specific weapon
         weapon_hitbox = (self.rect.size[0] * 1.6, self.rect.size[1] * 1.2)
         weapon_damage = 2
-        weapon_cooldown = 16 * 50
+        weapon_cooldown = 16 * 100
         self.weapon = MonsterWeapon(self.rect.center, weapon_hitbox, weapon_cooldown, weapon_damage)
         self.sprite.set_attack_effective_idx(9)
 
@@ -87,7 +87,7 @@ class Ghost(Enemy):
         weapon_damage = 1
         weapon_cooldown = 10 * 40
         self.weapon = MonsterWeapon(self.rect.center, weapon_hitbox, weapon_cooldown, weapon_damage)
-        self.sprite.set_attack_effective_idx(10)
+        self.sprite.set_attack_effective_idx(11)
     
     # Ghosts attack by teleporting to the target
     def attack(self):
