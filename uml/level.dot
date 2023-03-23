@@ -1,4 +1,4 @@
-digraph "classes" {
+digraph "Level" {
 rankdir=BT
 charset="utf-8"
 "scene.SceneInterface" [color="black", fontcolor="black", label=<{SceneInterface|<br ALIGN="LEFT"/>|close_scene()<br ALIGN="LEFT"/><I>draw</I>(screen: pg.display)<br ALIGN="LEFT"/><I>get_player_data</I>()<br ALIGN="LEFT"/><I>handle_events</I>(event_list: list[pg.event.Event])<br ALIGN="LEFT"/><I>load_scene</I>()<br ALIGN="LEFT"/><I>set_player_data</I>(data)<br ALIGN="LEFT"/><I>update</I>()<br ALIGN="LEFT"/><I>update_screen_res</I>()<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
