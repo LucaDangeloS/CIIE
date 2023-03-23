@@ -83,13 +83,11 @@ class Level(SceneInterface):
         self.thrown_sprites = CameraSpriteGroup(self.screen_res)
         if not self.player:
             self.player = Player(self.collision_sprites, self.enemy_sprite_group, self.thrown_sprites, self.clock, 3)
-            self.player.set_pos(spawn)
-            self.player_sprite_group.add(self.player)
         else:
-            self.player_sprite_group.add(self.player)
-            self.player.set_pos(spawn)
             self.player.set_damageable_sprite_group(self.enemy_sprite_group)
             self.player.set_collision_sprites(self.collision_sprites)
+        self.player_sprite_group.add(self.player)
+        self.player.set_pos(spawn)
 
         # Settings items target group to the player
         for item in self.optional_items:
