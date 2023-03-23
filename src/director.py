@@ -88,9 +88,14 @@ class Director(object):
         scene.set_player_data(player_data)
         scene.load_scene()
 
+    def dead_scene(self):
+        scene, scene_track = self.director_stack[-1]
+
+        self.push_scene((scene.deadScene, "level1Music.mp3"))
+
     def close(self):
         self.run = False
-
+        
     def modify_screen_res(self, increment):
         self.res_idx = (self.res_idx + increment) % len(self.resolutions)
         self.res_idx = max(self.res_idx, 0)
