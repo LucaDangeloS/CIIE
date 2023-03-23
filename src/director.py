@@ -18,7 +18,6 @@ class Director(object):
     director_stack = []
     audio = Audio()
     run = True
-    current_scene_stack_item = None
 
     def __new__(cls):
         if not hasattr(cls, 'instance'):
@@ -57,7 +56,6 @@ class Director(object):
         self.audio.startMusic()
 
         self.director_stack.append(stack_element)
-        #self.current_scene_stack_item = stack_element
 
     def pop_scene_without_load(self):
         self.director_stack.pop()
@@ -75,18 +73,17 @@ class Director(object):
             self.close()
             return
 
-        player_data = self.current_scene_stack_item[0].get_player_data() if self.current_scene_stack_item else None
+        # Doesn't seem to be working
+        player_data = self.director_stack[-1][0].get_player_data()
         
-        
-        #self.current_scene_stack_item = self.director_stack.pop()
         self.director_stack.pop()
         scene, scene_track = self.director_stack[-1]
 
         self.audio.stopMusic()
         self.audio.change_track(scene_track)
         self.audio.startMusic()
-        scene.set_player_data(player_data)
         scene.load_scene()
+        scene.set_player_data(player_data)
 
     def dead_scene(self):
         scene, scene_track = self.director_stack[-1]
