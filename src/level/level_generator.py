@@ -171,6 +171,12 @@ class LevelGenerator():
 
 
 class SurfaceMapper():
+    def __init__(self, map_matrix, scale=1):
+        self.scale = scale
+        self.map_matrix = map_matrix
+        self.ground_sprite_pool = []
+        self.obst1_dict = {}
+        self.obst2_dict = {}
 
     def draw_lines(self, bitmask_dict, surf_size, sprite_size, surf, line):
         if line == 'top':
@@ -386,8 +392,7 @@ class Level_1_surface(SurfaceMapper):
         Maps ints to pygame images.
         Supports lists of tiles for randomization.
         '''
-        self.scale = scale
-        self.map_matrix = map_matrix
+        super().__init__(map_matrix, scale)
         
         sprite_size = (16,16)
     
@@ -437,8 +442,7 @@ class Level_1_surface(SurfaceMapper):
 
 class Level_2_surface(SurfaceMapper):
     def __init__(self, map_matrix, scale):
-        self.scale = scale
-        self.map_matrix = map_matrix
+        super().__init__(map_matrix, scale)
 
         grnd_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level2/ground.png'))
         self.ground_sprite_pool = grnd_spritesheet.load_tiled_style((16,16), scale=scale)
@@ -483,8 +487,7 @@ class Level_2_surface(SurfaceMapper):
 
 class Level_3_surface(SurfaceMapper):
     def __init__(self, map_matrix, scale):
-        self.scale = scale
-        self.map_matrix = map_matrix
+        super().__init__(map_matrix, scale)
 
         grnd_spritesheet = SpriteSheet(image.load('../sprites/environment_tileset/level3/ground.png'))
         self.ground_sprite_pool = grnd_spritesheet.load_tiled_style((16,16), scale=scale)
