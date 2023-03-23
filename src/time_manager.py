@@ -1,5 +1,6 @@
 import pygame as pg
 from pygame.locals import *
+from entities.player import Player
 
 
 class TimeManager():
@@ -23,7 +24,10 @@ class TimeManager():
     def take_snapshot(self, entity, pos):
         try:
             if pg.time.get_ticks() - self.last_step_dict[entity] > self.snapshot_cooldown:
-                self.snapshot_list[self.snapshot_idx].append((entity, pos))
+                if isinstance(entity, Player):
+                    self.snapshot_list[self.snapshot_idx].append((entity, pos, entity.health))
+                else:
+                    self.snapshot_list[self.snapshot_idx].append((entity, pos))
                 self.last_step_dict[entity] = pg.time.get_ticks()
             if pg.time.get_ticks() - self.list_step > self.snapshot_cooldown:
                 if self.amount_of_snapshots != self.snapshot_len:

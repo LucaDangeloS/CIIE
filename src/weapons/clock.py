@@ -43,8 +43,12 @@ class Clock(pg.sprite.Sprite):
         snapshot = self.time_manager.get_snapshot()
 
         self.draw_blur(self.screen)
-        for entity, pos in snapshot:
-            entity.rect.center = pos          
+        for i in range(len(snapshot)):
+            entity, pos = snapshot[i][0], snapshot[i][1]
+            entity.rect.center = pos 
+            if len(snapshot[i]) == 3: #we are checking the player
+                entity.health = snapshot[i][2]
+                entity.health_ui.update(entity.health)
 
     def draw_blur(self, screen):
         cover = pg.Surface(screen.get_size())
