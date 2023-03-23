@@ -8,7 +8,7 @@ from scene import SceneInterface
 from entities.player import Player
 from level.camera import CameraSpriteGroup
 from entities.enemies.enemies import Ghost, Minotaur, Wasp
-from level.level_generator import LevelGenerator, Level_1_surface, Level_2_surface, Level_3_surface
+from level.level_generator import LevelGenerator, Level_1_surface, Level_2_surface, Level_3_surface, SurfaceMapper
 from weapons.clock import Clock
 from director import Director
 
@@ -22,7 +22,7 @@ class Level(SceneInterface):
     def __init__(self, controller, screen_res, scale=1, level_size=(6, 6), *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.font:
-            self.font = pg.font.SysFont(None, 48)
+            self.font = pg.font.SysFont(None, 44)
         self.controller = controller
         self.screen_res = screen_res
         self.scale = scale
@@ -33,14 +33,6 @@ class Level(SceneInterface):
         self.sprite_size = (16, 16)
         self.chunk_size = 4
         self.scaling_factors = (self.sprite_size[0] * self.scale * self.chunk_size, self.sprite_size[1] * self.scale * self.chunk_size)
-
-        '''
-        self.visible_sprites =  CameraSpriteGroup(self.screen_res)
-        self.objective_items = CameraSpriteGroup(self.screen_res)
-        self.player_sprite_group = CameraSpriteGroup(self.screen_res)
-        self.enemy_sprite_group = CameraSpriteGroup(self.screen_res)
-        self.thrown_sprites = CameraSpriteGroup(self.screen_res)
-        '''
 
 
     def load_scene(self):
@@ -177,13 +169,6 @@ class Level(SceneInterface):
         if self.enemies_amount < self.enemies_goal:
             screen.blit(self.enemies_goal_text, (self.screen_res[0] - 450, self.screen_res[1] - 140))
 
-
-        # Enemy hitboxes
-        # for enemy in self.enemy_sprite_group:
-        #     self.visible_sprites.debug_draw(self.player, screen, enemy.weapon.rect)
-        #     self.visible_sprites.debug_draw(self.player, screen, enemy.rect, color='green')
-        # for item in self.objective_items:
-        #     self.visible_sprites.debug_draw(self.player, screen, item.rect, color='green')
         
         self.user_interface_group.draw(screen)
     
@@ -202,17 +187,17 @@ class Level(SceneInterface):
 class Level_1(Level):
     def _generate(self, levelGenerator):
         self.enemy_pool = [Wasp]
-        surface = Level_1_surface
-        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=surface, enemy_pool=self.enemy_pool)
+        self.surface: SurfaceMapper = Level_1_surface
+        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=self.surface, enemy_pool=self.enemy_pool)
 
 class Level_2(Level):
     def _generate(self, levelGenerator):
         self.enemy_pool = [Minotaur]
-        surface = Level_2_surface
-        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=surface, enemy_pool=self.enemy_pool)
+        self.surface: SurfaceMapper = Level_2_surface
+        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=self.surface, enemy_pool=self.enemy_pool)
 
 class Level_3(Level):
     def _generate(self, levelGenerator):
         self.enemy_pool = [Ghost]
-        surface = Level_3_surface
-        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=surface, enemy_pool=self.enemy_pool)
+        self.surface: SurfaceMapper = Level_3_surface
+        return levelGenerator.generate_map(3, lower_threshold=-0.75, upper_threshold=0.75, surface_mapper_cls=self.surface, enemy_pool=self.enemy_pool)
