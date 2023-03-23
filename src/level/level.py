@@ -79,13 +79,8 @@ class Level(SceneInterface):
             enemy.add_drawing_sprite_group(self.visible_sprites)
             self.enemy_sprite_group.add(enemy)
 
-        #player needs to be instantiated after the damagable_sprites
         self.thrown_sprites = CameraSpriteGroup(self.screen_res)
-        if not self.player:
-            self.player = Player(self.collision_sprites, self.enemy_sprite_group, self.thrown_sprites, self.clock, 3)
-        else:
-            self.player.set_damageable_sprite_group(self.enemy_sprite_group)
-            self.player.set_collision_sprites(self.collision_sprites)
+        self.player = Player(self.collision_sprites, self.enemy_sprite_group, self.thrown_sprites, self.clock, 3)
         self.player_sprite_group.add(self.player)
         self.player.set_pos(spawn)
 
@@ -184,12 +179,12 @@ class Level(SceneInterface):
         return self.enemy_sprite_group
     
     def get_player_data(self):
-        return self.player
+        return self.player.health
 
     def set_player_data(self, player_data):
         if not player_data:
             return
-        self.player = player_data
+        self.player.health = player_data
 
 
 class Level_1(Level):
