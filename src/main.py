@@ -59,7 +59,7 @@ size_button = SettingsButton('resolution', 4, lambda:None, spritesheet, Rect(x,y
 #back button
 x, y = 850, 470
 spritesheet = pg.image.load('../sprites/menu/back_sett.png')
-back_button = Button(director.pop_scene, spritesheet, pg.Rect(x,y,50,50), 3, (0,0,50,50))
+back_button = Button(director.pop_scene, spritesheet, pg.Rect(x,y,150,70), 3, (0,0,50,50))
 
 
 intermediate_back = pg.image.load('../sprites/menu/settings.png')
@@ -74,13 +74,13 @@ menuSettings = GeneralMenu(backgrounds, buttons, director.screen, controller)
 
 
 x, y = (screen_res[0] // 2) - 48*3, screen_res[1] // 3 
-btt_play = Button(director.pop_scene, pg.image.load('../sprites/menu/buttons.png'), Rect(x,y,200,100), 3, (0, 0,97,41))
+btt_play = Button(director.pop_scene, pg.image.load('../sprites/menu/buttons.png'), Rect(x,y,280,150), 3, (0, 0,97,41))
 
 y += screen_res[1] // 6 
-btt_settings = Button(lambda: director.push_scene((menuSettings, "music.ogg")),  pg.image.load('../sprites/menu/buttons.png'), Rect(x,y,200,100),3, (0, 41,97,41))
+btt_settings = Button(lambda: director.push_scene((menuSettings, "music.ogg")),  pg.image.load('../sprites/menu/buttons.png'), Rect(x,y,280,150),3, (0, 41,97,41))
 
-y += screen_res[1] // 6 
-btt_exit = Button(director.close, pg.image.load('../sprites/menu/buttons.png'),  Rect(x,y,200,100), 3, (0, 83, 97, 41))
+y += screen_res[1] // 6
+btt_exit = Button(director.close, pg.image.load('../sprites/menu/buttons.png'),  Rect(x,y,280,150), 3, (0, 83, 97, 41))
 
 
 mainMenu = GeneralMenu([(background_img, screen_res, (0,0))], [btt_play, btt_settings, btt_exit], director.screen, controller)
@@ -89,7 +89,7 @@ mainMenu = GeneralMenu([(background_img, screen_res, (0,0))], [btt_play, btt_set
 
 
 spritesheet = pg.image.load('../sprites/menu/back_sett.png')
-back_pause_button = Button(director.pop_scene_without_load, spritesheet, pg.Rect(screen_res[0]//2 - 77,screen_res[1]//2 + 60,50,50), 3, (0,0,50,50))
+back_pause_button = Button(director.pop_scene_without_load, spritesheet, pg.Rect(screen_res[0]//2 - 77,screen_res[1]//2 + 60,150,70), 3, (0,0,50,50))
 
 intermediate_back = pg.image.load('../sprites/menu/settings.png')
 pauseMenu = PauseMenu(director, [(intermediate_back, (screen_res[0]//2, screen_res[1]//2), (screen_res[0]//4,screen_res[1]//4))], [back_pause_button], director.screen, controller)
