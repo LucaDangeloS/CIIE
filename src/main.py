@@ -5,10 +5,10 @@ from menu import Menu, Button
 from settings import *
 from director import Director
 from controller import KeyboardController, JoystickController
-from level.level import Level_1, Level_2, Level_3
+from level.level import Level_1, Level_2, Level_3, Level
 from level.level_generator import LevelGenerator
 from audio import Audio
-from new_menu import Button, SettingsButton, Menu, GeneralMenu
+from new_menu import Button, SettingsButton, GeneralMenu, PauseMenu
 
 
 pg.init()
@@ -22,31 +22,20 @@ controller = KeyboardController()
 screen_res = director.screen.get_size()
 
 
+
+
 level = Level_1(controller, director.screen.get_size(), scale=3)
 level_2 = Level_2(controller, director.screen.get_size(), scale=3)
 level_3 = Level_3(controller, director.screen.get_size(), scale=3)
-
 
 director.push_scene((level_3, "level3Music.mp3")) # TODO: change music
 director.push_scene((level_2, "level2Music.mp3")) # TODO: change music
 director.push_scene((level, "level1Music.mp3"))
 
-'''
-menuSettings = Settings(controller, pg.image.load('../sprites/menu/background.png'), director.screen)
 
-#Buttons for initial menu:
-x, y = (screen_res[0] // 2) - 48*3, screen_res[1] // 3
 
-# Menu buttons
-btt_play = Button(director.pop_scene, pg.image.load('../sprites/menu/buttons.png'), (0, 0,97,41), Rect(x,y,200,100), 3)
-y += screen_res[1] // 6
-btt_settings = Button(lambda: director.push_scene((menuSettings, "music.ogg")),  pg.image.load('../sprites/menu/buttons.png'), (0, 41,97,41), Rect(x,y,200,100),3)
 
-y += screen_res[1] // 6
-btt_exit = Button(lambda: director.close(), pg.image.load('../sprites/menu/buttons.png'), (0, 83, 97, 41),  Rect(x,y,200,100), 3)
-mainMenu = Menu(pg.image.load('../sprites/menu/background.png'), [btt_play, btt_settings, btt_exit], director.screen)
 
-'''
 #Buttons for initial menu:
 
 x, y = 250, 210
@@ -73,8 +62,8 @@ spritesheet = pg.image.load('../sprites/menu/back_sett.png')
 back_button = Button(director.pop_scene, spritesheet, pg.Rect(x,y,50,50), 3, (0,0,50,50))
 
 
-background_img = pg.image.load('../sprites/menu/background.png')
 intermediate_back = pg.image.load('../sprites/menu/settings.png')
+background_img = pg.image.load('../sprites/menu/background.png')
 backgrounds = [(background_img, screen_res,(0,0)), (intermediate_back, (screen_res[0]//(4/3), screen_res[1]//(4/3)),(screen_res[0]//8,screen_res[1]//8))]
 buttons = [music_button, sound_button, size_button, back_button]
 
@@ -95,6 +84,21 @@ btt_exit = Button(director.close, pg.image.load('../sprites/menu/buttons.png'), 
 
 
 mainMenu = GeneralMenu([(background_img, screen_res, (0,0))], [btt_play, btt_settings, btt_exit], director.screen, controller)
+
+
+
+
+spritesheet = pg.image.load('../sprites/menu/back_sett.png')
+back_pause_button = Button(director.pop_scene_without_load, spritesheet, pg.Rect(screen_res[0]//2 - 77,screen_res[1]//2 + 60,50,50), 3, (0,0,50,50))
+
+intermediate_back = pg.image.load('../sprites/menu/settings.png')
+pauseMenu = PauseMenu(director, [(intermediate_back, (screen_res[0]//2, screen_res[1]//2), (screen_res[0]//4,screen_res[1]//4))], [back_pause_button], director.screen, controller)
+
+Level.pauseMenu = pauseMenu
+
+deadScene = None
+
+level.deadScene = deadScene
 
 
 

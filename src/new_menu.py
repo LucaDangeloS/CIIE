@@ -109,7 +109,7 @@ class Menu(SceneInterface):
         pass
 
     def handle_events(self, event_list):
-     for event in event_list:
+        for event in event_list:
             if event.type == MOUSEBUTTONDOWN:
                 self.clicked_button = None #reset the previous pressdown
                 for button in self.buttons:
@@ -170,6 +170,20 @@ class GeneralMenu(Menu):
             #self.background_img = pg.transform.scale(self.background_img, new_res)
 
         self.current_res = new_res
+    
+class PauseMenu(GeneralMenu):
+    def __init__(self, director, *args, **kwargs):
+        self.director = director
+        super().__init__(*args, **kwargs)
+
+    def handle_events(self, event_list):
+        actions = self.controller.get_input(event_list)
+        if (True,'escape') in actions:
+            self.director.pop_scene_without_load()
+        else:
+            super().handle_events(event_list)
+       
+
 """
 pg.init()
 run = True

@@ -14,6 +14,10 @@ from director import Director
 
 class Level(SceneInterface):
     rewind = False
+    director = Director()
+
+    pauseMenu = None
+    deadScene = None
     font = None
 
     def _generate(self, levelGenerator):
@@ -107,7 +111,9 @@ class Level(SceneInterface):
 
     def update_screen_res(self, screen:pg.Surface):
         self.screen_res = screen.get_size()
-        CameraSpriteGroup.update_screen_resolution(self.screen_res)
+        CameraSpriteGroup.update_screen_resolution(CameraSpriteGroup, self.screen_res)
+
+        self.pauseMenu.update_screen_res(screen)
 
     #if the controller changes, the director will go through every scene updating the controller.
     def update_controller(self, controller):
@@ -156,6 +162,10 @@ class Level(SceneInterface):
     def handle_events(self, event_list):
         #here we could alter between player_control and scene animations
         actions = self.controller.get_input(event_list) 
+
+        if (True, "escape") in actions:
+            self.director.push_scene((self.pauseMenu, "music.ogg"))
+
         self.player.handle_input(actions)
 
     def draw(self, screen):

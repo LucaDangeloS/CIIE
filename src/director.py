@@ -59,6 +59,16 @@ class Director(object):
         self.director_stack.append(stack_element)
         #self.current_scene_stack_item = stack_element
 
+    def pop_scene_without_load(self):
+        self.director_stack.pop()
+        scene, scene_track = self.director_stack[-1]
+
+        self.audio.stopMusic()
+        self.audio.change_track(scene_track)
+        self.audio.startMusic()
+ 
+
+
     def pop_scene(self):
         #close the current execution
         if not self.director_stack:
