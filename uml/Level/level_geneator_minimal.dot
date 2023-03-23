@@ -1,0 +1,3 @@
+digraph "level_generator" {
+"level_generator.LevelGenerator" [color="black", fontcolor="black", label=<LevelGenerator>, shape="record", style="solid"];
+}
