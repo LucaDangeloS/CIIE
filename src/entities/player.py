@@ -6,9 +6,7 @@ from entities.sprites import Sprite_handler, ActionEnum
 from entities.entity import Entity
 from weapons.stick import Stick
 from weapons.slipper import Slipper, WeaponPool
-import time
 from entities.ui import PlayerHealthUI
-
 
 
 class Player(Entity):
@@ -130,7 +128,6 @@ class Player(Entity):
 
     def heal(self, amount):
         super().heal(amount)
-        print(self.health)
         self.health_ui.update(self.health)
 
     def receive_damage(self, damage_amount):
