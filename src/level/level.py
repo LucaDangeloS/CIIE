@@ -137,12 +137,9 @@ class Level(SceneInterface):
 
         # Watch pieces remaining text
         if pieces := len(self.objective_items):
-            self.objective_text = self.font.render(f"{pieces} watch piece{'s' if pieces>1 else ''} remaining", True, (255, 255, 255))
+            if not self.completed:
+                self.objective_text = self.font.render(f"{pieces} watch piece{'s' if pieces>1 else ''} remaining", True, (255, 255, 255))
         else:
-            self.objective_text = self.font.render(" ", True, (255, 255, 255))
-
-        if len(self.objective_items) == 0:
-
             if self.completed:
                 self.close_scene()
                 return True
@@ -157,6 +154,8 @@ class Level(SceneInterface):
                         )
                 self.objective_text = self.font.render("Portal open!", True, (255, 255, 255))
                 self.objective_items.add(portal)
+            else:
+                self.objective_text = self.font.render(" ", True, (255, 255, 255))
         return False
 
     def handle_events(self, event_list):
