@@ -47,31 +47,6 @@ class SpriteSheet(): #should reimplement this using sprite.Sprite
 
         return sprite_list
 
-def csv_to_list(csv_reader):
-    element = next(csv_reader, -1)
-    result = []
-    while not element == -1:
-        result.append(element)
-        element = next(csv_reader, -1)
-    return result
-
-def load_csv_into_surface(csv_reader, sprite_list, tile_size):
-    t_w, t_h = tile_size
-    map_list = csv_to_list(csv_reader)
-
-    map_srf = pg.Surface((t_w*len(map_list[0]), t_h*len(map_list)),  pg.SRCALPHA, 32).convert_alpha() #make the surface transparent by default
-
-    for row_idx, row in enumerate(map_list):
-        for col_idx, value in enumerate(row):
-            if value != '-1':
-                map_srf.blit(sprite_list[int(value)], (col_idx*t_w, row_idx*t_h)) 
-
-    return map_srf
-
-
-#need to refine my csv animation indications.
-
-
 #use this class to store the sprites, the animations and iterate through them
 class Sprite_handler():
     
