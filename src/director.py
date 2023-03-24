@@ -41,14 +41,14 @@ class Director(object):
                 if event.type == QUIT: 
                     return
                 #if event.key == pg.K_ESCAPE:
+            
+            pg.display.update()
 
             scene, track_path = self.director_stack[-1]
             scene.draw(self.screen)
             scene.handle_events(event_list)
             scene.update()
-            pg.display.update()
         
-        pg.quit()
 
     def push_scene(self, stack_element):
         self.audio.stopMusic()
