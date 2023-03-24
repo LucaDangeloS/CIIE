@@ -8,7 +8,7 @@ from controller import KeyboardController, JoystickController
 from level.level import Level_1, Level_2, Level_3, Level
 from level.level_generator import LevelGenerator
 from audio import Audio
-from new_menu import Button, SettingsButton, GeneralMenu, PauseMenu
+from menu import Button, SettingsButton, GeneralMenu, PauseMenu
 
 
 pg.init()
