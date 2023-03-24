@@ -35,10 +35,10 @@ class PlayerHealthUI(UIElement):
             if health_amount >= 2: #draw full heart
                 surface.blit(self.image_list[0], (x, self.rect.y))
                 health_amount -= 2
-            elif health_amount == 1:
+            elif health_amount == 1: #draw half a heart
                 surface.blit(self.image_list[1], (x, self.rect.y))
                 health_amount -= 1
-            else:
+            else: #draw nothing
                 surface.blit(self.image_list[2], (x, self.rect.y))
         
         self.image = surface
